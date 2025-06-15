@@ -347,7 +347,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📺 Resources
 
 - **🎬 [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Live demonstration of the framework
-- **📈 [Latest Test Report](reports/latest-test-report.html)** - Most recent test execution results
+- **📈 [Latest Test Report](reports/test/latest-test-report.html)** - Most recent test execution results
 - **📖 [Medium Article](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - Detailed explanation and benefits
 - **🛠️ [Claude Code](https://claude.ai/code)** - AI-powered development environment
 - **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - Browser automation integration

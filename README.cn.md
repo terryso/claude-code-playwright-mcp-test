@@ -347,7 +347,7 @@ test-cases:
 ## 📺 相关资源
 
 - **🎬 [演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - 框架实际演示
-- **📈 [最新测试报告](reports/latest-test-report.html)** - 最近的测试执行结果
+- **📈 [最新测试报告](reports/test/latest-test-report.html)** - 最近的测试执行结果
 - **📖 [Medium文章](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - 详细解释和优势
 - **🛠️ [Claude Code](https://claude.ai/code)** - AI驱动的开发环境
 - **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - 浏览器自动化集成
