@@ -1,0 +1,5 @@
+# steps/cleanup.yml
+# Supported environment variables: SCREENSHOT_PATH
+steps:
+  - "Click Back Home button"
+  - "Save screenshot as {{SCREENSHOT_PATH}}/cleanup-complete.png"

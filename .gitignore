@@ -1,0 +1,30 @@
+# Screenshots directory
+screenshots/
+
+# Reports directory  
+reports/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Keep environment templates but ignore actual config files
+!.env.example
+!.env.dev
+!.env.test  
+!.env.prod
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,8 @@
+# steps/login.yml
+# Supported environment variables: BASE_URL, TEST_USERNAME, TEST_PASSWORD
+steps:
+  - "Open {{BASE_URL}} page"
+  - "Fill username field with {{TEST_USERNAME}}"
+  - "Fill password field with {{TEST_PASSWORD}}"
+  - "Click login button"
+  - "Verify page displays Swag Labs"

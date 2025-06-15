@@ -1,0 +1,18 @@
+# Environment variables are automatically loaded from .env.{environment} files
+# Supported environment variables: BASE_URL, TEST_USERNAME, TEST_PASSWORD, SCREENSHOT_PATH
+tags: 
+  - smoke
+  - order
+  - checkout
+steps:
+  - include: "login"
+  - "Click Add to Cart button for first product"
+  - "Click Add to Cart button for second product"
+  - "Click shopping cart icon in top right"
+  - "Enter First Name"
+  - "Enter Last Name"
+  - "Enter Postal Code"
+  - "Click Continue button"
+  - "Click Finish button"
+  - "Verify page displays Thank you for your order!"
+  - include: "cleanup"
