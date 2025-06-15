@@ -20,7 +20,7 @@ Watch the live demonstration of YAML-based Playwright testing in action:
 
 View the most recent test execution report:
 
-**📈 [Latest Test Report](reports/latest-test-report.html)** - Automatically generated after each test run, showing detailed execution results, screenshots, and performance metrics.
+**📈 [Latest Test Report](reports/test/latest-test-report.html)** - Automatically generated after each test run, showing detailed execution results, screenshots, and performance metrics.
 
 ### Sample Test Report
 

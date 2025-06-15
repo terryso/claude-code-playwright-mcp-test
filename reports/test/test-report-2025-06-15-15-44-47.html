@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Test Report - Overview</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            margin: 10px 0 20px 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .header .meta {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+            line-height: 1;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-desc {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .blue { color: #3b82f6; }
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+        .purple { color: #8b5cf6; }
+        .orange { color: #f59e0b; }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin: 0 0 20px 0;
+            color: #1f2937;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .config-table th,
+        .config-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .config-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .config-table td:first-child {
+            font-weight: 500;
+        }
+        .success-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .failure-badge {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .enabled-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        .icon { font-size: 1.2em; }
+        .loading { text-align: center; padding: 50px; color: #666; }
+        .error { color: #ef4444; background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 YAML Test Overview</h1>
+        <div class="subtitle">Quick Test Results Summary</div>
+        <div class="meta">
+            Generated: 6/15/2025, 3:44:47 PM | Environment: dev | Tags: smoke
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Cases</div>
+                <div class="stat-number blue">2</div>
+                <div class="stat-desc">Test cases executed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Passed</div>
+                <div class="stat-number green">2</div>
+                <div class="stat-desc">Successful executions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Failed</div>
+                <div class="stat-number red">0</div>
+                <div class="stat-desc">Failed executions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Success Rate</div>
+                <div class="stat-number green">100%</div>
+                <div class="stat-desc">Overall success rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Steps</div>
+                <div class="stat-number purple">25</div>
+                <div class="stat-desc">Including step libraries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Duration</div>
+                <div class="stat-number blue">45s</div>
+                <div class="stat-desc">Total execution time</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">📈</span> Test Summary</h2>
+            <div>
+                <div style="background: #dcfce7; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+                    <h3 style="color: #166534; margin: 0 0 10px 0;">
+                        ✅ All Tests Passed!
+                    </h3>
+                    <p style="color: #166534; margin: 0; font-size: 1.1em;">
+                        All 2 test cases executed successfully.
+                    </p>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%;"></div>
+            </div>
+            <div style="margin-top: 15px; text-align: center; color: #6b7280;">
+                2 passed, 0 failed (100% success rate)
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">⚙️</span> Configuration</h2>
+            <table class="config-table">
+                <tr><th>Environment</th><td>dev (.env.dev)</td></tr>
+                <tr><th>Base URL</th><td>https://www.saucedemo.com/</td></tr>
+                <tr><th>Tag Filter</th><td>smoke</td></tr>
+                <tr><th>Report Format</th><td>HTML</td></tr>
+                <tr><th>Execution Time</th><td>45s</td></tr>
+                <tr><th>Report Generation</th><td><span class="enabled-badge">✓ Enabled</span></td></tr>
+            </table>
+        </div>
+
+        <div class="actions">
+            <a href="test-data-overview-2025-06-15-15-44-47.json" target="_blank" class="btn">📄 View Raw Data</a>
+        </div>
+    </div>
+</body>
+</html>

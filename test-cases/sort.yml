@@ -1,0 +1,11 @@
+# Environment variables are automatically loaded from .env.{environment} files
+# Supported environment variables: BASE_URL, TEST_USERNAME, TEST_PASSWORD, SCREENSHOT_PATH
+tags: 
+  - smoke
+  - sort
+steps:
+  - include: "login"
+  - "Click sorting dropdown, select Price(low to high)"
+  - "Verify first product price is $7.99"
+  - "Click sorting dropdown, select Price(high to low)"
+  - "Verify first product price is $49.99"

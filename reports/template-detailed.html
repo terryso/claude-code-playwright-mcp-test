@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Test Report - Detailed</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header .subtitle {
+            margin: 10px 0 20px 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .header .meta {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+            line-height: 1;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-desc {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        .blue { color: #3b82f6; }
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+        .purple { color: #8b5cf6; }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin: 0 0 20px 0;
+            color: #1f2937;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h3 {
+            color: #4b5563;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        .step {
+            margin: 8px 0;
+            padding: 12px 16px;
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9em;
+        }
+        .step::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .config-table th,
+        .config-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .config-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .config-table td:first-child {
+            font-weight: 500;
+        }
+        .success-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .enabled-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        .tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.8em;
+            margin: 2px 4px;
+            font-weight: 500;
+        }
+        .test-case {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .icon { font-size: 1.2em; }
+        .loading { text-align: center; padding: 50px; color: #666; }
+        .error { color: #ef4444; background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">
+        <h2>📊 Loading Test Report...</h2>
+        <p>Please wait while we load the test data...</p>
+    </div>
+
+    <div id="report-content" style="display: none;">
+        <div class="header">
+            <h1>📝 YAML Test Report - Detailed</h1>
+            <div class="subtitle">Automated Test Execution Report based on Playwright MCP</div>
+            <div class="meta" id="header-meta">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="stats-grid" id="stats-grid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">📊</span> Report Configuration</h2>
+                <div id="config-info">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <table class="config-table" id="config-table">
+                    <!-- Will be populated by JavaScript -->
+                </table>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">📋</span> Test Execution Details</h2>
+                <div id="test-cases">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">📚</span> Step Libraries Used</h2>
+                <table class="config-table" id="libraries-table">
+                    <!-- Will be populated by JavaScript -->
+                </table>
+            </div>
+
+            <div class="section">
+                <h2><span class="icon">📁</span> Generated Files</h2>
+                <table class="config-table" id="files-table">
+                    <!-- Will be populated by JavaScript -->
+                </table>
+            </div>
+
+            <div class="section" id="summary-section">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+        <h3>❌ Error Loading Report</h3>
+        <p>Failed to load test data. Please check if the JSON file exists and is valid.</p>
+    </div>
+
+    <script>
+        // Get report ID from URL parameter or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const reportId = urlParams.get('report') || 'test-report-2025-06-15-00-05-51';
+        const jsonFile = reportId === 'test-report-2025-06-15-01-15-30' 
+            ? `test-data-2025-06-15-00-05-51.json`  // Use existing detailed data
+            : `test-data-${reportId.replace('test-report-', '')}.json`;
+
+        async function loadTestData() {
+            try {
+                const response = await fetch(jsonFile);
+                if (!response.ok) throw new Error('Failed to load test data');
+                
+                const data = await response.json();
+                renderReport(data);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('report-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading test data:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function renderReport(data) {
+            // Render header
+            const headerMeta = document.getElementById('header-meta');
+            headerMeta.innerHTML = `
+                Generated: ${new Date(data.metadata.timestamp).toLocaleString()} | 
+                Environment: ${data.metadata.environment} | 
+                ${data.metadata.tagFilter ? `Tags: ${data.metadata.tagFilter} | ` : ''}
+                Report Generation: <span class="enabled-badge">✓ Enabled</span>
+            `;
+
+            // Render stats
+            const statsGrid = document.getElementById('stats-grid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">Total Test Cases</div>
+                    <div class="stat-number blue">${data.summary.totalTestCases}</div>
+                    <div class="stat-desc">Number of executed test cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Passed</div>
+                    <div class="stat-number green">${data.summary.passedTestCases}</div>
+                    <div class="stat-desc">Successfully executed test cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Failed</div>
+                    <div class="stat-number red">${data.summary.failedTestCases}</div>
+                    <div class="stat-desc">Failed test case executions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Steps</div>
+                    <div class="stat-number purple">${data.summary.totalSteps}</div>
+                    <div class="stat-desc">Including referenced step libraries</div>
+                </div>
+            `;
+
+            // Render configuration
+            const configInfo = document.getElementById('config-info');
+            configInfo.innerHTML = `
+                <div style="background: #f0f9ff; padding: 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px;">
+                    <strong>✅ Report Generation Enabled</strong><br>
+                    <span style="color: #6b7280; font-size: 0.9em;">This test report was automatically generated based on the environment variable <code>GENERATE_REPORT=true</code></span>
+                </div>
+            `;
+
+            const configTable = document.getElementById('config-table');
+            configTable.innerHTML = `
+                <tr><th>Report Format</th><td>HTML (configured via REPORT_FORMAT=${data.configuration.reportFormat})</td></tr>
+                <tr><th>Report Path</th><td>${data.configuration.reportPath} (configured via REPORT_PATH)</td></tr>
+                <tr><th>Report ID</th><td>${data.metadata.reportId}</td></tr>
+                <tr><th>Screenshot Path</th><td>${data.configuration.screenshotPath} (configured via SCREENSHOT_PATH)</td></tr>
+                <tr><th>Configuration Source</th><td>${data.configuration.configSource} environment configuration file</td></tr>
+                ${data.metadata.tagFilter ? `<tr><th>Tag Filter</th><td>${data.metadata.tagFilter}</td></tr>` : ''}
+                <tr><th>Execution Time</th><td>${data.summary.executionTime}</td></tr>
+            `;
+
+            // Render test cases
+            const testCases = document.getElementById('test-cases');
+            testCases.innerHTML = data.testCases.map((testCase, index) => `
+                <div class="test-case">
+                    <h3>Test Case ${index + 1}: ${testCase.name}</h3>
+                    <div style="margin: 10px 0;">
+                        ${testCase.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    
+                    ${testCase.steps.map(stepGroup => `
+                        <h4>${stepGroup.category}:</h4>
+                        ${stepGroup.steps.map(step => `<div class="step">${step}</div>`).join('')}
+                    `).join('')}
+                    
+                    <div style="margin-top: 20px; padding: 16px; background: #f0f9ff; border-radius: 8px;">
+                        <h4 style="margin: 0 0 10px 0; color: #1f2937;">📈 Test Results:</h4>
+                        <p><strong>Status:</strong> <span class="success-badge">${testCase.status.toUpperCase()}</span></p>
+                        <p><strong>Duration:</strong> ${testCase.duration}</p>
+                        <p><strong>Total Steps:</strong> ${testCase.totalSteps}</p>
+                        <p><strong>Completed Steps:</strong> ${testCase.completedSteps}</p>
+                        ${Object.entries(testCase.results).map(([key, value]) => 
+                            `<p><strong>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> ${value}</p>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Render step libraries
+            const librariesTable = document.getElementById('libraries-table');
+            librariesTable.innerHTML = `
+                <tr><th>Library</th><th>Used In</th><th>Steps</th><th>Purpose</th></tr>
+                ${data.stepLibraries.map(lib => `
+                    <tr>
+                        <td><strong>${lib.name}</strong></td>
+                        <td>${lib.usedIn.join(', ')}</td>
+                        <td>${lib.steps} steps</td>
+                        <td>${lib.purpose}</td>
+                    </tr>
+                `).join('')}
+            `;
+
+            // Render generated files
+            const filesTable = document.getElementById('files-table');
+            filesTable.innerHTML = `
+                <tr><th>File Type</th><th>Location</th><th>Status</th></tr>
+                ${data.generatedFiles.map(file => `
+                    <tr>
+                        <td><strong>${file.type}</strong></td>
+                        <td>${file.location}</td>
+                        <td><span class="success-badge">✓ ${file.status}</span></td>
+                    </tr>
+                `).join('')}
+            `;
+
+            // Render summary
+            const summarySection = document.getElementById('summary-section');
+            const allPassed = data.summary.failedTestCases === 0;
+            summarySection.innerHTML = `
+                <h2><span class="icon">🏆</span> Summary</h2>
+                <div style="background: ${allPassed ? '#dcfce7' : '#fef2f2'}; padding: 20px; border-radius: 8px; border-left: 4px solid ${allPassed ? '#10b981' : '#ef4444'};">
+                    <h3 style="color: ${allPassed ? '#166534' : '#dc2626'}; margin: 0 0 10px 0;">
+                        ${allPassed ? '✅ All Tests Passed!' : '❌ Some Tests Failed'}
+                    </h3>
+                    <p style="color: ${allPassed ? '#166534' : '#dc2626'}; margin: 0;">
+                        ${allPassed 
+                            ? `Successfully executed all ${data.summary.totalTestCases} test cases. Success rate: ${data.summary.successRate}`
+                            : `${data.summary.failedTestCases} out of ${data.summary.totalTestCases} test cases failed.`
+                        }
+                    </p>
+                </div>
+            `;
+        }
+
+        // Load data when page loads
+        window.addEventListener('load', loadTestData);
+    </script>
+</body>
+</html>
