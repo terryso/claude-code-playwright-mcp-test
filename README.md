@@ -26,7 +26,7 @@ View the most recent test execution report:
 
 Here's what a typical test execution report looks like:
 
-![YAML Test Report Sample](https://github.com/terryso/claude-code-playwright-mcp-test/assets/test-report-sample.png)
+![YAML Test Report Sample](https://github.com/terryso/claude-code-playwright-mcp-test/blob/develop/assets/test-report-sample.png)
 
 **Report Features:**
 - 📊 **Comprehensive Statistics**: Total cases, passed/failed counts, step execution details

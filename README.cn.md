@@ -26,7 +26,7 @@
 
 以下是典型测试执行报告的展示：
 
-![YAML测试报告示例](https://github.com/terryso/claude-code-playwright-mcp-test/assets/test-report-sample.png)
+![YAML测试报告示例](https://github.com/terryso/claude-code-playwright-mcp-test/blob/develop/assets/test-report-sample.png)
 
 **报告特性：**
 - 📊 **综合统计**: 总用例数、通过/失败计数、步骤执行详情
