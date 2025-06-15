@@ -22,6 +22,18 @@ View the most recent test execution report:
 
 **📈 [Latest Test Report](reports/latest-test-report.html)** - Automatically generated after each test run, showing detailed execution results, screenshots, and performance metrics.
 
+### Sample Test Report
+
+Here's what a typical test execution report looks like:
+
+![YAML Test Report Sample](https://github.com/terryso/claude-code-playwright-mcp-test/assets/test-report-sample.png)
+
+**Report Features:**
+- 📊 **Comprehensive Statistics**: Total cases, passed/failed counts, step execution details
+- 📋 **Configuration Details**: Environment settings, report generation settings, file paths
+- 🎯 **Success Metrics**: Clear visualization of test results and success rates
+- 🔧 **Environment Info**: Automatic detection and display of test environment configuration
+
 ## 🌟 Key Features
 
 - **🌍 Multi-Environment Support**: Support for dev/test/prod environments with automatic configuration loading
