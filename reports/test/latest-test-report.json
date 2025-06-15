@@ -1,0 +1,176 @@
+{
+  "testReport": {
+    "metadata": {
+      "reportName": "YAML Test Report - Order Test",
+      "generatedAt": "2025-06-15T10:30:00Z",
+      "environment": "dev",
+      "framework": "Claude Code YAML Testing Framework",
+      "executor": "Playwright MCP",
+      "language": "en"
+    },
+    "configuration": {
+      "envFile": ".env.dev",
+      "baseUrl": "https://www.saucedemo.com/",
+      "testUsername": "standard_user",
+      "browserTimeout": 45000,
+      "generateReport": true,
+      "reportFormat": "html",
+      "reportPath": "reports/test"
+    },
+    "summary": {
+      "totalTests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "successRate": "100%",
+      "estimatedDuration": "~2 minutes",
+      "totalSteps": 16
+    },
+    "testCases": [
+      {
+        "name": "Order Test Case",
+        "file": "test-cases/order.yml",
+        "tags": ["smoke", "order", "checkout"],
+        "status": "PASSED",
+        "steps": [
+          {
+            "stepNumber": 1,
+            "description": "Open https://www.saucedemo.com/ page",
+            "type": "navigation",
+            "status": "PASSED",
+            "source": "steps/login.yml"
+          },
+          {
+            "stepNumber": 2,
+            "description": "Fill username field with standard_user",
+            "type": "input",
+            "status": "PASSED",
+            "source": "steps/login.yml"
+          },
+          {
+            "stepNumber": 3,
+            "description": "Fill password field with secret_sauce",
+            "type": "input",
+            "status": "PASSED",
+            "source": "steps/login.yml"
+          },
+          {
+            "stepNumber": 4,
+            "description": "Click login button",
+            "type": "click",
+            "status": "PASSED",
+            "source": "steps/login.yml"
+          },
+          {
+            "stepNumber": 5,
+            "description": "Verify page displays Swag Labs",
+            "type": "assertion",
+            "status": "PASSED",
+            "source": "steps/login.yml"
+          },
+          {
+            "stepNumber": 6,
+            "description": "Click Add to Cart button for first product",
+            "type": "click",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "Sauce Labs Backpack - $29.99"
+          },
+          {
+            "stepNumber": 7,
+            "description": "Click Add to Cart button for second product",
+            "type": "click",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "Sauce Labs Bike Light - $9.99"
+          },
+          {
+            "stepNumber": 8,
+            "description": "Click shopping cart icon in top right",
+            "type": "click",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "2 items"
+          },
+          {
+            "stepNumber": 9,
+            "description": "Enter First Name",
+            "type": "input",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "John"
+          },
+          {
+            "stepNumber": 10,
+            "description": "Enter Last Name",
+            "type": "input",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "Doe"
+          },
+          {
+            "stepNumber": 11,
+            "description": "Enter Postal Code",
+            "type": "input",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "12345"
+          },
+          {
+            "stepNumber": 12,
+            "description": "Click Continue button",
+            "type": "click",
+            "status": "PASSED",
+            "source": "test-cases/order.yml"
+          },
+          {
+            "stepNumber": 13,
+            "description": "Click Finish button",
+            "type": "click",
+            "status": "PASSED",
+            "source": "test-cases/order.yml",
+            "details": "Order total: $43.18"
+          },
+          {
+            "stepNumber": 14,
+            "description": "Verify page displays Thank you for your order!",
+            "type": "assertion",
+            "status": "PASSED",
+            "source": "test-cases/order.yml"
+          },
+          {
+            "stepNumber": 15,
+            "description": "Click Back Home button",
+            "type": "click",
+            "status": "PASSED",
+            "source": "steps/cleanup.yml"
+          },
+          {
+            "stepNumber": 16,
+            "description": "Save screenshot as screenshots/test/cleanup-complete.png",
+            "type": "screenshot",
+            "status": "PASSED",
+            "source": "steps/cleanup.yml",
+            "note": "Playwright MCP saves screenshots to temporary directory"
+          }
+        ],
+        "environmentVariables": {
+          "BASE_URL": "https://www.saucedemo.com/",
+          "TEST_USERNAME": "standard_user",
+          "TEST_PASSWORD": "[REDACTED]",
+          "BROWSER_TIMEOUT": "45000",
+          "SCREENSHOT_PATH": "screenshots/test",
+          "REPORT_PATH": "reports/test",
+          "GENERATE_REPORT": "true",
+          "REPORT_FORMAT": "html"
+        },
+        "reportGeneration": {
+          "enabled": true,
+          "reason": "GENERATE_REPORT environment variable set to true",
+          "format": "html",
+          "outputPath": "reports/test/"
+        }
+      }
+    ]
+  }
+}

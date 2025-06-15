@@ -8,6 +8,20 @@
 
 一个基于YAML配置的Playwright自动化测试框架，专为Claude Code设计，支持多环境配置、步骤库复用和自然语言测试描述。
 
+## 🎬 演示视频
+
+观看YAML-based Playwright测试的实际演示：
+
+[![YAML Playwright Testing Demo](https://img.youtube.com/vi/tx3xExU_Xhc/maxresdefault.jpg)](https://www.youtube.com/watch?v=tx3xExU_Xhc)
+
+**📺 [观看演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - 了解如何使用Claude Code和Playwright MCP通过自然语言编写和执行测试。
+
+## 📊 最新测试结果
+
+查看最近的测试执行报告：
+
+**📈 [最新测试报告](reports/latest-test-report.html)** - 每次测试运行后自动生成，显示详细的执行结果、截图和性能指标。
+
 ## 🌟 主要特性
 
 - **🌍 多环境支持**: 支持dev/test/prod环境，自动加载对应配置
@@ -57,6 +71,8 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest
 ### 1. 安装依赖
 
 确保已安装 Playwright MCP（参考上面的前置要求）。
+
+> 💡 **初次使用？** 建议先观看我们的[演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)了解框架的实际使用！
 
 ### 2. 配置环境变量
 
@@ -271,6 +287,51 @@ steps:
 - **环境隔离**: 不同环境使用独立的配置文件
 - **文档化**: 在.env.example中说明所有必需变量
 
+## 🗺️ 产品路线图
+
+我们正在积极开发激动人心的新功能，让基于YAML的测试变得更加强大：
+
+### 🔄 即将推出的功能
+
+#### 1. **测试套件支持**
+- **🗂️ 套件组织**: 将相关测试用例组织成逻辑套件
+- **📦 批量执行**: 使用单个命令运行整个测试套件
+- **🏷️ 套件级配置**: 每个套件的环境变量和设置
+- **📋 套件报告**: 跨多个测试用例的聚合报告
+
+```yaml
+# 示例: test-suites/e-commerce.yml
+name: "电商测试套件"
+description: "完整的电商工作流程测试"
+environment: "test"
+test-cases:
+  - "test-cases/login.yml"
+  - "test-cases/product-search.yml"
+  - "test-cases/cart-operations.yml"
+  - "test-cases/checkout.yml"
+```
+
+#### 2. **Cursor IDE 支持**
+- **🎨 语法高亮**: 丰富的测试文件YAML语法高亮
+- **🔍 智能提示**: 步骤库和环境变量的自动完成
+- **🛠️ 测试运行器集成**: 直接在Cursor IDE中执行测试
+- **🐛 调试支持**: 断点和逐步调试功能
+- **📖 悬停文档**: 测试步骤的内联文档
+
+### 📅 发布时间表
+
+| 功能 | 状态 | 预计发布 |
+|------|------|----------|
+| 测试套件支持 | 🚧 开发中 | 2025年Q2 |
+| Cursor IDE MDC 支持 | 📋 计划中 | 2025年Q2 |
+
+### 💡 功能建议
+
+有新功能的想法？我们很乐意听到你的建议！
+- 在我们的仓库中开启一个带有 `enhancement` 标签的 [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues)
+- 参与社区讨论
+- 为路线图规划贡献力量
+
 ## 🤝 贡献指南
 
 1. Fork 项目
@@ -283,14 +344,23 @@ steps:
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
+## 📺 相关资源
+
+- **🎬 [演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - 框架实际演示
+- **📈 [最新测试报告](reports/latest-test-report.html)** - 最近的测试执行结果
+- **📖 [Medium文章](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - 详细解释和优势
+- **🛠️ [Claude Code](https://claude.ai/code)** - AI驱动的开发环境
+- **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - 浏览器自动化集成
+
 ## 🆘 支持
 
 如果你遇到问题或有建议：
 
-1. 查看本README文档
-2. 检查 [Issues](https://github.com/your-repo/issues) 
-3. 创建新的Issue描述问题
-4. 在Claude Code中使用 `/help` 获取更多帮助
+1. 观看[演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)获取视觉指导
+2. 查看本README文档
+3. 检查 [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
+4. 创建新的Issue描述问题
+5. 在Claude Code中使用 `/help` 获取更多帮助
 
 ---
 

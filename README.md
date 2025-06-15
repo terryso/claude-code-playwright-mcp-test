@@ -8,6 +8,20 @@
 
 A YAML-based Playwright automation testing framework designed for Claude Code, supporting multi-environment configuration, reusable step libraries, and natural language test descriptions.
 
+## 🎬 Demo Video
+
+Watch the live demonstration of YAML-based Playwright testing in action:
+
+[![YAML Playwright Testing Demo](https://img.youtube.com/vi/tx3xExU_Xhc/maxresdefault.jpg)](https://www.youtube.com/watch?v=tx3xExU_Xhc)
+
+**📺 [Watch Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - See how to write and execute tests using natural language with Claude Code and Playwright MCP.
+
+## 📊 Latest Test Results
+
+View the most recent test execution report:
+
+**📈 [Latest Test Report](reports/latest-test-report.html)** - Automatically generated after each test run, showing detailed execution results, screenshots, and performance metrics.
+
 ## 🌟 Key Features
 
 - **🌍 Multi-Environment Support**: Support for dev/test/prod environments with automatic configuration loading
@@ -57,6 +71,8 @@ For more installation information, please refer to: [Playwright MCP Official Rep
 ### 1. Install Dependencies
 
 Ensure Playwright MCP is installed (refer to prerequisites above).
+
+> 💡 **New to the project?** Watch our [demo video](https://www.youtube.com/watch?v=tx3xExU_Xhc) first to see the framework in action!
 
 ### 2. Configure Environment Variables
 
@@ -271,6 +287,51 @@ steps:
 - **Environment Isolation**: Use independent configuration files for different environments
 - **Documentation**: Document all required variables in .env.example
 
+## 🗺️ Roadmap
+
+We're actively working on exciting new features to make YAML-based testing even more powerful:
+
+### 🔄 Upcoming Features
+
+#### 1. **Test Suites Support**
+- **🗂️ Suite Organization**: Group related test cases into logical suites
+- **📦 Batch Execution**: Run entire test suites with a single command
+- **🏷️ Suite-level Configuration**: Environment variables and settings per suite
+- **📋 Suite Reporting**: Aggregated reports across multiple test cases
+
+```yaml
+# Example: test-suites/e-commerce.yml
+name: "E-commerce Test Suite"
+description: "Complete e-commerce workflow testing"
+environment: "test"
+test-cases:
+  - "test-cases/login.yml"
+  - "test-cases/product-search.yml"
+  - "test-cases/cart-operations.yml"
+  - "test-cases/checkout.yml"
+```
+
+#### 2. **Cursor IDE Support**
+- **🎨 Syntax Highlighting**: Rich YAML syntax highlighting for test files
+- **🔍 IntelliSense**: Auto-completion for step libraries and environment variables
+- **🛠️ Test Runner Integration**: Execute tests directly from Cursor IDE
+- **🐛 Debug Support**: Breakpoints and step-by-step debugging
+- **📖 Documentation Hover**: Inline documentation for test steps
+
+### 📅 Release Timeline
+
+| Feature | Status | Expected Release |
+|---------|--------|------------------|
+| Test Suites Support | 🚧 In Development | Q2 2025 |
+| Cursor IDE MDC Support | 📋 Planned | Q2 2025 |
+
+### 💡 Feature Requests
+
+Have ideas for new features? We'd love to hear from you!
+- Open an [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) with the `enhancement` label
+- Join discussions in our community
+- Contribute to the roadmap planning
+
 ## 🤝 Contributing
 
 1. Fork the project
@@ -283,14 +344,23 @@ steps:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 📺 Resources
+
+- **🎬 [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Live demonstration of the framework
+- **📈 [Latest Test Report](reports/latest-test-report.html)** - Most recent test execution results
+- **📖 [Medium Article](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - Detailed explanation and benefits
+- **🛠️ [Claude Code](https://claude.ai/code)** - AI-powered development environment
+- **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - Browser automation integration
+
 ## 🆘 Support
 
 If you encounter issues or have suggestions:
 
-1. Check this README documentation
-2. Review [Issues](https://github.com/your-repo/issues) 
-3. Create a new Issue describing the problem
-4. Use `/help` in Claude Code for more assistance
+1. Watch the [demo video](https://www.youtube.com/watch?v=tx3xExU_Xhc) for visual guidance
+2. Check this README documentation
+3. Review [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
+4. Create a new Issue describing the problem
+5. Use `/help` in Claude Code for more assistance
 
 ---
 

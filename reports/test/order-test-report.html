@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Test Execution Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .header { border-bottom: 2px solid #4CAF50; padding-bottom: 10px; margin-bottom: 20px; }
+        .test-case { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .passed { border-left: 5px solid #4CAF50; background-color: #f1f8e9; }
+        .step { margin: 5px 0; padding: 8px; background-color: #fafafa; border-radius: 3px; }
+        .step.completed { background-color: #e8f5e8; border-left: 3px solid #4CAF50; }
+        .meta-info { background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .timestamp { color: #666; font-size: 0.9em; }
+        .tag { display: inline-block; background-color: #2196F3; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin: 2px; }
+        .summary { background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>YAML Test Execution Report</h1>
+            <div class="timestamp">Generated: 6/15/2025 at 00:05:51 PST</div>
+        </div>
+        
+        <div class="summary">
+            <h2>Test Summary</h2>
+            <p><strong>Environment:</strong> dev</p>
+            <p><strong>Filter Tags:</strong> order</p>
+            <p><strong>Total Test Cases:</strong> 1</p>
+            <p><strong>Passed:</strong> 1</p>
+            <p><strong>Failed:</strong> 0</p>
+            <p><strong>Success Rate:</strong> 100%</p>
+        </div>
+
+        <div class="meta-info">
+            <h3>Environment Configuration</h3>
+            <p><strong>Base URL:</strong> https://www.saucedemo.com/</p>
+            <p><strong>Test Username:</strong> standard_user</p>
+            <p><strong>Browser Timeout:</strong> 45000ms</p>
+            <p><strong>Screenshot Path:</strong> screenshots/test</p>
+            <p><strong>Report Format:</strong> html</p>
+        </div>
+
+        <div class="test-case passed">
+            <h2>Test Case: order.yml</h2>
+            <div>
+                <span class="tag">smoke</span>
+                <span class="tag">order</span>
+                <span class="tag">checkout</span>
+            </div>
+            
+            <h3>Test Steps Executed:</h3>
+            
+            <h4>Login Steps (from login.yml):</h4>
+            <div class="step completed">✓ Open https://www.saucedemo.com/ page</div>
+            <div class="step completed">✓ Fill username field with standard_user</div>
+            <div class="step completed">✓ Fill password field with secret_sauce</div>
+            <div class="step completed">✓ Click login button</div>
+            <div class="step completed">✓ Verify page displays Swag Labs</div>
+            
+            <h4>Order Steps:</h4>
+            <div class="step completed">✓ Click Add to Cart button for first product (Sauce Labs Backpack - $29.99)</div>
+            <div class="step completed">✓ Click Add to Cart button for second product (Sauce Labs Bike Light - $9.99)</div>
+            <div class="step completed">✓ Click shopping cart icon in top right (2 items)</div>
+            <div class="step completed">✓ Enter First Name (John)</div>
+            <div class="step completed">✓ Enter Last Name (Doe)</div>
+            <div class="step completed">✓ Enter Postal Code (12345)</div>
+            <div class="step completed">✓ Click Continue button</div>
+            <div class="step completed">✓ Click Finish button (Total: $43.18)</div>
+            <div class="step completed">✓ Verify page displays "Thank you for your order!"</div>
+            
+            <h4>Cleanup Steps (from cleanup.yml):</h4>
+            <div class="step completed">✓ Click Back Home button</div>
+            <div class="step completed">✓ Save screenshot as screenshots/test/cleanup-complete.png</div>
+            
+            <div class="meta-info">
+                <h4>Test Results:</h4>
+                <p><strong>Status:</strong> <span style="color: #4CAF50; font-weight: bold;">PASSED</span></p>
+                <p><strong>Total Steps:</strong> 16</p>
+                <p><strong>Completed Steps:</strong> 16</p>
+                <p><strong>Order Total:</strong> $43.18 (2 items + $3.20 tax)</p>
+                <p><strong>Final URL:</strong> https://www.saucedemo.com/inventory.html</p>
+            </div>
+        </div>
+
+        <div class="meta-info">
+            <h3>Step Libraries Used</h3>
+            <p><strong>login.yml:</strong> 5 steps for user authentication</p>
+            <p><strong>cleanup.yml:</strong> 2 steps for test cleanup and screenshot capture</p>
+        </div>
+
+        <div class="meta-info">
+            <h3>Files Generated</h3>
+            <p><strong>Screenshot:</strong> screenshots/test/cleanup-complete.png</p>
+            <p><strong>Report:</strong> reports/test/order-test-report.html</p>
+        </div>
+    </div>
+</body>
+</html>
