@@ -1,0 +1,105 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Command Rules Documentation
+
+## YAML Testing Framework Commands
+
+- `/run-yaml-test [parameters...]` - Execute YAML test cases with Playwright automation
+  - Purpose: Execute Playwright automation tests using YAML testing framework
+  - Supports multi-environment configuration, tag filtering, and report generation
+
+#### Parameter Options
+
+**File Parameter (optional):**
+- `file:test-cases/order.yml` - Specify a particular test case file
+- `file:test-cases/sort.yml` - Execute specific test file
+- If no file parameter provided, execute all matching test cases in test-cases directory
+
+**Environment Parameter (optional):**
+- `env:dev` - Use development environment configuration (.env.dev) [default]
+- `env:test` - Use test environment configuration (.env.test)
+- `env:prod` - Use production environment configuration (.env.prod)
+
+**Tag Filtering Parameter (optional):**
+- `tags:smoke` - Single tag filtering
+- `tags:smoke,login` - Multiple tags AND condition (must contain both smoke and login tags)
+- `tags:smoke|login` - Multiple tags OR condition (contains smoke or login tags)
+- `tags:smoke,login|critical` - Mixed conditions (contains smoke and login, or contains critical)
+
+#### Execution Workflow
+When user uses `/run-yaml-test` command, MUST strictly follow this execution flow:
+
+1. **Automated Processor Analysis**
+   ```bash
+   node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
+   ```
+
+2. **Parse Processor Output**
+   - Determine which test cases will be executed
+   - Get total step count
+   - Load environment configuration
+   - Expand step library references
+
+3. **Execute with Playwright**
+   - Leverage session persistence strategy for efficiency
+   - Execute each test case step by step
+   - Optimize session reuse between multiple tests
+
+4. **Generate Test Reports** (if GENERATE_REPORT=true)
+   - Use template-based reporting with embedded data
+   - Support both overview and detailed formats
+   - Save to reports/{env}/ directory
+
+#### Usage Examples
+
+**Basic Usage:**
+```bash
+# Execute specific file
+/run-yaml-test file:test-cases/order.yml env:dev
+
+# Execute all smoke tagged tests
+/run-yaml-test tags:smoke env:prod
+
+# Execute tests containing both smoke and order tags
+/run-yaml-test tags:smoke,order env:test
+
+# Execute tests containing order or checkout tags
+/run-yaml-test tags:order|checkout env:dev
+
+# Execute all test cases
+/run-yaml-test env:dev
+```
+
+**Advanced Usage:**
+```bash
+# Mixed tag conditions
+/run-yaml-test tags:smoke,login|critical env:test
+
+# Production environment specific test
+/run-yaml-test file:test-cases/product-details.yml env:prod
+
+# Development environment all tests
+/run-yaml-test env:dev
+```
+
+#### Session Optimization Features
+- **Session Persistence**: Automatically save session state after first login
+- **Auto Recovery**: Subsequent tests auto-restore login state, saving 80-95% execution time
+- **Cross-Session Persistence**: Session remains valid after Cursor restart
+- **Smart Detection**: Automatically detect current login state, execute login as needed
+
+#### Report Generation
+- **Auto Generation**: Automatically generate reports based on GENERATE_REPORT environment variable
+- **Embedded Data**: All test data directly embedded in HTML templates
+- **Multiple Formats**: Support overview and detailed report styles
+- **History Tracking**: Timestamped report files, latest-test-report.html points to newest report
+
+#### Error Handling
+- **Environment Validation**: Check if .env files exist
+- **Syntax Validation**: Use processor to validate YAML syntax
+- **Step Library Resolution**: Handle step library reference errors
+- **Execution Failures**: Provide detailed failure context information

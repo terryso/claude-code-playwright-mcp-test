@@ -20,7 +20,12 @@
       "Bash(cat:*)",
       "Bash(claude mcp:*)",
       "mcp__playwright__browser_snapshot",
-      "mcp__playwright__browser_install"
+      "mcp__playwright__browser_install",
+      "Bash(claude config list)",
+      "Bash(env)",
+      "mcp__playwright__browser_close",
+      "Bash(gh pr view:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   }
