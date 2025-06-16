@@ -1,0 +1,9 @@
+steps:
+  - "Check if storage state file exists at ~/.cache/claude-playwright/auth-state.json"
+  - "If storage state exists, browser will automatically restore login session"
+  - "If no storage state exists, navigate to {{BASE_URL}}"
+  - "If no storage state exists, fill username field with {{TEST_USERNAME}}"
+  - "If no storage state exists, fill password field with {{TEST_PASSWORD}}"
+  - "If no storage state exists, click login button"
+  - "Verify page displays Swag Labs and user is logged in"
+  - "Storage state will be automatically saved for future sessions"

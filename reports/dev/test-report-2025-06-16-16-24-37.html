@@ -228,12 +228,18 @@
     </div>
 
     <script>
-        // Embedded test data - replace {{EMBEDDED_TEST_DATA}} with actual data during report generation
-        const testData = {{EMBEDDED_TEST_DATA}};
+        // Get report ID from URL parameter or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const reportId = urlParams.get('report') || 'test-report-2025-06-16-16-24-37';
+        const jsonFile = `test-data-${reportId.replace('test-report-', '')}.json`;
 
-        function loadTestData() {
+        async function loadTestData() {
             try {
-                renderOverview(testData);
+                const response = await fetch(jsonFile);
+                if (!response.ok) throw new Error('Failed to load test data');
+                
+                const data = await response.json();
+                renderOverview(data);
                 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('report-content').style.display = 'block';
@@ -332,11 +338,11 @@
 
             // Update action links
             const detailedLink = document.getElementById('detailed-report-link');
-            detailedLink.href = `template-detailed.html`;
+            detailedLink.href = `template-detailed.html?report=${reportId}`;
             
-            // Hide JSON data link since data is embedded
             const jsonLink = document.getElementById('json-data-link');
-            jsonLink.style.display = 'none';
+            jsonLink.href = jsonFile;
+            jsonLink.target = '_blank';
         }
 
         // Load data when page loads

@@ -1,0 +1,15 @@
+# Session-optimized version of sort test
+# This version uses intelligent session checking instead of full re-login
+# Environment variables are automatically loaded from .env.{environment} files
+# Supported environment variables: BASE_URL, TEST_USERNAME, TEST_PASSWORD, SCREENSHOT_PATH
+tags: 
+  - smoke
+  - sort
+  - session-optimized
+steps:
+  - include: "session-check"           # Smart login - only if needed
+  - include: "ensure-products-page"    # Navigate to products if not there
+  - "Click sorting dropdown, select Price(low to high)"
+  - "Verify first product price is $7.99"
+  - "Click sorting dropdown, select Price(high to low)"
+  - "Verify first product price is $49.99"

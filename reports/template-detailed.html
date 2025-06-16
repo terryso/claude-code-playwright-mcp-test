@@ -233,20 +233,12 @@
     </div>
 
     <script>
-        // Get report ID from URL parameter or use default
-        const urlParams = new URLSearchParams(window.location.search);
-        const reportId = urlParams.get('report') || 'test-report-2025-06-15-00-05-51';
-        const jsonFile = reportId === 'test-report-2025-06-15-01-15-30' 
-            ? `test-data-2025-06-15-00-05-51.json`  // Use existing detailed data
-            : `test-data-${reportId.replace('test-report-', '')}.json`;
+        // Embedded test data - replace {{EMBEDDED_TEST_DATA}} with actual data during report generation
+        const testData = {{EMBEDDED_TEST_DATA}};
 
-        async function loadTestData() {
+        function loadTestData() {
             try {
-                const response = await fetch(jsonFile);
-                if (!response.ok) throw new Error('Failed to load test data');
-                
-                const data = await response.json();
-                renderReport(data);
+                renderReport(testData);
                 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('report-content').style.display = 'block';

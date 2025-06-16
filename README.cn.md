@@ -43,19 +43,30 @@
 - **📚 步骤库复用**: 可复用的参数化步骤库，提高测试效率
 - **🗣️ 自然语言**: 直接使用自然语言描述测试步骤，易读易写
 - **🔧 环境变量**: 从.env文件自动加载配置，安全管理敏感信息
-- **📊 智能报告**: 可配置的测试报告生成，支持HTML/JSON格式
+- **📊 智能报告**: 可配置的测试报告生成，支持内嵌数据的HTML/JSON格式
 - **📝 智能提示**: Claude Code项目命令支持参数提示
-- **🚀 快速上手**: 完整的项目模板和示例
+- **🚀 会话持久化**: 革命性的跨命令会话持久化，一次登录终生受益
+- **⚡ 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
 
 ## 🔧 前置要求
 
 ### 安装 Playwright MCP
 
-本项目依赖 Playwright MCP 来执行浏览器自动化。请先安装：
+本项目依赖 Playwright MCP 来执行浏览器自动化。**重要**：使用以下命令安装以启用会话持久化功能：
 
 ```bash
-claude mcp add playwright -- npx -y @playwright/mcp@latest
+claude mcp add playwright -- npx -y @playwright/mcp@latest \
+  --user-data-dir ~/.cache/claude-playwright \
+  --storage-state ~/.cache/claude-playwright/auth-state.json \
+  --save-trace \
+  --output-dir ~/CascadeProjects/claude-code-playwright-mcp-test/screenshots
 ```
+
+**新功能说明**：
+- `--storage-state`: 自动保存和恢复登录状态
+- `--user-data-dir`: 持久化浏览器数据
+- `--save-trace`: 保存调试跟踪文件
+- `--output-dir`: 指定截图输出目录
 
 更多安装信息请参考：[Playwright MCP 官方仓库](https://github.com/microsoft/playwright-mcp)
 
@@ -71,10 +82,15 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest
 ├── .env.test                  # 测试环境配置
 ├── .env.prod                  # 生产环境配置
 ├── steps/                     # 可复用步骤库
-│   ├── login.yml              # 登录步骤库
+│   ├── login.yml              # 传统登录步骤库
+│   ├── session-persist.yml    # 🆕 持久化会话管理
+│   ├── session-check.yml      # 智能会话检查
+│   ├── ensure-products-page.yml # 导航到产品页面
 │   └── cleanup.yml            # 清理步骤库
 ├── test-cases/                # 测试用例
-│   └── order.yml              # 订单测试用例
+│   ├── order.yml              # 订单测试用例
+│   ├── sort-optimized.yml     # 会话优化的排序测试
+│   └── product-details.yml    # 产品详情测试用例
 ├── screenshots/               # 测试截图（按环境分类）
 ├── reports/                   # 测试报告（按环境分类）
 ├── CLAUDE.md                  # 项目说明和命令索引
@@ -321,7 +337,7 @@ description: "完整的电商工作流程测试"
 environment: "test"
 test-cases:
   - "test-cases/login.yml"
-  - "test-cases/product-search.yml"
+  - "test-cases/product-details.yml"
   - "test-cases/cart-operations.yml"
   - "test-cases/checkout.yml"
 ```

@@ -1,0 +1,22 @@
+name: "Product Details Test"
+description: "Test product details page functionality with session optimization"
+tags:
+  - smoke
+  - product-details
+  - session-optimized
+steps:
+  - include: "session-check"
+  - include: "ensure-products-page"
+  - "Click on first product (Sauce Labs Backpack) to view details"
+  - "Verify product name is Sauce Labs Backpack"
+  - "Verify product price is $29.99"
+  - "Verify product description contains carry.allTheThings()"
+  - "Click Add to cart button"
+  - "Verify Add to cart button changes to Remove"
+  - "Click Back to products button"
+  - "Verify returned to products page"
+  - "Click on second product (Sauce Labs Bike Light) to view details"
+  - "Verify product name is Sauce Labs Bike Light"
+  - "Verify product price is $9.99"
+  - "Click Back to products button"
+  - include: "cleanup"

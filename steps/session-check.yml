@@ -1,0 +1,10 @@
+# steps/session-check.yml
+# 智能会话检查和登录 - 仅在需要时执行登录
+# Supported environment variables: BASE_URL, TEST_USERNAME, TEST_PASSWORD
+steps:
+  - "Check if current page shows Swag Labs and user is logged in"
+  - "If not logged in or not on correct page, navigate to {{BASE_URL}}"
+  - "If login form is visible, fill username field with {{TEST_USERNAME}}"
+  - "If login form is visible, fill password field with {{TEST_PASSWORD}}"
+  - "If login form is visible, click login button"
+  - "Verify page displays Swag Labs and user is logged in"

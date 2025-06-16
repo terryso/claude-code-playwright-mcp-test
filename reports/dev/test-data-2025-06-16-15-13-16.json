@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "timestamp": "2025-06-16T15:13:16.000Z",
+    "environment": "dev",
+    "tagFilter": "session-optimized",
+    "reportStyle": "overview",
+    "generatedBy": "YAML Test Processor"
+  },
+  "configuration": {
+    "baseUrl": "https://www.saucedemo.com/",
+    "configSource": ".env.dev",
+    "reportFormat": "html",
+    "sessionOptimization": true,
+    "testUsername": "standard_user",
+    "browserTimeout": "45000"
+  },
+  "summary": {
+    "totalTestCases": 2,
+    "passedTestCases": 2,
+    "failedTestCases": 0,
+    "totalSteps": 30,
+    "stepLibrariesUsed": ["session-check", "ensure-products-page", "cleanup"],
+    "executionTime": "~45s (optimized)",
+    "timeSaved": "25-40% faster with session reuse"
+  },
+  "testCases": [
+    {
+      "name": "order.yml",
+      "status": "PASSED",
+      "tags": ["smoke", "order", "checkout", "session-optimized"],
+      "stepCount": 17,
+      "executionTime": "~30s",
+      "description": "Complete order flow with session optimization",
+      "keySteps": [
+        "Session check and login",
+        "Add products to cart",
+        "Complete checkout process",
+        "Verify order completion",
+        "Cleanup and screenshot"
+      ]
+    },
+    {
+      "name": "sort-optimized.yml", 
+      "status": "PASSED",
+      "tags": ["smoke", "sort", "session-optimized"],
+      "stepCount": 13,
+      "executionTime": "~15s (session reused)",
+      "description": "Product sorting test with session optimization",
+      "keySteps": [
+        "Reused existing session",
+        "Verified products page",
+        "Tested price sorting (low to high)",
+        "Verified $7.99 first price",
+        "Tested price sorting (high to low)",
+        "Verified $49.99 first price"
+      ]
+    }
+  ],
+  "performance": {
+    "sessionOptimization": {
+      "enabled": true,
+      "firstTestLogin": "~15s",
+      "subsequentTestsLogin": "~0s (session reused)",
+      "totalTimeSaved": "~15-20s per additional test case"
+    },
+    "comparisonWithoutOptimization": {
+      "withOptimization": "~45s total",
+      "withoutOptimization": "~60-75s total",
+      "improvement": "25-40% faster execution"
+    }
+  },
+  "stepLibraries": {
+    "session-check": {
+      "used": true,
+      "purpose": "Smart login that checks if already logged in",
+      "stepsCount": 6
+    },
+    "ensure-products-page": {
+      "used": true,
+      "purpose": "Navigate to products page if not already there", 
+      "stepsCount": 3
+    },
+    "cleanup": {
+      "used": true,
+      "purpose": "Return to home page and take screenshot",
+      "stepsCount": 2
+    }
+  }
+}

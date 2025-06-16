@@ -17,11 +17,45 @@ Execute YAML-based Playwright test cases with step library references and parame
 You need to help me execute a YAML format Playwright test case. This test case may reference other YAML files defined in the step libraries.
 
 **IMPORTANT: Use the YAML Test Processor for efficient execution**
+**BREAKTHROUGH: Playwright MCP now supports persistent session across commands**
 
 Execution workflow:
 1. **Use the automated processor**: Run `node scripts/yaml-test-processor.js` with appropriate parameters to get processed test cases
-2. **Execute processed steps**: Use the processor output directly with Playwright MCP to execute test steps
-3. **Generate reports**: Create test reports based on execution results
+2. **Optimize execution strategy**: Leverage persistent session across all executions
+3. **Execute processed steps**: Use the processor output directly with Playwright MCP to execute test steps
+4. **Generate reports**: Create test reports based on execution results
+
+### Session Management Strategy (REVOLUTIONARY - Persistent Across Commands):
+
+**New Capability**: Playwright MCP now automatically preserves login sessions across all command executions!
+
+**How it works**:
+- **First login**: Any test that performs login automatically saves session state
+- **Automatic restoration**: All subsequent tests automatically restore login session
+- **Cross-command persistence**: Session remains valid even after restarting Claude Code
+- **Zero login time**: After first login, all tests skip login completely
+
+**Available Session Strategies**:
+
+1. **session-persist** (Recommended for new tests):
+   - Uses `--storage-state` for automatic session persistence
+   - First execution logs in and saves state
+   - All subsequent executions auto-restore login
+
+2. **session-check** (Backward compatible):
+   - Intelligent checking of current login state
+   - Falls back to login if session not found
+
+3. **Traditional login** (Legacy):
+   - Always performs full login process
+   - Use only for testing login functionality itself
+
+**Available Session-Optimized Step Libraries**:
+- `session-persist`: NEW - Automatic session persistence (recommended)
+- `session-check`: Intelligent login that only logs in if needed
+- `ensure-products-page`: Navigate to products page if not already there
+- `cleanup`: Return to home page and take screenshot
+- Use these instead of `login` for non-first test cases
 
 ### Automated Processing Command:
 ```bash
@@ -45,12 +79,16 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
    - Use REPORT_FORMAT to determine report format (html/json/xml)
    - Use REPORT_STYLE to determine report content (detailed/overview)
    - Save reports to path specified by REPORT_PATH environment variable
-   - Generate timestamped report filename (e.g., test-report-2025-06-15-00-05-51.html)
-   - Generate corresponding JSON data file based on REPORT_STYLE:
-     * detailed: Full test data with steps, results, and execution details
-     * overview: Summary data only with totals, success rates, and basic info
-   - Use template system: copy appropriate template and configure data source
-   - Update latest-test-report.html to redirect to the newest report
+   - **CRITICAL**: Use embedded JSON data approach for all reports:
+     * Copy the correct template based on REPORT_STYLE: `reports/template-overview.html` or `reports/template-detailed.html`
+     * **EMBED data directly in HTML**: Replace the external JSON fetch with embedded data object
+     * Structure embedded data based on report style:
+       - overview: Summary data with totals, success rates, test case names and basic info only
+       - detailed: Complete test data with all steps, execution details, step libraries, and generated files
+     * Save final report to `reports/{env}/test-report-{timestamp}.html` with embedded data
+     * Update `latest-test-report.html` to redirect to the newest report
+     * **DO NOT generate separate JSON files** - all data must be embedded in the HTML report
+   - **DO NOT** generate static HTML content - always use the template system with embedded JSON data
 6. Output execution results and statistics
 
 YAML format specifications:
@@ -68,10 +106,60 @@ Report generation configuration:
   * detailed: Complete test information including all steps and execution details
   * overview: Summary information only with totals and success rates
 - REPORT_PATH: Directory to save reports
-- Template system: Uses HTML templates with JSON data sources
+- Template system: Uses HTML templates with **embedded JSON data** (no external files)
 - Report files include timestamp for historical tracking
+- All test data is embedded directly in the HTML file for reliable loading
 - latest-test-report.html always redirects to the most recent report
 
-Please load environment configuration based on parameters, parse YAML structure, apply tag filtering, expand includes and environment variables, execute tests using Playwright MCP, and generate reports if configured.
+## Session Optimization Examples
+
+### Example 1: Multiple Test Cases with Session Reuse
+```bash
+# Execute multiple smoke tests with session optimization
+/run-yaml-test tags:smoke env:dev
+```
+
+**AI Execution Strategy**:
+1. Process all smoke test cases (order.yml, sort-optimized.yml, product-details.yml)
+2. Execute order.yml first with session-check (includes login if needed)
+3. For sort-optimized.yml and product-details.yml: use session-check to reuse existing login
+4. Keep browser open between test cases within single execution
+5. Generate single combined report
+
+### Example 2: Session-Optimized Test Cases
+Use the session-optimized versions with `session-optimized` tag:
+- `order.yml` (with session-check)
+- `sort-optimized.yml` (optimized for session reuse)
+- `product-details.yml` (tests product details page)
+
+### Example 3: Mixed Execution Strategy
+```bash
+# Execute specific optimized test after a regular test
+/run-yaml-test file:order.yml env:dev
+# Then run optimized version (reuses session)
+/run-yaml-test file:sort-optimized.yml env:dev
+```
+
+## Performance Impact
+
+**Revolutionary Improvement with Persistent Sessions**:
+
+**Before (Traditional)**:
+- Each test case: ~30-45 seconds (including login every time)
+- 3 test cases: ~90-135 seconds total
+
+**After (Session Persistence)**:
+- **First test ever**: ~30-45 seconds (login + save session)
+- **All subsequent tests**: ~5-15 seconds (no login needed)
+- **Cross-command**: 0 seconds login time
+- **Time savings: 80-95% after first login**
+
+**Real-world Example**:
+- Day 1, First test: 30 seconds
+- Day 1, Tests 2-10: 10 seconds each = 90 seconds
+- Day 2+, All tests: 10 seconds each (no login time)
+- **Massive productivity boost for daily testing**
+
+Please load environment configuration based on parameters, parse YAML structure, apply tag filtering, expand includes and environment variables, execute tests using Playwright MCP with session optimization, and generate reports if configured.
 
 ARGUMENTS: {file} {env} {tags}

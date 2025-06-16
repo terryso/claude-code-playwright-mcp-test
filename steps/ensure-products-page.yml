@@ -1,0 +1,7 @@
+# steps/ensure-products-page.yml
+# 确保在产品页面，如果不在则导航到产品页面
+# Supported environment variables: BASE_URL
+steps:
+  - "Check if current page is the products page (inventory.html)"
+  - "If not on products page, navigate to {{BASE_URL}}/inventory.html"
+  - "Verify page displays Products and product list"
