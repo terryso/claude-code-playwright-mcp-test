@@ -48,6 +48,52 @@ Here's what a typical test execution report looks like:
 - **🚀 Session Persistence**: Revolutionary cross-command session persistence - login once, test forever
 - **⚡ Performance Boost**: 80-95% performance improvement after first login with persistent sessions
 
+## 🗺️ Development Roadmap
+
+We're actively working on exciting new features to make YAML-based testing even more powerful:
+
+### ✅ Completed Features
+
+#### ✅ **Cursor IDE Support** - **COMPLETED** 🎉
+- **✅ Project Rules Integration**: Complete `.mdc` rule file for Cursor AI integration
+- **✅ Command Support**: Full `/run-yaml-test` command support in Cursor
+- **✅ Session Persistence**: Same 80-95% performance boost in Cursor as Claude Code
+- **✅ Cross-Platform Compatibility**: Unified framework works seamlessly in both IDEs
+
+### 🔄 Upcoming Features
+
+#### 1. **Test Suites Support**
+- **🗂️ Suite Organization**: Group related test cases into logical suites
+- **📦 Batch Execution**: Run entire test suites with a single command
+- **🏷️ Suite-level Configuration**: Environment variables and settings per suite
+- **📋 Suite Reporting**: Aggregated reports across multiple test cases
+
+```yaml
+# Example: test-suites/e-commerce.yml
+name: "E-commerce Test Suite"
+description: "Complete e-commerce workflow testing"
+environment: "test"
+test-cases:
+  - "test-cases/login.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/cart-operations.yml"
+  - "test-cases/checkout.yml"
+```
+
+### 📅 Release Timeline
+
+| Feature | Status | Expected Release |
+|---------|--------|------------------|
+| ✅ Cursor IDE Support | ✅ **Completed** | ✅ **Released** |
+| Test Suites Support | 🚧 In Development | Q2 2025 |
+
+### 💡 Feature Requests
+
+Have ideas for new features? We'd love to hear from you!
+- Open an [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) with the `enhancement` label
+- Join discussions in our community
+- Contribute to the roadmap planning
+
 ## 🔧 Prerequisites
 
 ### Install Playwright MCP
@@ -317,51 +363,6 @@ steps:
 - **Sensitive Information**: Use environment variables for all passwords and API keys
 - **Environment Isolation**: Use independent configuration files for different environments
 - **Documentation**: Document all required variables in .env.example
-
-## 🗺️ Roadmap
-
-We're actively working on exciting new features to make YAML-based testing even more powerful:
-
-### 🔄 Upcoming Features
-
-#### 1. **Test Suites Support**
-- **🗂️ Suite Organization**: Group related test cases into logical suites
-- **📦 Batch Execution**: Run entire test suites with a single command
-- **🏷️ Suite-level Configuration**: Environment variables and settings per suite
-- **📋 Suite Reporting**: Aggregated reports across multiple test cases
-
-```yaml
-# Example: test-suites/e-commerce.yml
-name: "E-commerce Test Suite"
-description: "Complete e-commerce workflow testing"
-environment: "test"
-test-cases:
-  - "test-cases/login.yml"
-  - "test-cases/product-details.yml"
-  - "test-cases/cart-operations.yml"
-  - "test-cases/checkout.yml"
-```
-
-#### 2. **Cursor IDE Support**
-- **🎨 Syntax Highlighting**: Rich YAML syntax highlighting for test files
-- **🔍 IntelliSense**: Auto-completion for step libraries and environment variables
-- **🛠️ Test Runner Integration**: Execute tests directly from Cursor IDE
-- **🐛 Debug Support**: Breakpoints and step-by-step debugging
-- **📖 Documentation Hover**: Inline documentation for test steps
-
-### 📅 Release Timeline
-
-| Feature | Status | Expected Release |
-|---------|--------|------------------|
-| Test Suites Support | 🚧 In Development | Q2 2025 |
-| Cursor IDE MDC Support | 📋 Planned | Q2 2025 |
-
-### 💡 Feature Requests
-
-Have ideas for new features? We'd love to hear from you!
-- Open an [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) with the `enhancement` label
-- Join discussions in our community
-- Contribute to the roadmap planning
 
 ## 🤝 Contributing
 

@@ -48,6 +48,52 @@
 - **🚀 会话持久化**: 革命性的跨命令会话持久化，一次登录终生受益
 - **⚡ 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
 
+## 🗺️ 开发路线图
+
+我们正在积极开发令人兴奋的新功能，让基于YAML的测试更加强大：
+
+### ✅ 已完成特性
+
+#### ✅ **Cursor IDE 支持** - **已完成** 🎉
+- **✅ 项目规则集成**: 完整的 `.mdc` 规则文件，实现Cursor AI集成
+- **✅ 命令支持**: 在Cursor中完整支持 `/run-yaml-test` 命令
+- **✅ 会话持久化**: 在Cursor中实现与Claude Code相同的80-95%性能提升
+- **✅ 跨平台兼容**: 统一框架在两个IDE中无缝运行
+
+### 🔄 即将推出的特性
+
+#### 1. **测试套件支持**
+- **🗂️ 套件组织**: 将相关测试用例组织成逻辑套件
+- **📦 批量执行**: 用单个命令运行整个测试套件
+- **🏷️ 套件级配置**: 每个套件的环境变量和设置
+- **📋 套件报告**: 跨多个测试用例的聚合报告
+
+```yaml
+# 示例: test-suites/e-commerce.yml
+name: "电商测试套件"
+description: "完整的电商工作流测试"
+environment: "test"
+test-cases:
+  - "test-cases/login.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/cart-operations.yml"
+  - "test-cases/checkout.yml"
+```
+
+### 📅 发布时间表
+
+| 特性 | 状态 | 预期发布 |
+|------|------|----------|
+| ✅ Cursor IDE 支持 | ✅ **已完成** | ✅ **已发布** |
+| 测试套件支持 | 🚧 开发中 | 2025年第2季度 |
+
+### 💡 功能请求
+
+有新功能的想法？我们很乐意听到您的声音！
+- 提交 [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 并添加 `enhancement` 标签
+- 参与我们的社区讨论
+- 为路线图规划贡献力量
+
 ## 🔧 前置要求
 
 ### 安装 Playwright MCP
@@ -317,51 +363,6 @@ steps:
 - **敏感信息**: 所有密码、API密钥使用环境变量
 - **环境隔离**: 不同环境使用独立的配置文件
 - **文档化**: 在.env.example中说明所有必需变量
-
-## 🗺️ 产品路线图
-
-我们正在积极开发激动人心的新功能，让基于YAML的测试变得更加强大：
-
-### 🔄 即将推出的功能
-
-#### 1. **测试套件支持**
-- **🗂️ 套件组织**: 将相关测试用例组织成逻辑套件
-- **📦 批量执行**: 使用单个命令运行整个测试套件
-- **🏷️ 套件级配置**: 每个套件的环境变量和设置
-- **📋 套件报告**: 跨多个测试用例的聚合报告
-
-```yaml
-# 示例: test-suites/e-commerce.yml
-name: "电商测试套件"
-description: "完整的电商工作流程测试"
-environment: "test"
-test-cases:
-  - "test-cases/login.yml"
-  - "test-cases/product-details.yml"
-  - "test-cases/cart-operations.yml"
-  - "test-cases/checkout.yml"
-```
-
-#### 2. **Cursor IDE 支持**
-- **🎨 语法高亮**: 丰富的测试文件YAML语法高亮
-- **🔍 智能提示**: 步骤库和环境变量的自动完成
-- **🛠️ 测试运行器集成**: 直接在Cursor IDE中执行测试
-- **🐛 调试支持**: 断点和逐步调试功能
-- **📖 悬停文档**: 测试步骤的内联文档
-
-### 📅 发布时间表
-
-| 功能 | 状态 | 预计发布 |
-|------|------|----------|
-| 测试套件支持 | 🚧 开发中 | 2025年Q2 |
-| Cursor IDE MDC 支持 | 📋 计划中 | 2025年Q2 |
-
-### 💡 功能建议
-
-有新功能的想法？我们很乐意听到你的建议！
-- 在我们的仓库中开启一个带有 `enhancement` 标签的 [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues)
-- 参与社区讨论
-- 为路线图规划贡献力量
 
 ## 🤝 贡献指南
 
