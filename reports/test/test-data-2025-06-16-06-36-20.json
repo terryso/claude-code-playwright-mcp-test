@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "reportId": "test-report-2025-06-16-06-36-20",
+    "timestamp": "2025-06-16T06:36:20.000Z",
+    "environment": "dev",
+    "tagFilter": "smoke",
+    "reportStyle": "overview"
+  },
+  "configuration": {
+    "baseUrl": "https://www.saucedemo.com/",
+    "reportFormat": "html",
+    "reportPath": "reports/test",
+    "screenshotPath": "screenshots/test",
+    "configSource": ".env.dev"
+  },
+  "summary": {
+    "totalTestCases": 2,
+    "passedTestCases": 2,
+    "failedTestCases": 0,
+    "totalSteps": 25,
+    "executionTime": "~3 minutes",
+    "successRate": "100%"
+  },
+  "testCases": [
+    {
+      "name": "order.yml",
+      "tags": ["smoke", "order", "checkout"],
+      "status": "passed",
+      "duration": "~2 minutes",
+      "totalSteps": 16,
+      "completedSteps": 16
+    },
+    {
+      "name": "sort.yml", 
+      "tags": ["smoke", "sort"],
+      "status": "passed",
+      "duration": "~1 minute",
+      "totalSteps": 9,
+      "completedSteps": 9
+    }
+  ]
+}

@@ -16,7 +16,19 @@ Execute YAML-based Playwright test cases with step library references and parame
 
 You need to help me execute a YAML format Playwright test case. This test case may reference other YAML files defined in the step libraries.
 
+**IMPORTANT: Use the YAML Test Processor for efficient execution**
+
 Execution workflow:
+1. **Use the automated processor**: Run `node scripts/yaml-test-processor.js` with appropriate parameters to get processed test cases
+2. **Execute processed steps**: Use the processor output directly with Playwright MCP to execute test steps
+3. **Generate reports**: Create test reports based on execution results
+
+### Automated Processing Command:
+```bash
+node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
+```
+
+### Manual Processing (Legacy - use only if processor fails):
 1. Load the corresponding .env file based on env parameter (.env.dev, .env.test, .env.prod)
 2. Determine which test cases to execute based on parameters:
    - If file parameter is specified, execute the specified file

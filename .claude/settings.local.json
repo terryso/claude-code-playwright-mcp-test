@@ -12,7 +12,10 @@
       "Bash(mv:*)",
       "mcp__playwright__browser_select_option",
       "Bash(cp:*)",
-      "mcp__playwright__browser_console_messages"
+      "mcp__playwright__browser_console_messages",
+      "Bash(npm install)",
+      "Bash(node:*)",
+      "Bash(npm run test:coverage:*)"
     ],
     "deny": []
   }

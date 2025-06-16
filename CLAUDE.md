@@ -17,6 +17,8 @@ This project requires Playwright MCP:
 │   └── commands/              # Commands directory
 │       ├── run-yaml-test.md   # Execute test command
 │       └── validate-yaml-test.md # Validate test command
+├── scripts/                   # Automation scripts
+│   └── yaml-test-processor.js # YAML test processing engine
 ├── .env.example               # Environment variable template
 ├── .env.dev                   # Development environment configuration
 ├── .env.test                  # Test environment configuration
@@ -25,9 +27,11 @@ This project requires Playwright MCP:
 │   ├── login.yml              # Login step library
 │   └── cleanup.yml            # Cleanup step library
 ├── test-cases/                # Test cases
-│   └── order.yml              # Order test case
+│   ├── order.yml              # Order test case
+│   └── sort.yml               # Sort test case
 ├── screenshots/               # Test screenshots (organized by environment)
 ├── reports/                   # Test reports (organized by environment)
+├── package.json               # Node.js dependencies
 ├── CLAUDE.md                  # Project description and command index
 └── README.md                  # This document
 ```
@@ -40,6 +44,7 @@ This project requires Playwright MCP:
 - 🔧 **Environment Variables**: Automatic configuration loading from .env files
 - 📊 **Smart Reporting**: Configurable test report generation supporting HTML/JSON formats
 - 📝 **Input Prompts**: Parameter prompts and descriptions for every command
+- ⚡ **Automated Processing**: YAML test processor script for efficient test case analysis and execution
 
 ## Available Commands
 
@@ -57,8 +62,38 @@ All commands are located in the `.claude/` directory with parameter prompts:
 ## Quick Start
 
 1. Install Playwright MCP
-2. Configure environment variables in `.env.*` files
-3. Run tests: `/run-yaml-test file:test-cases/example.yml env:dev`
+2. Install Node.js dependencies: `npm install`
+3. Configure environment variables in `.env.*` files
+4. Run tests: `/run-yaml-test file:test-cases/example.yml env:dev`
+
+## YAML Test Processor
+
+The framework includes an automated YAML test processor (`scripts/yaml-test-processor.js`) that handles:
+
+- **Tag Filtering**: Automatically identifies test cases matching tag criteria
+- **Step Library Expansion**: Expands `include` references to insert step library content
+- **Environment Variable Substitution**: Replaces `{{ENV_VAR}}` placeholders with actual values
+- **Test Case Analysis**: Provides structured output for AI execution
+
+### Usage Examples:
+```bash
+# Process smoke tests for dev environment
+node scripts/yaml-test-processor.js --env=dev --tags=smoke
+
+# Process specific test file
+node scripts/yaml-test-processor.js --file=order.yml --env=test
+
+# Process tests with complex tag filtering
+node scripts/yaml-test-processor.js --tags="smoke,login|critical"
+```
+
+### AI Integration:
+When executing tests with `/run-yaml-test`, the AI can now:
+1. Call the processor script to get analyzed test cases
+2. Use the processed output directly with Playwright MCP
+3. Generate reports based on execution results
+
+This significantly improves performance and reduces the need for manual test case analysis.
 
 ## Environment Variable Support
 

@@ -1,0 +1,43 @@
+{
+  "name": "yaml-playwright-testing-framework",
+  "version": "1.0.0",
+  "description": "YAML-based Playwright testing framework with multi-environment support",
+  "main": "scripts/yaml-test-processor.js",
+  "scripts": {
+    "process-tests": "node scripts/yaml-test-processor.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "playwright",
+    "yaml",
+    "testing",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "scripts/**/*.js",
+      "!scripts/**/*.test.js"
+    ],
+    "coverageReporters": ["text", "html", "lcov"],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
+  }
+}
