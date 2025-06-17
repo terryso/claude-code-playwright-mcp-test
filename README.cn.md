@@ -27,14 +27,14 @@ flowchart TD
     F --> G["🎯 Claude 将描述匹配到 ref_id"]
     G --> H["⚡ 执行精确操作"]
     
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e8
-    style E fill:#fff8e1
-    style F fill:#fce4ec
-    style G fill:#e3f2fd
-    style H fill:#e8f5e8
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#ffffff
+    style B fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#ffffff
+    style C fill:#FF9800,stroke:#F57C00,stroke-width:3px,color:#ffffff
+    style D fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#ffffff
+    style E fill:#F44336,stroke:#C62828,stroke-width:3px,color:#ffffff
+    style F fill:#607D8B,stroke:#37474F,stroke-width:3px,color:#ffffff
+    style G fill:#3F51B5,stroke:#283593,stroke-width:3px,color:#ffffff
+    style H fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#ffffff
 ```
 
 #### 🎯 **动态ref_id生成**
