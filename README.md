@@ -9,7 +9,91 @@
 
 > **[中文文档](README.cn.md)** | **English Documentation**
 
-A YAML-based Playwright automation testing framework designed for Claude Code, supporting multi-environment configuration, reusable step libraries, and natural language test descriptions.
+A YAML-based Playwright MCP automation testing framework designed for Claude Code, supporting multi-environment configuration, reusable step libraries, and natural language test descriptions.
+
+## 🧠 How Playwright MCP Works - The Core Innovation
+
+### 🎯 Revolutionary Element Targeting System
+
+Unlike traditional Playwright automation that relies on fragile CSS selectors or XPath expressions, **Playwright MCP uses a revolutionary dynamic element identification system**:
+
+```mermaid
+flowchart TD
+    A["🌐 Web Page Loaded"] --> B["🔍 Playwright MCP Scans Page"]
+    B --> C["🏷️ Assigns Unique ref_id to Each Element"]
+    C --> D["📋 Creates Accessibility Snapshot"]
+    D --> E["🤖 Claude Code Receives Element Map"]
+    E --> F["🗣️ User Writes Natural Language Step"]
+    F --> G["🎯 Claude Matches Description to ref_id"]
+    G --> H["⚡ Executes Precise Action"]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#fff3e0
+    style D fill:#e8f5e8
+    style E fill:#fff8e1
+    style F fill:#fce4ec
+    style G fill:#e3f2fd
+    style H fill:#e8f5e8
+```
+
+#### 🎯 **Dynamic ref_id Generation**
+When Playwright MCP accesses a web page, it automatically:
+1. **Scans all interactive elements** on the page (buttons, inputs, links, etc.)
+2. **Assigns unique ref_id attributes** to each element dynamically
+3. **Creates an accessibility snapshot** with element descriptions and their corresponding ref_ids
+4. **Provides this mapping to Claude Code** for intelligent element selection
+
+#### 🎯 **Intelligent Element Selection**
+Instead of guessing selectors, Claude Code can:
+- **See exactly what elements exist** on the page with human-readable descriptions
+- **Reference elements by their unique ref_id** with 100% accuracy
+- **Avoid brittle selector-based failures** that plague traditional automation
+- **Handle dynamic content** without manual selector updates
+
+#### 🎯 **Natural Language to Precise Actions**
+```yaml
+# Your YAML test step:
+- "Click Add to Cart button for first product"
+
+# What happens behind the scenes:
+# 1. Playwright MCP identifies all "Add to Cart" buttons
+# 2. Assigns ref_ids: button[ref_id="addcart_123"], button[ref_id="addcart_456"]
+# 3. Claude Code intelligently selects the first one: ref_id="addcart_123"
+# 4. Executes precise click action without guessing selectors
+```
+
+#### 🎯 **Benefits Over Traditional Automation**
+| Traditional Approach | Playwright MCP Approach |
+|---------------------|------------------------|
+| `page.click('#add-cart-btn-1')` | Claude sees "Add to Cart button for Sauce Labs Backpack" with ref_id |
+| Brittle CSS selectors | Dynamic element identification |
+| Breaks when HTML changes | Adapts to page structure automatically |
+| Requires manual maintenance | Self-healing element detection |
+| Multiple retry attempts | First-time accurate targeting |
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant C as 🤖 Claude Code
+    participant P as 🎭 Playwright MCP
+    participant W as 🌐 Web Page
+    
+    U->>C: "Click Add to Cart for first product"
+    C->>P: Request page snapshot
+    P->>W: Scan page elements
+    W-->>P: Return all elements
+    P->>P: Assign ref_ids to elements
+    P-->>C: Accessibility snapshot with ref_ids
+    C->>C: Match "first product Add to Cart" to ref_id
+    C->>P: Click element with ref_id="addcart_123"
+    P->>W: Execute precise click
+    W-->>P: Action completed
+    P-->>C: Success confirmation
+    C-->>U: ✅ Step completed successfully
+```
+
+**This is why our YAML-based approach is so powerful** - **you write in natural language, and Playwright MCP handles the complex element targeting automatically**.
 
 ## 🎬 Demo Video
 

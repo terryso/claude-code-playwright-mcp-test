@@ -9,7 +9,91 @@
 
 > **中文文档** | **[English Documentation](README.md)**
 
-一个基于YAML配置的Playwright自动化测试框架，专为Claude Code设计，支持多环境配置、步骤库复用和自然语言测试描述。
+一个基于YAML配置的Playwright MCP自动化测试框架，专为Claude Code设计，支持多环境配置、步骤库复用和自然语言测试描述。
+
+## 🧠 Playwright MCP 工作原理 - 核心创新
+
+### 🎯 革命性元素定位系统
+
+与传统的Playwright自动化依赖脆弱的CSS选择器或XPath表达式不同，**Playwright MCP使用革命性的动态元素识别系统**：
+
+```mermaid
+flowchart TD
+    A["🌐 网页加载完成"] --> B["🔍 Playwright MCP 扫描页面"]
+    B --> C["🏷️ 为每个元素分配唯一 ref_id"]
+    C --> D["📋 创建可访问性快照"]
+    D --> E["🤖 Claude Code 接收元素映射"]
+    E --> F["🗣️ 用户编写自然语言步骤"]
+    F --> G["🎯 Claude 将描述匹配到 ref_id"]
+    G --> H["⚡ 执行精确操作"]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#fff3e0
+    style D fill:#e8f5e8
+    style E fill:#fff8e1
+    style F fill:#fce4ec
+    style G fill:#e3f2fd
+    style H fill:#e8f5e8
+```
+
+#### 🎯 **动态ref_id生成**
+当Playwright MCP访问网页时，会自动：
+1. **扫描页面上所有可交互元素**（按钮、输入框、链接等）
+2. **为每个元素动态分配唯一的ref_id属性**
+3. **创建包含元素描述和对应ref_id的可访问性快照**
+4. **将此映射提供给Claude Code**进行智能元素选择
+
+#### 🎯 **智能元素选择**
+Claude Code无需猜测选择器，可以：
+- **准确看到页面上存在哪些元素**，包含人类可读的描述
+- **通过唯一的ref_id引用元素**，100%准确定位
+- **避免传统自动化中脆弱的选择器失败**问题
+- **处理动态内容**，无需手动更新选择器
+
+#### 🎯 **自然语言到精确操作**
+```yaml
+# 你的YAML测试步骤:
+- "Click Add to Cart button for first product"
+
+# 幕后发生的过程:
+# 1. Playwright MCP识别所有"Add to Cart"按钮
+# 2. 分配ref_ids: button[ref_id="addcart_123"], button[ref_id="addcart_456"]
+# 3. Claude Code智能选择第一个: ref_id="addcart_123"
+# 4. 执行精确的点击操作，无需猜测选择器
+```
+
+#### 🎯 **相比传统自动化的优势**
+| 传统方法 | Playwright MCP方法 |
+|---------|------------------|
+| `page.click('#add-cart-btn-1')` | Claude看到"Sauce Labs Backpack的Add to Cart按钮"及其ref_id |
+| 脆弱的CSS选择器 | 动态元素识别 |
+| HTML变化时会失效 | 自动适应页面结构变化 |
+| 需要手动维护 | 自愈性元素检测 |
+| 多次重试尝试 | 首次即可准确定位 |
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 用户
+    participant C as 🤖 Claude Code
+    participant P as 🎭 Playwright MCP
+    participant W as 🌐 网页
+    
+    U->>C: "点击第一个产品的Add to Cart"
+    C->>P: 请求页面快照
+    P->>W: 扫描页面元素
+    W-->>P: 返回所有元素
+    P->>P: 为元素分配 ref_ids
+    P-->>C: 包含 ref_ids 的可访问性快照
+    C->>C: 将"第一个产品Add to Cart"匹配到 ref_id
+    C->>P: 点击 ref_id="addcart_123" 的元素
+    P->>W: 执行精确点击
+    W-->>P: 操作完成
+    P-->>C: 成功确认
+    C-->>U: ✅ 步骤成功完成
+```
+
+**这就是我们基于YAML的方法如此强大的原因** - **你用自然语言编写，Playwright MCP自动处理复杂的元素定位**。
 
 ## 🎬 演示视频
 
