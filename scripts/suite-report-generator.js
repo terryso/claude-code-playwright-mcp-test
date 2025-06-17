@@ -20,7 +20,14 @@ class SuiteReportGenerator {
      * 生成测试套件报告
      */
     generateSuiteReport(suiteData, executionResults) {
-        const timestamp = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const timestamp = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0') + '-' + 
+                         String(now.getHours()).padStart(2, '0') + '-' + 
+                         String(now.getMinutes()).padStart(2, '0') + '-' + 
+                         String(now.getSeconds()).padStart(2, '0') + '-' + 
+                         String(now.getMilliseconds()).padStart(3, '0');
         const suiteName = (suiteData.name || 'unnamed-suite').replace('.yml', '');
         const fileName = `suite-${suiteName}-${timestamp}.html`;
         const fullPath = path.join(this.projectRoot, this.reportPath, fileName);
@@ -270,6 +277,8 @@ class SuiteReportGenerator {
 module.exports = SuiteReportGenerator;
 
 // 如果直接运行此脚本
+module.exports = SuiteReportGenerator;
+
 if (require.main === module) {
     const generator = new SuiteReportGenerator({
         environment: process.argv[2] || 'dev',

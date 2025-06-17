@@ -76,15 +76,142 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
 4. Use Playwright MCP to execute the expanded complete step sequence
 5. Check GENERATE_REPORT environment variable and generate test reports if enabled:
    - If GENERATE_REPORT=true, automatically generate test reports using the report generation script
-   - **MANDATORY**: Use `node scripts/test-case-report-generator.js` to generate test case reports
-   - Pass execution results, test details, and environment configuration to the script
-   - The script will automatically handle:
+   - **MANDATORY**: Use the TestCaseReportGenerator class to generate test case reports
+   - Import and instantiate the class with environment configuration
+   - Call generateTestCaseReport() method with execution data
+   - The generator will automatically handle:
      * Template selection based on REPORT_STYLE (detailed/overview)
      * Embedded JSON data generation
-     * File naming with timestamps
+     * File naming with full timestamps (includes date and time)
      * Report path management
      * latest-test-report.html redirect updates
-   - **DO NOT manually generate reports** - always use the script for consistency
+**TestCaseReportGenerator Parameters**:
+
+**Constructor Options**:
+```javascript
+const generator = new TestCaseReportGenerator({
+  environment: 'dev',        // Environment name (dev/test/prod)
+  reportStyle: 'overview',   // Report style (overview/detailed)  
+  reportFormat: 'html',      // Report format (html/json/xml)
+  projectRoot: process.cwd(), // Project root directory (optional)
+  reportPath: 'reports/dev'  // Report output path (optional)
+});
+```
+
+**generateTestCaseReport(testCaseData, executionResult) Parameters**:
+
+**testCaseData** (Object or Array):
+```javascript
+// Single test case:
+{
+  name: 'sort.yml',                    // Test case file name
+  description: 'Product sorting test', // Test description
+  tags: ['smoke', 'sort'],            // Test tags array
+  steps: [                            // Test steps array
+    'Login to application',
+    'Click sorting dropdown, select Price(low to high)',
+    'Verify first product price is $7.99'
+  ],
+  stepCount: 9                        // Total step count
+}
+
+// Multiple test cases (array):
+[
+  { name: 'sort.yml', description: '...', tags: [...], steps: [...] },
+  { name: 'order.yml', description: '...', tags: [...], steps: [...] }
+]
+```
+
+**executionResult** (Object):
+```javascript
+{
+  name: 'sort-execution',           // Execution name (optional)
+  status: 'passed',                 // Overall status: 'passed'/'failed'
+  startTime: Date.now(),           // Execution start timestamp
+  endTime: Date.now(),             // Execution end timestamp
+  duration: 30000,                 // Duration in milliseconds
+  environment: 'dev',              // Environment name
+  testResults: [                   // Individual test results (for batch)
+    {
+      testName: 'sort.yml',
+      status: 'passed',
+      duration: 15000,
+      steps: [
+        { step: 'Login', status: 'passed', duration: 3000 },
+        { step: 'Sort products', status: 'passed', duration: 2000 }
+      ],
+      validations: ['Price low to high: $7.99', 'Price high to low: $49.99'],
+      error: null                   // Error message if failed
+    }
+  ],
+  screenshots: [                   // Screenshots taken
+    'screenshots/dev/sort-final.png'
+  ],
+  sessionOptimized: true          // Whether session optimization was used
+}
+```
+
+**Complete Example - Single Test Case**:
+```javascript
+const TestCaseReportGenerator = require('./scripts/test-case-report-generator.js');
+const generator = new TestCaseReportGenerator({
+  environment: 'dev',
+  reportStyle: 'overview'
+});
+
+const testCaseData = {
+  name: 'sort.yml',
+  description: 'Product sorting functionality test',
+  tags: ['smoke', 'sort'],
+  steps: [
+    'Login to application',
+    'Click sorting dropdown, select Price(low to high)',
+    'Verify first product price is $7.99',
+    'Click sorting dropdown, select Price(high to low)',
+    'Verify first product price is $49.99'
+  ],
+  stepCount: 5
+};
+
+const executionResult = {
+  status: 'passed',
+  startTime: Date.now() - 30000,
+  endTime: Date.now(),
+  duration: 30000,
+  environment: 'dev',
+  testResults: [{
+    testName: 'sort.yml',
+    status: 'passed',
+    duration: 30000,
+    validations: ['Low to high verified: $7.99', 'High to low verified: $49.99'],
+    sessionOptimized: true
+  }]
+};
+
+const result = generator.generateTestCaseReport(testCaseData, executionResult);
+console.log('Report generated:', result.reportPath);
+```
+
+**Complete Example - Multiple Test Cases (Batch)**:
+```javascript
+const testCases = [
+  { name: 'sort.yml', description: 'Sorting test', tags: ['smoke'] },
+  { name: 'order.yml', description: 'Order test', tags: ['smoke'] }
+];
+
+const executionResult = {
+  name: 'smoke-tests-batch',
+  status: 'passed',
+  testResults: [
+    { testName: 'sort.yml', status: 'passed', duration: 15000 },
+    { testName: 'order.yml', status: 'passed', duration: 20000 }
+  ]
+};
+
+const result = generator.generateTestCaseReport(testCases, executionResult);
+```
+
+   - **DO NOT manually generate reports** - always use the class for consistency
 6. Output execution results and statistics
 
 YAML format specifications:

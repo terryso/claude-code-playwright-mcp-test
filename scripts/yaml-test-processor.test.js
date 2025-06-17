@@ -1631,6 +1631,73 @@ Examples:
                 );
                 expect(process.exit).toHaveBeenCalledWith(0);
             });
+
+            test('should handle --file argument correctly', () => {
+                process.argv = ['node', 'yaml-test-processor.js', '--file=specific-test.yml'];
+                
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync.mockReturnValueOnce([]); // step libraries
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce('tags: [test]\nsteps: ["Test step"]'); // test case
+                
+                const YAMLTestProcessor = require('./yaml-test-processor.js');
+                YAMLTestProcessor.main();
+                
+                expect(consoleLogSpy).toHaveBeenCalled();
+                // Verify JSON output was called
+                const outputCall = consoleLogSpy.mock.calls.find(call => 
+                    call[0].includes('"testCases"') || call[0].includes('{')
+                );
+                expect(outputCall).toBeDefined();
+            });
+
+            test('should handle --suite argument correctly', () => {
+                process.argv = ['node', 'yaml-test-processor.js', '--suite=smoke-tests.yml'];
+                
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync
+                    .mockReturnValueOnce([]) // step libraries  
+                    .mockReturnValueOnce([]) // test cases
+                    .mockReturnValueOnce(['smoke-tests.yml']); // test suites
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce('name: Smoke Tests\ntags: [smoke]\ntest-cases: []'); // suite file
+                
+                const YAMLTestProcessor = require('./yaml-test-processor.js');
+                YAMLTestProcessor.main();
+                
+                expect(consoleLogSpy).toHaveBeenCalled();
+                // Verify JSON output was called
+                const outputCall = consoleLogSpy.mock.calls.find(call => 
+                    call[0].includes('"testSuites"') || call[0].includes('{')
+                );
+                expect(outputCall).toBeDefined();
+            });
+
+            test('should handle --suites argument correctly', () => {
+                process.argv = ['node', 'yaml-test-processor.js', '--suites'];
+                
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync
+                    .mockReturnValueOnce([]) // step libraries
+                    .mockReturnValueOnce([]) // test cases  
+                    .mockReturnValueOnce(['suite1.yml', 'suite2.yml']); // test suites
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce('name: Suite 1\ntags: [test]\ntest-cases: []') // suite1
+                    .mockReturnValueOnce('name: Suite 2\ntags: [test]\ntest-cases: []'); // suite2
+                
+                const YAMLTestProcessor = require('./yaml-test-processor.js');
+                YAMLTestProcessor.main();
+                
+                expect(consoleLogSpy).toHaveBeenCalled();
+                // Verify JSON output was called
+                const outputCall = consoleLogSpy.mock.calls.find(call => 
+                    call[0].includes('"testSuites"') || call[0].includes('{')
+                );
+                expect(outputCall).toBeDefined();
+            });
         });
     });
 });

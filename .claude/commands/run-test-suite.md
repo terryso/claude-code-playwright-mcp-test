@@ -128,15 +128,107 @@ node scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={
 
 **Report Configuration**:
 - Use `GENERATE_REPORT` environment variable (true/false)
-- **MANDATORY**: Use `node scripts/suite-report-generator.js` to generate suite reports
-- Pass suite execution results, test case details, and environment configuration to the script
-- The script will automatically handle:
+- **MANDATORY**: Use the SuiteReportGenerator class to generate suite reports
+- Import and instantiate the class with environment configuration
+- Call generateSuiteReport() method with execution data
+- The generator will automatically handle:
   * Template selection based on REPORT_STYLE (detailed/overview)
   * Embedded JSON data generation
-  * File naming with timestamps: `suite-{suite-name}-{timestamp}.html`
+  * File naming with full timestamps: `suite-{suite-name}-{timestamp}.html`
   * Report path management in correct environment directory: `reports/{env}/`
   * latest-suite-report.html redirect updates
-- **DO NOT manually generate reports** - always use the script for consistency
+
+**SuiteReportGenerator Parameters**:
+
+**Constructor Options**:
+```javascript
+const generator = new SuiteReportGenerator({
+  environment: 'dev',        // Environment name (dev/test/prod)
+  reportStyle: 'overview',   // Report style (overview/detailed)
+  reportFormat: 'html',      // Report format (html/json/xml) 
+  projectRoot: process.cwd(), // Project root directory (optional)
+  reportPath: 'reports/dev'  // Report output path (optional)
+});
+```
+
+**generateSuiteReport(suiteData, executionResults) Parameters**:
+
+**suiteData** (Object):
+```javascript
+{
+  name: 'Smoke Test Suite',              // Suite name
+  suiteName: 'Smoke Test Suite',         // Display name (optional)
+  description: 'Quick smoke tests...',   // Suite description
+  tags: ['smoke', 'quick', 'sanity'],   // Suite tags array
+  environment: 'dev',                    // Environment name
+  testCases: [                           // Test cases array
+    { name: 'sort.yml', tags: ['smoke', 'sort'] },
+    { name: 'product-details.yml', tags: ['smoke', 'product-details'] }
+  ],
+  summary: { totalSteps: 32 }            // Optional summary info
+}
+```
+
+**executionResults** (Array):
+```javascript
+[
+  {
+    testName: 'sort.yml',                    // Test case file name
+    description: 'Product sorting test',    // Test description
+    status: 'passed',                       // Status: 'passed'/'failed'
+    steps: 9,                              // Number of steps executed
+    features: 'Price sorting, Display',    // Features tested
+    tags: ['smoke', 'sort'],               // Test tags
+    validations: 'Low: $7.99, High: $49.99', // Key validations
+    error: 'Error message'                 // Error message (if failed)
+  }
+]
+```
+
+**Complete Example**:
+```javascript
+const SuiteReportGenerator = require('./scripts/suite-report-generator.js');
+const generator = new SuiteReportGenerator({
+  environment: 'dev',
+  reportStyle: 'overview'
+});
+
+const suiteData = {
+  name: 'Smoke Test Suite',
+  description: 'Quick smoke tests to validate core functionality',
+  tags: ['smoke', 'quick'],
+  testCases: [
+    { name: 'sort.yml', tags: ['smoke', 'sort'] },
+    { name: 'product-details.yml', tags: ['smoke', 'product-details'] }
+  ]
+};
+
+const executionResults = [
+  {
+    testName: 'sort.yml',
+    description: 'Product sorting functionality test',
+    status: 'passed',
+    steps: 9,
+    features: 'Price sorting, Product display',
+    tags: ['smoke', 'sort'],
+    validations: 'Low to high: $7.99, High to low: $49.99'
+  },
+  {
+    testName: 'product-details.yml',
+    description: 'Product details and cart test',
+    status: 'passed', 
+    steps: 23,
+    features: 'Product details, Add to cart',
+    tags: ['smoke', 'product-details'],
+    validations: 'Product info, Button changes, Navigation'
+  }
+];
+
+const result = generator.generateSuiteReport(suiteData, executionResults);
+console.log('Report generated:', result.reportPath);
+```
+
+- **DO NOT manually generate reports** - always use the class for consistency
 
 ## Suite Performance Impact
 

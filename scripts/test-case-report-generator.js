@@ -18,9 +18,26 @@ class TestCaseReportGenerator {
 
     /**
      * 生成测试用例报告
+     * @param {Object|Array} testCaseData - 单个测试用例数据或测试用例数组
+     * @param {Object} executionResult - 执行结果
+     * @returns {Object} 报告生成结果
      */
     generateTestCaseReport(testCaseData, executionResult) {
-        const timestamp = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const timestamp = now.getFullYear() + '-' + 
+                         String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                         String(now.getDate()).padStart(2, '0') + '-' + 
+                         String(now.getHours()).padStart(2, '0') + '-' + 
+                         String(now.getMinutes()).padStart(2, '0') + '-' + 
+                         String(now.getSeconds()).padStart(2, '0') + '-' + 
+                         String(now.getMilliseconds()).padStart(3, '0');
+        
+        // 处理多个测试用例的情况
+        if (Array.isArray(testCaseData)) {
+            return this.generateBatchReport(testCaseData, executionResult, timestamp);
+        }
+        
+        // 处理单个测试用例
         const testName = (testCaseData.name || 'unnamed-test').replace('.yml', '');
         const fileName = `test-${testName}-${timestamp}.html`;
         const fullPath = path.join(this.projectRoot, this.reportPath, fileName);
@@ -51,6 +68,48 @@ class TestCaseReportGenerator {
             reportPath: fullPath,
             fileName: fileName,
             latestLink: latestLink
+        };
+    }
+
+    /**
+     * 生成批量测试报告（针对一次测试执行）
+     * @param {Array} testCases - 测试用例数组
+     * @param {Object} executionResult - 执行结果
+     * @param {string} timestamp - 时间戳
+     * @returns {Object} 报告生成结果
+     */
+    generateBatchReport(testCases, executionResult, timestamp) {
+        const reportName = executionResult.name || `execution-${timestamp}`;
+        const fileName = `test-${reportName}-${timestamp}.html`;
+        const fullPath = path.join(this.projectRoot, this.reportPath, fileName);
+
+        // 确保目录存在
+        const dir = path.dirname(fullPath);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        let reportContent;
+        if (this.reportStyle === 'overview') {
+            reportContent = this.generateBatchOverviewReport(testCases, executionResult, timestamp);
+        } else {
+            reportContent = this.generateBatchDetailedReport(testCases, executionResult, timestamp);
+        }
+
+        fs.writeFileSync(fullPath, reportContent, 'utf8');
+
+        // 创建最新报告链接
+        const latestLink = path.join(dir, 'latest-test-report.html');
+        if (fs.existsSync(latestLink)) {
+            fs.unlinkSync(latestLink);
+        }
+        fs.symlinkSync(fileName, latestLink);
+
+        return {
+            reportPath: fullPath,
+            fileName: fileName,
+            latestLink: latestLink,
+            testCount: testCases.length
         };
     }
 
@@ -127,7 +186,7 @@ class TestCaseReportGenerator {
             
             <div class="stat-card">
                 <h3>⏱️ Duration</h3>
-                <div class="stat-number">${duration}</div>
+                <div class="stat-number">${Math.round(duration / 1000 * 100) / 100}</div>
                 <div class="stat-label">Seconds</div>
             </div>
             
@@ -247,6 +306,158 @@ class TestCaseReportGenerator {
     }
 
     /**
+     * 生成批量测试概览报告
+     */
+    generateBatchOverviewReport(testCases, executionResult, timestamp) {
+        const totalTests = testCases.length;
+        const passedTests = executionResult.summary ? executionResult.summary.passed : 0;
+        const failedTests = executionResult.summary ? executionResult.summary.failed : 0;
+        const totalSteps = executionResult.summary ? executionResult.summary.totalSteps : 0;
+        const totalDuration = executionResult.summary ? executionResult.summary.totalDuration : '0s';
+        const successRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+        const status = failedTests > 0 ? 'failed' : 'passed';
+        const reportName = executionResult.name || 'Test Execution';
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Execution Report - ${reportName}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, ${status === 'passed' ? '#28a745, #20c997' : '#dc3545, #e74c3c'}); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+        .header .subtitle { font-size: 1.1em; opacity: 0.9; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 4px solid ${status === 'passed' ? '#28a745' : '#dc3545'}; }
+        .stat-card h3 { color: #495057; margin-bottom: 10px; font-size: 1em; }
+        .stat-number { font-size: 2em; font-weight: bold; color: ${status === 'passed' ? '#28a745' : '#dc3545'}; margin-bottom: 5px; }
+        .stat-label { color: #6c757d; font-size: 0.9em; }
+        .tests-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .test-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .test-card h4 { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .test-status { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
+        .status-passed { background: #d4edda; color: #155724; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+        .tag { background: #007bff; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7em; margin: 2px; display: inline-block; }
+        .footer { text-align: center; color: #6c757d; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="icon">${this.getStatusIcon(status)}</span>
+                ${reportName} Report
+            </h1>
+            <div class="subtitle">Environment: ${this.environment} | Tests: ${totalTests} | Success Rate: ${successRate}% | Generated: ${timestamp}</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>📊 Overall Status</h3>
+                <div class="stat-number">${this.getStatusIcon(status)}</div>
+                <div class="stat-label">${successRate}% Success Rate</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>✅ Passed Tests</h3>
+                <div class="stat-number">${passedTests}</div>
+                <div class="stat-label">out of ${totalTests}</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>❌ Failed Tests</h3>
+                <div class="stat-number">${failedTests}</div>
+                <div class="stat-label">out of ${totalTests}</div>
+            </div>
+
+            <div class="stat-card">
+                <h3>📝 Total Steps</h3>
+                <div class="stat-number">${totalSteps}</div>
+                <div class="stat-label">Executed</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>⏱️ Duration</h3>
+                <div class="stat-number">${totalDuration}</div>
+                <div class="stat-label">Total Time</div>
+            </div>
+        </div>
+
+        <div class="tests-grid">
+            ${testCases.map((testCase, index) => {
+                const testResult = executionResult.testResults ? executionResult.testResults[index] : { status: 'unknown', duration: '0s' };
+                return `
+                <div class="test-card">
+                    <h4>
+                        ${this.getStatusIcon(testResult.status || 'unknown')}
+                        ${testCase.name || `Test ${index + 1}`}
+                        <span class="test-status status-${testResult.status || 'unknown'}">${(testResult.status || 'unknown').toUpperCase()}</span>
+                    </h4>
+                    <p style="color: #6c757d; margin-bottom: 10px;">${testCase.description || 'No description'}</p>
+                    <div style="margin-bottom: 10px;">
+                        ${(testCase.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #6c757d; font-size: 0.9em;">
+                        <span>Steps: ${testCase.steps ? testCase.steps.length : 0}</span>
+                        <span>Duration: ${typeof testResult.duration === 'number' ? Math.round(testResult.duration / 1000 * 100) / 100 + 's' : testResult.duration || '0s'}</span>
+                    </div>
+                </div>
+                `;
+            }).join('')}
+        </div>
+
+        <div class="footer">
+            <strong>Generated by Claude Code Playwright MCP Test Framework</strong><br>
+            Execution: ${reportName} | Environment: ${this.environment} | Report Style: ${this.reportStyle}<br>
+            Execution completed on ${timestamp}
+        </div>
+    </div>
+</body>
+</html>`;
+    }
+
+    /**
+     * 生成批量测试详细报告
+     */
+    generateBatchDetailedReport(testCases, executionResult, timestamp) {
+        const overviewReport = this.generateBatchOverviewReport(testCases, executionResult, timestamp);
+        
+        // 添加详细步骤信息
+        const detailedSteps = testCases.map((testCase, index) => {
+            const testResult = executionResult.testResults ? executionResult.testResults[index] : { status: 'unknown' };
+            const steps = testCase.steps || [];
+            
+            return `
+            <div class="test-details" style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    ${this.getStatusIcon(testResult.status || 'unknown')}
+                    ${testCase.name || `Test ${index + 1}`} - Detailed Steps
+                </h3>
+                ${steps.length === 0 ? '<p style="color: #6c757d;">No steps defined</p>' : 
+                  steps.map((step, stepIndex) => `
+                    <div style="border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 8px; padding: 12px; background: #f8f9fa;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="background: #28a745; color: white; padding: 2px 6px; border-radius: 50%; font-size: 0.8em; font-weight: bold;">${stepIndex + 1}</span>
+                            <span style="font-weight: 500; color: #495057;">${typeof step === 'string' ? step : step.action || 'Unknown step'}</span>
+                        </div>
+                    </div>
+                  `).join('')
+                }
+            </div>
+            `;
+        }).join('');
+
+        return overviewReport
+            .replace('Style: overview', 'Style: detailed')
+            .replace('<div class="footer">', detailedSteps + '<div class="footer">');
+    }
+
+    /**
      * 生成步骤执行报告（用于实时更新）
      */
     generateStepExecutionReport(testCaseData, stepResults) {
@@ -270,6 +481,8 @@ class TestCaseReportGenerator {
 module.exports = TestCaseReportGenerator;
 
 // 如果直接运行此脚本
+module.exports = TestCaseReportGenerator;
+
 if (require.main === module) {
     const generator = new TestCaseReportGenerator({
         environment: process.argv[2] || 'dev',

@@ -5,6 +5,7 @@
 tags: 
   - smoke
   - sort
+  - sort-optimized
   - session-optimized
 steps:
   - include: "session-check"           # Smart login - only if needed

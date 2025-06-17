@@ -26,6 +26,9 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "testMatch": [
+      "**/scripts/**/*.test.js"
+    ],
     "collectCoverageFrom": [
       "scripts/**/*.js",
       "!scripts/**/*.test.js"
