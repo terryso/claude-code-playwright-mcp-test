@@ -75,20 +75,16 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
    - Apply environment variable substitution, replacing {{ENV_VAR}} with actual values
 4. Use Playwright MCP to execute the expanded complete step sequence
 5. Check GENERATE_REPORT environment variable and generate test reports if enabled:
-   - If GENERATE_REPORT=true, automatically generate test reports
-   - Use REPORT_FORMAT to determine report format (html/json/xml)
-   - Use REPORT_STYLE to determine report content (detailed/overview)
-   - Save reports to path specified by REPORT_PATH environment variable
-   - **CRITICAL**: Use embedded JSON data approach for all reports:
-     * Copy the correct template based on REPORT_STYLE: `reports/template-overview.html` or `reports/template-detailed.html`
-     * **EMBED data directly in HTML**: Replace the external JSON fetch with embedded data object
-     * Structure embedded data based on report style:
-       - overview: Summary data with totals, success rates, test case names and basic info only
-       - detailed: Complete test data with all steps, execution details, step libraries, and generated files
-     * Save final report to `reports/{env}/test-report-{timestamp}.html` with embedded data
-     * Update `latest-test-report.html` to redirect to the newest report
-     * **DO NOT generate separate JSON files** - all data must be embedded in the HTML report
-   - **DO NOT** generate static HTML content - always use the template system with embedded JSON data
+   - If GENERATE_REPORT=true, automatically generate test reports using the report generation script
+   - **MANDATORY**: Use `node scripts/test-case-report-generator.js` to generate test case reports
+   - Pass execution results, test details, and environment configuration to the script
+   - The script will automatically handle:
+     * Template selection based on REPORT_STYLE (detailed/overview)
+     * Embedded JSON data generation
+     * File naming with timestamps
+     * Report path management
+     * latest-test-report.html redirect updates
+   - **DO NOT manually generate reports** - always use the script for consistency
 6. Output execution results and statistics
 
 YAML format specifications:

@@ -1,0 +1,18 @@
+# E-commerce Test Suite
+# Complete e-commerce workflow testing from login to checkout
+name: "E-commerce Test Suite"
+description: "Complete e-commerce workflow testing covering user registration, product browsing, cart operations, and checkout process"
+tags:
+  - e-commerce
+  - integration
+  - critical
+
+# Test cases to execute in order
+test-cases:
+  - "test-cases/order.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/sort-optimized.yml"
+
+# Post-suite actions
+post-actions:
+  - "Close browser"

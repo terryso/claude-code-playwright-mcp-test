@@ -13,6 +13,7 @@ class YAMLTestProcessor {
     constructor(options = {}) {
         this.projectRoot = options.projectRoot || process.cwd();
         this.testCasesDir = path.join(this.projectRoot, 'test-cases');
+        this.testSuitesDir = path.join(this.projectRoot, 'test-suites');
         this.stepsDir = path.join(this.projectRoot, 'steps');
         this.environment = options.environment || 'dev';
         this.tagFilter = options.tagFilter;
@@ -255,6 +256,156 @@ class YAMLTestProcessor {
             }
         };
     }
+
+    /**
+     * 获取所有测试套件文件
+     */
+    getTestSuiteFiles(specificSuite = null) {
+        if (specificSuite) {
+            const filePath = path.isAbsolute(specificSuite) ? specificSuite : path.join(this.testSuitesDir, specificSuite);
+            return fs.existsSync(filePath) ? [filePath] : [];
+        }
+
+        if (!fs.existsSync(this.testSuitesDir)) {
+            console.warn(`Test suites directory ${this.testSuitesDir} not found`);
+            return [];
+        }
+
+        return fs.readdirSync(this.testSuitesDir)
+            .filter(file => file.endsWith('.yml') || file.endsWith('.yaml'))
+            .map(file => path.join(this.testSuitesDir, file));
+    }
+
+    /**
+     * 处理单个测试套件
+     */
+    processTestSuite(filePath) {
+        try {
+            const content = fs.readFileSync(filePath, 'utf8');
+            const suite = yaml.load(content);
+            
+            if (!suite) {
+                throw new Error('Invalid YAML content');
+            }
+
+            const fileName = path.basename(filePath);
+            
+            // 检查套件级别的标签过滤
+            if (!this.matchesTagFilter(suite.tags, this.tagFilter)) {
+                return null; // 不匹配，跳过
+            }
+
+            // 处理套件中的测试用例
+            const processedTestCases = [];
+            const suiteErrors = [];
+
+            if (suite['test-cases'] && Array.isArray(suite['test-cases'])) {
+                for (const testCaseRef of suite['test-cases']) {
+                    try {
+                        let testCasePath;
+
+                        // 简化格式：支持直接字符串路径
+                        if (typeof testCaseRef === 'string') {
+                            testCasePath = testCaseRef;
+                        } else if (typeof testCaseRef === 'object' && testCaseRef.path) {
+                            // 兼容旧格式
+                            testCasePath = testCaseRef.path;
+                        } else {
+                            throw new Error('Invalid test case reference format');
+                        }
+
+                        // 解析测试用例路径
+                        const fullPath = path.isAbsolute(testCasePath) 
+                            ? testCasePath 
+                            : path.join(this.projectRoot, testCasePath);
+
+                        if (!fs.existsSync(fullPath)) {
+                            throw new Error(`Test case file not found: ${testCasePath}`);
+                        }
+
+                        // 处理测试用例
+                        const processedCase = this.processTestCase(fullPath);
+                        if (processedCase) {
+                            processedTestCases.push(processedCase);
+                        }
+
+                    } catch (error) {
+                        suiteErrors.push({
+                            testCase: testCaseRef,
+                            error: error.message
+                        });
+                    }
+                }
+            }
+
+            return {
+                name: fileName,
+                originalFile: filePath,
+                suiteName: suite.name || fileName,
+                description: suite.description || '',
+                tags: suite.tags || [],
+                preActions: suite['pre-actions'] || [],
+                postActions: suite['post-actions'] || [],
+                testCases: processedTestCases,
+                errors: suiteErrors,
+                summary: {
+                    totalTestCases: processedTestCases.length,
+                    totalSteps: processedTestCases.reduce((sum, tc) => sum + tc.stepCount, 0),
+                    totalErrors: suiteErrors.length
+                }
+            };
+
+        } catch (error) {
+            console.error(`Error processing test suite ${filePath}:`, error.message);
+            return {
+                name: path.basename(filePath),
+                originalFile: filePath,
+                suiteName: path.basename(filePath),
+                description: '',
+                tags: [],
+                preActions: [],
+                postActions: [],
+                error: error.message,
+                testCases: [],
+                errors: [],
+                summary: {
+                    totalTestCases: 0,
+                    totalSteps: 0,
+                    totalErrors: 1
+                }
+            };
+        }
+    }
+
+    /**
+     * 处理所有测试套件
+     */
+    processAllTestSuites(specificSuite = null) {
+        const files = this.getTestSuiteFiles(specificSuite);
+        const processedSuites = [];
+        
+        files.forEach(filePath => {
+            const processed = this.processTestSuite(filePath);
+            if (processed) {
+                processedSuites.push(processed);
+            }
+        });
+
+        return {
+            environment: this.environment,
+            tagFilter: this.tagFilter,
+            envVars: this.envVars,
+            stepLibraries: Object.keys(this.stepLibraries),
+            testSuites: processedSuites,
+            summary: {
+                totalSuitesFound: files.length,
+                totalSuitesMatched: processedSuites.length,
+                totalTestCases: processedSuites.reduce((sum, suite) => sum + suite.summary.totalTestCases, 0),
+                totalSteps: processedSuites.reduce((sum, suite) => sum + suite.summary.totalSteps, 0),
+                totalErrors: processedSuites.reduce((sum, suite) => sum + suite.summary.totalErrors, 0)
+            }
+        };
+    }
 }
 
 /**
@@ -264,6 +415,8 @@ function main() {
     const args = process.argv.slice(2);
     const options = {};
     let specificFile = null;
+    let specificSuite = null;
+    let mode = 'testcases'; // 'testcases' or 'suites'
 
     // 解析命令行参数
     for (let i = 0; i < args.length; i++) {
@@ -274,6 +427,11 @@ function main() {
             options.tagFilter = arg.split('=')[1];
         } else if (arg.startsWith('--file=')) {
             specificFile = arg.split('=')[1];
+        } else if (arg.startsWith('--suite=')) {
+            specificSuite = arg.split('=')[1];
+            mode = 'suites';
+        } else if (arg === '--suites') {
+            mode = 'suites';
         } else if (arg === '--help' || arg === '-h') {
             console.log(`
 YAML Test Processor
@@ -284,12 +442,20 @@ Options:
   --env=<environment>     Environment name (default: dev)
   --tags=<tag-filter>     Tag filter (e.g., smoke, smoke|login, smoke,critical)
   --file=<test-file>      Specific test file to process
+  --suite=<suite-file>    Specific test suite to process
+  --suites                Process all test suites instead of test cases
   --help, -h              Show this help message
 
 Examples:
+  # Process test cases
   node yaml-test-processor.js --env=dev --tags=smoke
   node yaml-test-processor.js --file=order.yml --env=test
   node yaml-test-processor.js --tags="smoke,login|critical"
+  
+  # Process test suites
+  node yaml-test-processor.js --suites --env=test
+  node yaml-test-processor.js --suite=e-commerce.yml --env=prod
+  node yaml-test-processor.js --suites --tags=smoke
             `);
             process.exit(0);
         }
@@ -297,7 +463,13 @@ Examples:
 
     try {
         const processor = new YAMLTestProcessor(options);
-        const result = processor.processAllTestCases(specificFile);
+        let result;
+        
+        if (mode === 'suites') {
+            result = processor.processAllTestSuites(specificSuite);
+        } else {
+            result = processor.processAllTestCases(specificFile);
+        }
         
         // 输出 JSON 结果
         console.log(JSON.stringify(result, null, 2));

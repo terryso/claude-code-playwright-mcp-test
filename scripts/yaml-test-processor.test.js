@@ -14,6 +14,10 @@ describe('YAMLTestProcessor', () => {
         // Reset mocks
         jest.clearAllMocks();
         
+        // Suppress console warnings in tests
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+        
         mockFs = fs;
         mockPath = path;
         
@@ -29,9 +33,15 @@ describe('YAMLTestProcessor', () => {
         });
         mockPath.isAbsolute.mockImplementation((p) => p.startsWith('/'));
         
-        mockFs.existsSync.mockReturnValue(true);
+        // Default to false for existsSync to prevent warnings
+        mockFs.existsSync.mockReturnValue(false);
         mockFs.readdirSync.mockReturnValue([]);
         mockFs.readFileSync.mockReturnValue('');
+    });
+
+    afterEach(() => {
+        // Restore console methods
+        jest.restoreAllMocks();
     });
 
     describe('constructor', () => {
@@ -86,6 +96,8 @@ EMPTY_VAR=
         });
 
         test('should handle missing environment file', () => {
+            // Restore console.warn for this specific test
+            console.warn.mockRestore();
             const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
             mockFs.existsSync.mockReturnValue(false);
             
@@ -955,6 +967,670 @@ Examples:
             
             expect(consoleErrorSpy).toHaveBeenCalledWith('Error:', 'Test filesystem error');
             expect(process.exit).toHaveBeenCalledWith(1);
+        });
+    });
+
+    describe('Test Suite Processing', () => {
+        describe('getTestSuiteFiles', () => {
+            beforeEach(() => {
+                mockFs.existsSync.mockReturnValue(false);
+                processor = new YAMLTestProcessor();
+            });
+
+            test('should return specific suite file when provided', () => {
+                mockFs.existsSync.mockReturnValue(true);
+                
+                const files = processor.getTestSuiteFiles('e-commerce.yml');
+                
+                expect(files).toEqual([process.cwd() + '/test-suites/e-commerce.yml']);
+            });
+
+            test('should return absolute path when provided', () => {
+                mockFs.existsSync.mockReturnValue(true);
+                
+                const files = processor.getTestSuiteFiles('/absolute/path/suite.yml');
+                
+                expect(files).toEqual(['/absolute/path/suite.yml']);
+            });
+
+            test('should return empty array for non-existent specific suite file', () => {
+                mockFs.existsSync.mockReturnValue(false);
+                
+                const files = processor.getTestSuiteFiles('nonexistent.yml');
+                
+                expect(files).toEqual([]);
+            });
+
+            test('should return all YAML files from test suites directory', () => {
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync.mockReturnValue(['suite1.yml', 'suite2.yaml', 'readme.txt', 'suite3.yml']);
+                
+                const files = processor.getTestSuiteFiles();
+                
+                expect(files).toEqual([
+                    process.cwd() + '/test-suites/suite1.yml',
+                    process.cwd() + '/test-suites/suite2.yaml',
+                    process.cwd() + '/test-suites/suite3.yml'
+                ]);
+            });
+
+            test('should handle missing test suites directory', () => {
+                const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+                mockFs.existsSync
+                    .mockReturnValueOnce(false) // env file
+                    .mockReturnValueOnce(false) // steps directory
+                    .mockReturnValueOnce(false); // test suites directory
+                
+                processor = new YAMLTestProcessor();
+                const files = processor.getTestSuiteFiles();
+                
+                expect(files).toEqual([]);
+                expect(consoleWarnSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('Test suites directory')
+                );
+                
+                consoleWarnSpy.mockRestore();
+            });
+        });
+
+        describe('processTestSuite', () => {
+            beforeEach(() => {
+                mockFs.existsSync.mockReturnValue(false);
+                processor = new YAMLTestProcessor({ tagFilter: 'smoke' });
+                processor.envVars = { 'BASE_URL': 'https://example.com' };
+                processor.stepLibraries = {
+                    'login': ['Login step 1', 'Login step 2']
+                };
+            });
+
+            test('should process valid test suite with simplified format', () => {
+                const suiteContent = `
+name: "E-commerce Test Suite"
+description: "Complete e-commerce workflow testing"
+tags:
+  - e-commerce
+  - smoke
+  - integration
+test-cases:
+  - "test-cases/order.yml"
+  - "test-cases/product-details.yml"
+post-actions:
+  - "Generate consolidated test report"
+  - "Clean up test data"
+`;
+
+                const testCase1Content = `
+tags:
+  - smoke
+  - order
+steps:
+  - include: login
+  - "Add product to cart"
+`;
+
+                const testCase2Content = `
+tags:
+  - smoke
+  - product-details
+steps:
+  - "Navigate to product page"
+  - "View product details"
+`;
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suiteContent) // suite file
+                    .mockReturnValueOnce(testCase1Content) // test case 1
+                    .mockReturnValueOnce(testCase2Content); // test case 2
+                
+                mockFs.existsSync.mockReturnValue(true);
+
+                const result = processor.processTestSuite('/test-suites/e-commerce.yml');
+
+                expect(result).toEqual({
+                    name: 'e-commerce.yml',
+                    originalFile: '/test-suites/e-commerce.yml',
+                    suiteName: 'E-commerce Test Suite',
+                    description: 'Complete e-commerce workflow testing',
+                    tags: ['e-commerce', 'smoke', 'integration'],
+                    preActions: [],
+                    postActions: ['Generate consolidated test report', 'Clean up test data'],
+                    testCases: [
+                        {
+                            name: 'order.yml',
+                            originalFile: expect.stringContaining('test-cases/order.yml'),
+                            tags: ['smoke', 'order'],
+                            steps: ['Login step 1', 'Login step 2', 'Add product to cart'],
+                            stepCount: 3,
+                            rawSteps: [{ include: 'login' }, 'Add product to cart']
+                        },
+                        {
+                            name: 'product-details.yml',
+                            originalFile: expect.stringContaining('test-cases/product-details.yml'),
+                            tags: ['smoke', 'product-details'],
+                            steps: ['Navigate to product page', 'View product details'],
+                            stepCount: 2,
+                            rawSteps: ['Navigate to product page', 'View product details']
+                        }
+                    ],
+                    errors: [],
+                    summary: {
+                        totalTestCases: 2,
+                        totalSteps: 5,
+                        totalErrors: 0
+                    }
+                });
+            });
+
+            test('should process test suite with legacy object format test cases', () => {
+                const suiteContent = `
+name: "Legacy Test Suite"
+description: "Test suite with legacy format"
+tags:
+  - smoke
+test-cases:
+  - path: "test-cases/order.yml"
+    description: "Order workflow"
+    tags: ["order", "legacy"]
+  - "test-cases/simple.yml"
+`;
+
+                const testCase1Content = `
+tags: [smoke, order]
+steps: ["Order step"]
+`;
+
+                const testCase2Content = `
+tags: [smoke]
+steps: ["Simple step"]
+`;
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suiteContent)
+                    .mockReturnValueOnce(testCase1Content)
+                    .mockReturnValueOnce(testCase2Content);
+                
+                mockFs.existsSync.mockReturnValue(true);
+
+                const result = processor.processTestSuite('/test-suites/legacy.yml');
+
+                expect(result.testCases).toHaveLength(2);
+                expect(result.testCases[0].name).toBe('order.yml');
+                expect(result.testCases[1].name).toBe('simple.yml');
+            });
+
+            test('should return null for test suite that does not match tag filter', () => {
+                const suiteContent = `
+name: "Regression Test Suite"
+description: "Regression tests"
+tags:
+  - regression
+  - nightly
+test-cases:
+  - "test-cases/test.yml"
+`;
+
+                mockFs.readFileSync.mockReturnValue(suiteContent);
+
+                const result = processor.processTestSuite('/test-suites/regression.yml');
+
+                expect(result).toBeNull();
+            });
+
+            test('should handle test suite with pre-actions', () => {
+                const suiteContent = `
+name: "Setup Test Suite"
+description: "Test suite with setup"
+tags:
+  - smoke
+test-cases:
+  - "test-cases/test.yml"
+pre-actions:
+  - "Clear browser cache"
+  - "Reset test environment"
+post-actions:
+  - "Generate report"
+`;
+
+                const testCaseContent = `
+tags: [smoke]
+steps: ["Test step"]
+`;
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suiteContent)
+                    .mockReturnValueOnce(testCaseContent);
+                
+                mockFs.existsSync.mockReturnValue(true);
+
+                const result = processor.processTestSuite('/test-suites/setup.yml');
+
+                expect(result.preActions).toEqual(['Clear browser cache', 'Reset test environment']);
+                expect(result.postActions).toEqual(['Generate report']);
+            });
+
+            test('should handle missing test case files', () => {
+                const suiteContent = `
+name: "Test Suite"
+description: "Test suite"
+tags:
+  - smoke
+test-cases:
+  - "test-cases/existing.yml"
+  - "test-cases/missing.yml"
+`;
+
+                const testCaseContent = `
+tags: [smoke]
+steps: ["Test step"]
+`;
+
+                // Mock the suite file reading first
+                mockFs.readFileSync.mockReturnValueOnce(suiteContent);
+                
+                // Mock existsSync for each test case file
+                mockFs.existsSync
+                    .mockReturnValueOnce(true) // first test case exists
+                    .mockReturnValueOnce(false); // second test case missing
+
+                // Mock reading the existing test case
+                mockFs.readFileSync.mockReturnValueOnce(testCaseContent);
+
+                const result = processor.processTestSuite('/test-suites/test.yml');
+
+                expect(result.testCases).toHaveLength(1);
+                expect(result.errors).toHaveLength(1);
+                expect(result.errors[0]).toEqual({
+                    testCase: 'test-cases/missing.yml',
+                    error: 'Test case file not found: test-cases/missing.yml'
+                });
+                expect(result.summary.totalErrors).toBe(1);
+            });
+
+            test('should handle invalid test case reference format', () => {
+                const suiteContent = `
+name: "Test Suite"
+description: "Test suite"
+tags:
+  - smoke
+test-cases:
+  - "test-cases/valid.yml"
+  - { invalid: "format" }
+`;
+
+                const testCaseContent = `
+tags: [smoke]
+steps: ["Test step"]
+`;
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suiteContent)
+                    .mockReturnValueOnce(testCaseContent);
+                
+                mockFs.existsSync.mockReturnValue(true);
+
+                const result = processor.processTestSuite('/test-suites/test.yml');
+
+                expect(result.testCases).toHaveLength(1);
+                expect(result.errors).toHaveLength(1);
+                expect(result.errors[0].error).toBe('Invalid test case reference format');
+            });
+
+            test('should handle invalid YAML content in test suite', () => {
+                const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+                
+                mockFs.readFileSync.mockReturnValue('invalid: yaml: content:');
+
+                const result = processor.processTestSuite('/test-suites/invalid.yml');
+
+                expect(result).toEqual({
+                    name: 'invalid.yml',
+                    originalFile: '/test-suites/invalid.yml',
+                    suiteName: 'invalid.yml',
+                    description: '',
+                    tags: [],
+                    preActions: [],
+                    postActions: [],
+                    error: expect.any(String),
+                    testCases: [],
+                    errors: [],
+                    summary: {
+                        totalTestCases: 0,
+                        totalSteps: 0,
+                        totalErrors: 1
+                    }
+                });
+                expect(consoleErrorSpy).toHaveBeenCalled();
+                
+                consoleErrorSpy.mockRestore();
+            });
+
+            test('should handle empty YAML content in test suite', () => {
+                const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+                
+                mockFs.readFileSync.mockReturnValue('');
+
+                const result = processor.processTestSuite('/test-suites/empty.yml');
+
+                expect(result.error).toBe('Invalid YAML content');
+                expect(consoleErrorSpy).toHaveBeenCalled();
+                
+                consoleErrorSpy.mockRestore();
+            });
+
+            test('should handle test suite with no test cases', () => {
+                const suiteContent = `
+name: "Empty Test Suite"
+description: "Test suite with no test cases"
+tags:
+  - smoke
+`;
+
+                mockFs.readFileSync.mockReturnValue(suiteContent);
+
+                const result = processor.processTestSuite('/test-suites/empty.yml');
+
+                expect(result.testCases).toEqual([]);
+                expect(result.summary.totalTestCases).toBe(0);
+            });
+
+            test('should use default values for missing fields', () => {
+                const suiteContent = `
+test-cases:
+  - "test-cases/test.yml"
+`;
+
+                const testCaseContent = `
+tags: [smoke]
+steps: ["Test step"]
+`;
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suiteContent)
+                    .mockReturnValueOnce(testCaseContent);
+                
+                mockFs.existsSync.mockReturnValue(true);
+
+                const result = processor.processTestSuite('/test-suites/minimal.yml');
+
+                expect(result.suiteName).toBe('minimal.yml');
+                expect(result.description).toBe('');
+                expect(result.tags).toEqual([]);
+                expect(result.preActions).toEqual([]);
+                expect(result.postActions).toEqual([]);
+            });
+        });
+
+        describe('processAllTestSuites', () => {
+            beforeEach(() => {
+                mockFs.existsSync.mockReturnValue(true);
+                processor = new YAMLTestProcessor({ environment: 'test', tagFilter: 'smoke' });
+                processor.envVars = { 'BASE_URL': 'https://example.com' };
+                processor.stepLibraries = { 'login': ['Login step'] };
+            });
+
+            test('should process all matching test suites', () => {
+                const suite1 = `
+name: "Smoke Suite"
+tags: [smoke, quick]
+test-cases: ["test-cases/test1.yml"]
+`;
+                const suite2 = `
+name: "E-commerce Suite"
+tags: [smoke, e-commerce]
+test-cases: ["test-cases/test2.yml"]
+`;
+                const suite3 = `
+name: "Regression Suite"
+tags: [regression]
+test-cases: ["test-cases/test3.yml"]
+`;
+
+                const testCase1 = 'tags: [smoke]\nsteps: ["Step 1"]';
+                const testCase2 = 'tags: [smoke]\nsteps: ["Step 2"]';
+                const testCase3 = 'tags: [regression]\nsteps: ["Step 3"]';
+
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync
+                    .mockReturnValueOnce([]) // step libraries directory
+                    .mockReturnValueOnce(['suite1.yml', 'suite2.yml', 'suite3.yml']); // test suites directory
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce(suite1) // suite1.yml
+                    .mockReturnValueOnce(testCase1) // test case 1
+                    .mockReturnValueOnce(suite2) // suite2.yml
+                    .mockReturnValueOnce(testCase2) // test case 2
+                    .mockReturnValueOnce(suite3); // suite3.yml (filtered out)
+
+                processor = new YAMLTestProcessor({ environment: 'test', tagFilter: 'smoke' });
+                const result = processor.processAllTestSuites();
+
+                expect(result.testSuites).toHaveLength(2); // Only smoke suites
+                expect(result.testSuites[0].suiteName).toBe('Smoke Suite');
+                expect(result.testSuites[1].suiteName).toBe('E-commerce Suite');
+                expect(result.summary).toEqual({
+                    totalSuitesFound: 3,
+                    totalSuitesMatched: 2,
+                    totalTestCases: 2,
+                    totalSteps: 2,
+                    totalErrors: 0
+                });
+            });
+
+            test('should process specific test suite file', () => {
+                const suite = `
+name: "Specific Suite"
+tags: [smoke]
+test-cases: ["test-cases/test.yml"]
+`;
+
+                const testCase = 'tags: [smoke]\nsteps: ["Test step"]';
+
+                mockFs.readFileSync
+                    .mockReturnValueOnce(suite)
+                    .mockReturnValueOnce(testCase);
+
+                const result = processor.processAllTestSuites('specific.yml');
+
+                expect(result.testSuites).toHaveLength(1);
+                expect(result.testSuites[0].suiteName).toBe('Specific Suite');
+                expect(result.summary.totalSuitesFound).toBe(1);
+            });
+
+            test('should return empty result when no test suites match', () => {
+                const suite = `
+name: "Regression Suite"
+tags: [regression]
+test-cases: ["test-cases/test.yml"]
+`;
+
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync
+                    .mockReturnValueOnce([]) // step libraries directory
+                    .mockReturnValueOnce(['suite1.yml']); // test suites directory
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce(suite); // suite1.yml
+
+                processor = new YAMLTestProcessor({ environment: 'test', tagFilter: 'smoke' });
+                const result = processor.processAllTestSuites();
+
+                expect(result.testSuites).toHaveLength(0);
+                expect(result.summary).toEqual({
+                    totalSuitesFound: 1,
+                    totalSuitesMatched: 0,
+                    totalTestCases: 0,
+                    totalSteps: 0,
+                    totalErrors: 0
+                });
+            });
+
+            test('should include correct metadata in result', () => {
+                mockFs.readdirSync.mockReturnValue([]);
+                mockFs.readFileSync.mockReturnValue(''); // env file
+
+                const result = processor.processAllTestSuites();
+
+                expect(result.environment).toBe('test');
+                expect(result.tagFilter).toBe('smoke');
+                expect(result.envVars).toEqual({ 'BASE_URL': 'https://example.com' });
+                expect(result.stepLibraries).toEqual(['login']);
+            });
+        });
+
+        describe('CLI integration for test suites', () => {
+            let originalArgv;
+            let originalExit;
+            let consoleLogSpy;
+            let consoleErrorSpy;
+
+            beforeEach(() => {
+                originalArgv = process.argv;
+                originalExit = process.exit;
+                consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+                consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+                process.exit = jest.fn();
+            });
+
+            afterEach(() => {
+                process.argv = originalArgv;
+                process.exit = originalExit;
+                consoleLogSpy.mockRestore();
+                consoleErrorSpy.mockRestore();
+            });
+
+            test('should process test suites when --suites flag is provided', () => {
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readdirSync
+                    .mockReturnValueOnce([]) // step libraries
+                    .mockReturnValueOnce(['suite.yml']); // test suites
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce('name: "Test Suite"\ntags: [smoke]\ntest-cases: ["test-cases/test.yml"]') // suite
+                    .mockReturnValueOnce('tags: [smoke]\nsteps: ["Test step"]'); // test case
+
+                process.argv = ['node', 'yaml-test-processor.js', '--suites', '--env=test'];
+
+                try {
+                    const args = process.argv.slice(2);
+                    const options = {};
+                    let specificSuite = null;
+                    let mode = 'testcases';
+
+                    for (let i = 0; i < args.length; i++) {
+                        const arg = args[i];
+                        if (arg.startsWith('--env=')) {
+                            options.environment = arg.split('=')[1];
+                        } else if (arg.startsWith('--suite=')) {
+                            specificSuite = arg.split('=')[1];
+                            mode = 'suites';
+                        } else if (arg === '--suites') {
+                            mode = 'suites';
+                        }
+                    }
+
+                    const processor = new YAMLTestProcessor(options);
+                    let result;
+                    
+                    if (mode === 'suites') {
+                        result = processor.processAllTestSuites(specificSuite);
+                    } else {
+                        result = processor.processAllTestCases();
+                    }
+
+                    console.log(JSON.stringify(result, null, 2));
+
+                    expect(result.testSuites).toBeDefined();
+                    expect(consoleLogSpy).toHaveBeenCalled();
+                } catch (error) {
+                    console.error('Error:', error.message);
+                    process.exit(1);
+                }
+            });
+
+            test('should process specific test suite when --suite flag is provided', () => {
+                mockFs.existsSync.mockReturnValue(true);
+                mockFs.readFileSync
+                    .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                    .mockReturnValueOnce('name: "Specific Suite"\ntags: [smoke]\ntest-cases: ["test-cases/test.yml"]') // suite
+                    .mockReturnValueOnce('tags: [smoke]\nsteps: ["Test step"]'); // test case
+
+                process.argv = ['node', 'yaml-test-processor.js', '--suite=specific.yml', '--env=test'];
+
+                try {
+                    const args = process.argv.slice(2);
+                    const options = {};
+                    let specificSuite = null;
+                    let mode = 'testcases';
+
+                    for (let i = 0; i < args.length; i++) {
+                        const arg = args[i];
+                        if (arg.startsWith('--env=')) {
+                            options.environment = arg.split('=')[1];
+                        } else if (arg.startsWith('--suite=')) {
+                            specificSuite = arg.split('=')[1];
+                            mode = 'suites';
+                        }
+                    }
+
+                    const processor = new YAMLTestProcessor(options);
+                    const result = processor.processAllTestSuites(specificSuite);
+
+                    console.log(JSON.stringify(result, null, 2));
+
+                    expect(result.testSuites).toHaveLength(1);
+                    expect(result.testSuites[0].suiteName).toBe('Specific Suite');
+                    expect(consoleLogSpy).toHaveBeenCalled();
+                } catch (error) {
+                    console.error('Error:', error.message);
+                    process.exit(1);
+                }
+            });
+
+            test('should show updated help message with test suite options', () => {
+                process.argv = ['node', 'yaml-test-processor.js', '--help'];
+
+                const args = process.argv.slice(2);
+                
+                for (let i = 0; i < args.length; i++) {
+                    const arg = args[i];
+                    if (arg === '--help' || arg === '-h') {
+                        console.log(`
+YAML Test Processor
+
+Usage: node yaml-test-processor.js [options]
+
+Options:
+  --env=<environment>     Environment name (default: dev)
+  --tags=<tag-filter>     Tag filter (e.g., smoke, smoke|login, smoke,critical)
+  --file=<test-file>      Specific test file to process
+  --suite=<suite-file>    Specific test suite to process
+  --suites                Process all test suites instead of test cases
+  --help, -h              Show this help message
+
+Examples:
+  # Process test cases
+  node yaml-test-processor.js --env=dev --tags=smoke
+  node yaml-test-processor.js --file=order.yml --env=test
+  node yaml-test-processor.js --tags="smoke,login|critical"
+  
+  # Process test suites
+  node yaml-test-processor.js --suites --env=test
+  node yaml-test-processor.js --suite=e-commerce.yml --env=prod
+  node yaml-test-processor.js --suites --tags=smoke
+                        `);
+                        process.exit(0);
+                        break;
+                    }
+                }
+                
+                expect(consoleLogSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('--suite=<suite-file>')
+                );
+                expect(consoleLogSpy).toHaveBeenCalledWith(
+                    expect.stringContaining('--suites')
+                );
+                expect(process.exit).toHaveBeenCalledWith(0);
+            });
         });
     });
 });

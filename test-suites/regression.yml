@@ -1,0 +1,23 @@
+# Regression Test Suite
+# Comprehensive regression testing for all functionality
+name: "Regression Test Suite"
+description: "Comprehensive regression testing covering all major functionality areas"
+tags:
+  - regression
+  - comprehensive
+  - nightly
+
+# Test cases to execute in order
+test-cases:
+  - "test-cases/order.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/sort.yml"
+  - "test-cases/sort-optimized.yml"
+
+# Pre-suite actions
+pre-actions:
+  - "Clear browser cache"
+
+# Post-suite actions
+post-actions:
+  - "Close browser"

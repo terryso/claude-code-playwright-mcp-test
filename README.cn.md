@@ -129,8 +129,10 @@ sequenceDiagram
 - **🔧 环境变量**: 从.env文件自动加载配置，安全管理敏感信息
 - **📊 智能报告**: 可配置的测试报告生成，支持内嵌数据的HTML/JSON格式
 - **📝 智能提示**: Claude Code项目命令支持参数提示
+- **⚡ 自动化处理**: YAML测试处理器脚本，提高测试用例分析和执行效率
 - **🚀 会话持久化**: 革命性的跨命令会话持久化，一次登录终生受益
-- **⚡ 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
+- **🔄 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
+- **🗂️ 测试套件**: 组织和执行多个测试用例，支持套件级配置和报告
 
 ## 🗺️ 开发路线图
 
@@ -144,19 +146,23 @@ sequenceDiagram
 - **✅ 会话持久化**: 在Cursor中实现与Claude Code相同的80-95%性能提升
 - **✅ 跨平台兼容**: 统一框架在两个IDE中无缝运行
 
-### 🔄 即将推出的特性
+### ✅ 已完成特性
 
-#### 1. **测试套件支持**
-- **🗂️ 套件组织**: 将相关测试用例组织成逻辑套件
-- **📦 批量执行**: 用单个命令运行整个测试套件
-- **🏷️ 套件级配置**: 每个套件的环境变量和设置
-- **📋 套件报告**: 跨多个测试用例的聚合报告
+#### ✅ **测试套件支持** - **已完成** 🎉
+- **✅ 套件组织**: 将相关测试用例组织成逻辑套件
+- **✅ 批量执行**: 用单个命令运行整个测试套件
+- **✅ 套件级配置**: 每个套件的环境变量和设置
+- **✅ 套件报告**: 跨多个测试用例的聚合报告
+- **✅ 前置/后置操作**: 套件级的设置和清理操作
+- **✅ 验证命令**: 完整的套件验证功能
 
 ```yaml
 # 示例: test-suites/e-commerce.yml
 name: "电商测试套件"
 description: "完整的电商工作流测试"
-environment: "test"
+tags:
+  - e-commerce
+  - integration
 test-cases:
   - "test-cases/login.yml"
   - "test-cases/product-details.yml"
@@ -164,12 +170,16 @@ test-cases:
   - "test-cases/checkout.yml"
 ```
 
+**可用的套件命令**:
+- `/run-test-suite suite:e-commerce.yml env:test`
+- `/validate-test-suite suite:smoke-tests.yml env:dev`
+
 ### 📅 发布时间表
 
 | 特性 | 状态 | 预期发布 |
 |------|------|----------|
 | ✅ Cursor IDE 支持 | ✅ **已完成** | ✅ **已发布** |
-| 测试套件支持 | 🚧 开发中 | 2025年第2季度 |
+| ✅ 测试套件支持 | ✅ **已完成** | ✅ **已发布** |
 
 ### 💡 功能请求
 
@@ -206,7 +216,9 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 ├── .claude/                    # Claude Code 项目命令
 │   └── commands/              # 命令目录
 │       ├── run-yaml-test.md   # 执行测试命令
-│       └── validate-yaml-test.md # 验证测试命令
+│       ├── validate-yaml-test.md # 验证测试命令
+│       ├── run-test-suite.md  # 执行测试套件命令
+│       └── validate-test-suite.md # 验证测试套件命令
 ├── .env.example               # 环境变量模板
 ├── .env.dev                   # 开发环境配置
 ├── .env.test                  # 测试环境配置
@@ -221,6 +233,10 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 │   ├── order.yml              # 订单测试用例
 │   ├── sort-optimized.yml     # 会话优化的排序测试
 │   └── product-details.yml    # 产品详情测试用例
+├── test-suites/               # 测试套件 (新功能)
+│   ├── e-commerce.yml         # 电商测试套件
+│   ├── smoke-tests.yml        # 冒烟测试套件
+│   └── regression.yml         # 回归测试套件
 ├── screenshots/               # 测试截图（按环境分类）
 ├── reports/                   # 测试报告（按环境分类）
 ├── CLAUDE.md                  # 项目说明和命令索引
@@ -264,10 +280,18 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 #### `/run-yaml-test`
 执行YAML测试用例，支持多环境配置、标签过滤和报告生成。
 
-**参数：**
+#### `/run-test-suite`
+执行YAML测试套件，包含多个有序测试用例，支持套件级配置和报告。
+
+**测试用例参数：**
 - `file` (可选): 测试用例文件路径，不传则执行test-cases目录下所有用例
 - `env` (可选): 环境名称 (dev/test/prod)，默认为 dev
 - `tags` (可选): 标签过滤，支持单个或多个标签组合
+
+**测试套件参数：**
+- `suite` (可选): 测试套件文件路径，不传则执行test-suites目录下所有套件
+- `env` (可选): 环境名称 (dev/test/prod)，默认为套件配置的环境或 dev
+- `tags` (可选): 套件级和测试级标签过滤
 
 **标签过滤语法：**
 - 单个标签: `smoke`
@@ -278,6 +302,7 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 **报告生成：**
 - 根据环境变量 `GENERATE_REPORT` 自动生成测试报告
 - 支持 HTML/JSON 格式（由 `REPORT_FORMAT` 配置）
+- 报告样式由 `REPORT_STYLE` 控制（overview/detailed）
 - 报告保存到 `REPORT_PATH` 指定目录
 
 **示例：**
@@ -296,6 +321,15 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 
 # 执行所有测试用例
 /run-yaml-test env:dev
+
+# 执行指定测试套件
+/run-test-suite suite:e-commerce.yml env:test
+
+# 执行所有冒烟测试套件
+/run-test-suite tags:smoke env:dev
+
+# 执行所有测试套件
+/run-test-suite env:test
 ```
 
 ### ✅ 验证测试
@@ -303,16 +337,48 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
 #### `/validate-yaml-test`
 验证YAML测试用例的语法和引用完整性。
 
-**参数：**
+#### `/validate-test-suite`
+验证YAML测试套件配置和测试用例引用完整性。
+
+**测试用例验证参数：**
 - `file` (必需): 要验证的测试用例文件路径
+- `env` (可选): 环境名称，用于验证环境变量
+
+**测试套件验证参数：**
+- `suite` (必需): 要验证的测试套件文件路径
 - `env` (可选): 环境名称，用于验证环境变量
 
 **示例：**
 ```bash
+# 验证测试用例
 /validate-yaml-test file:test-cases/complex-test.yml env:test
+
+# 验证测试套件
+/validate-test-suite suite:e-commerce.yml env:test
 ```
 
 ## 📝 YAML格式说明
+
+### 测试套件格式
+
+测试套件用简洁、清晰的配置组织多个测试用例：
+
+```yaml
+# test-suites/e-commerce.yml
+name: "电商测试套件"
+description: "完整的电商工作流测试，涵盖用户注册、产品浏览、购物车操作和结账流程"
+tags:
+  - e-commerce
+  - integration
+  - critical
+  - smoke
+
+# 按顺序执行的测试用例
+test-cases:
+  - "test-cases/order.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/sort-optimized.yml"
+```
 
 ### 步骤库格式
 
@@ -383,6 +449,7 @@ REPORT_PATH=reports/dev
 # 报告配置
 GENERATE_REPORT=true
 REPORT_FORMAT=html
+REPORT_STYLE=detailed
 ```
 
 ### 多环境切换

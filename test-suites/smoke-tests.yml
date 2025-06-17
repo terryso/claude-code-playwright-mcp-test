@@ -1,0 +1,17 @@
+# Smoke Test Suite
+# Quick validation of core functionality
+name: "Smoke Test Suite"
+description: "Quick smoke tests to validate core application functionality"
+tags:
+  - smoke
+  - quick
+  - sanity
+
+# Test cases to execute
+test-cases:
+  - "test-cases/sort.yml"
+  - "test-cases/product-details.yml"
+
+# Post-suite actions
+post-actions:
+  - "Close browser"

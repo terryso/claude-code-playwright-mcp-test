@@ -25,7 +25,10 @@
       "Bash(env)",
       "mcp__playwright__browser_close",
       "Bash(gh pr view:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(npm test)",
+      "Bash(ln:*)",
+      "Bash(npm test:*)"
     ],
     "deny": []
   }

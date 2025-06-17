@@ -144,32 +144,41 @@ We're actively working on exciting new features to make YAML-based testing even 
 - **✅ Session Persistence**: Same 80-95% performance boost in Cursor as Claude Code
 - **✅ Cross-Platform Compatibility**: Unified framework works seamlessly in both IDEs
 
-### 🔄 Upcoming Features
+### ✅ Recently Completed Features
 
-#### 1. **Test Suites Support**
-- **🗂️ Suite Organization**: Group related test cases into logical suites
-- **📦 Batch Execution**: Run entire test suites with a single command
-- **🏷️ Suite-level Configuration**: Environment variables and settings per suite
-- **📋 Suite Reporting**: Aggregated reports across multiple test cases
+#### ✅ **Test Suites Support** - **COMPLETED** 🎉
+- **✅ Suite Organization**: Group related test cases into logical suites
+- **✅ Batch Execution**: Run entire test suites with a single command
+- **✅ Suite-level Configuration**: Environment variables and settings per suite
+- **✅ Suite Reporting**: Aggregated reports across multiple test cases
+- **✅ Pre/Post Actions**: Suite-level setup and cleanup operations
+- **✅ Validation Commands**: Comprehensive suite validation functionality
 
 ```yaml
 # Example: test-suites/e-commerce.yml
 name: "E-commerce Test Suite"
 description: "Complete e-commerce workflow testing"
-environment: "test"
+tags:
+  - e-commerce
+  - integration
 test-cases:
-  - "test-cases/login.yml"
+  - "test-cases/order.yml"
   - "test-cases/product-details.yml"
-  - "test-cases/cart-operations.yml"
-  - "test-cases/checkout.yml"
+  - "test-cases/sort-optimized.yml"
 ```
+
+**Available Suite Commands**:
+- `/run-test-suite suite:e-commerce.yml env:test`
+- `/validate-test-suite suite:smoke-tests.yml env:dev`
+
+### 🔄 Upcoming Features
 
 ### 📅 Release Timeline
 
 | Feature | Status | Expected Release |
 |---------|--------|------------------|
 | ✅ Cursor IDE Support | ✅ **Completed** | ✅ **Released** |
-| Test Suites Support | 🚧 In Development | Q2 2025 |
+| ✅ Test Suites Support | ✅ **Completed** | ✅ **Released** |
 
 ### 💡 Feature Requests
 
@@ -206,7 +215,9 @@ For more installation information, please refer to: [Playwright MCP Official Rep
 ├── .claude/                    # Claude Code project commands
 │   └── commands/              # Commands directory
 │       ├── run-yaml-test.md   # Execute test command
-│       └── validate-yaml-test.md # Validate test command
+│       ├── validate-yaml-test.md # Validate test command
+│       ├── run-test-suite.md  # Execute test suite command
+│       └── validate-test-suite.md # Validate test suite command
 ├── .env.example               # Environment variable template
 ├── .env.dev                   # Development environment configuration
 ├── .env.test                  # Test environment configuration
@@ -221,6 +232,10 @@ For more installation information, please refer to: [Playwright MCP Official Rep
 │   ├── order.yml              # Order test case
 │   ├── sort-optimized.yml     # Session-optimized sort test
 │   └── product-details.yml    # Product details test case
+├── test-suites/               # Test suites (NEW)
+│   ├── e-commerce.yml         # E-commerce test suite
+│   ├── smoke-tests.yml        # Smoke test suite
+│   └── regression.yml         # Regression test suite
 ├── screenshots/               # Test screenshots (organized by environment)
 ├── reports/                   # Test reports (organized by environment)
 ├── CLAUDE.md                  # Project description and command index
@@ -264,10 +279,18 @@ Edit the corresponding environment configuration files:
 #### `/run-yaml-test`
 Execute YAML test cases with multi-environment configuration, tag filtering, and report generation support.
 
-**Parameters:**
+#### `/run-test-suite`
+Execute YAML test suites containing multiple organized test cases with suite-level configuration and reporting.
+
+**Test Case Parameters:**
 - `file` (optional): Test case file path, if not provided, executes all cases in test-cases directory
 - `env` (optional): Environment name (dev/test/prod), defaults to dev
 - `tags` (optional): Tag filtering, supports single or multiple tag combinations
+
+**Test Suite Parameters:**
+- `suite` (optional): Test suite file path, if not provided, executes all suites in test-suites directory
+- `env` (optional): Environment name (dev/test/prod), defaults to suite's configured environment or dev
+- `tags` (optional): Tag filtering for both suite-level and test-level tags
 
 **Tag Filtering Syntax:**
 - Single tag: `smoke`
@@ -296,6 +319,15 @@ Execute YAML test cases with multi-environment configuration, tag filtering, and
 
 # Execute all test cases
 /run-yaml-test env:dev
+
+# Execute specific test suite
+/run-test-suite suite:e-commerce.yml env:test
+
+# Execute all smoke test suites
+/run-test-suite tags:smoke env:dev
+
+# Execute all test suites
+/run-test-suite env:test
 ```
 
 ### ✅ Test Validation
@@ -303,13 +335,24 @@ Execute YAML test cases with multi-environment configuration, tag filtering, and
 #### `/validate-yaml-test`
 Validate YAML test case syntax and reference completeness.
 
-**Parameters:**
+#### `/validate-test-suite`
+Validate YAML test suite configuration and test case references.
+
+**Test Case Validation Parameters:**
 - `file` (required): Path to test case file to validate
+- `env` (optional): Environment name for environment variable validation
+
+**Test Suite Validation Parameters:**
+- `suite` (required): Path to test suite file to validate
 - `env` (optional): Environment name for environment variable validation
 
 **Examples:**
 ```bash
+# Validate test case
 /validate-yaml-test file:test-cases/complex-test.yml env:test
+
+# Validate test suite
+/validate-test-suite suite:e-commerce.yml env:test
 ```
 
 ## 📝 YAML Format Guide
@@ -353,6 +396,33 @@ steps:
   - "Verify page displays Thank you for your order!"
   - include: "cleanup"                         # Reference cleanup step library
 ```
+
+### Test Suite Format
+
+Test suites organize multiple test cases with simple, clean configuration:
+
+```yaml
+# test-suites/e-commerce.yml
+name: "E-commerce Test Suite"
+description: "Complete e-commerce workflow testing covering user registration, product browsing, cart operations, and checkout process"
+tags:
+  - e-commerce
+  - integration
+  - critical
+  - smoke
+
+# Test cases to execute in order
+test-cases:
+  - "test-cases/order.yml"
+  - "test-cases/product-details.yml"
+  - "test-cases/sort-optimized.yml"
+```
+
+**Key Features of Simplified Format**:
+- **Clean Configuration**: Only essential fields - name, description, tags, and test-cases
+- **Simple Test Case Lists**: Direct file paths without extra metadata
+- **Environment via .env**: All environment configuration through standard .env files
+- **Minimal Complexity**: Easy to read, write, and maintain
 
 ## 🔧 Environment Configuration
 
