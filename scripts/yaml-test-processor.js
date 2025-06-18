@@ -323,8 +323,12 @@ class YAMLTestProcessor {
                             throw new Error(`Test case file not found: ${testCasePath}`);
                         }
 
-                        // 处理测试用例
+                        // 处理测试用例 - 在套件上下文中不应用标签过滤
+                        const originalTagFilter = this.tagFilter;
+                        this.tagFilter = null; // 临时禁用标签过滤
                         const processedCase = this.processTestCase(fullPath);
+                        this.tagFilter = originalTagFilter; // 恢复标签过滤
+                        
                         if (processedCase) {
                             processedTestCases.push(processedCase);
                         }
