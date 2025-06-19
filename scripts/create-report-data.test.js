@@ -159,7 +159,7 @@ describe('ReportDataCreator', () => {
                 steps: ['Step 1', 'Step 2']
             };
             
-            const result = creator.formatTestCase(testCase);
+            const result = creator.formatTestCase(testCase, { reportStyle: 'detailed' });
             
             expect(result.name).toBe('test.yml');
             expect(result.description).toBe('Test description');
@@ -170,12 +170,44 @@ describe('ReportDataCreator', () => {
         test('should format test case with default values', () => {
             const testCase = {};
             
-            const result = creator.formatTestCase(testCase);
+            const result = creator.formatTestCase(testCase, { reportStyle: 'detailed' });
             
             expect(result.name).toBe('unnamed-test.yml');
             expect(result.description).toBe('');
             expect(result.tags).toEqual([]);
             expect(result.steps).toEqual([]);
+        });
+
+        test('should format test case without steps in overview mode', () => {
+            const testCase = {
+                name: 'test.yml',
+                description: 'Test description',
+                tags: ['smoke'],
+                steps: ['Step 1', 'Step 2']
+            };
+            
+            const result = creator.formatTestCase(testCase, { reportStyle: 'overview' });
+            
+            expect(result.name).toBe('test.yml');
+            expect(result.description).toBe('Test description');
+            expect(result.tags).toEqual(['smoke']);
+            expect(result.steps).toBeUndefined();
+        });
+
+        test('should format test case with steps in detailed mode', () => {
+            const testCase = {
+                name: 'test.yml',
+                description: 'Test description',
+                tags: ['smoke'],
+                steps: ['Step 1', 'Step 2']
+            };
+            
+            const result = creator.formatTestCase(testCase, { reportStyle: 'detailed' });
+            
+            expect(result.name).toBe('test.yml');
+            expect(result.description).toBe('Test description');
+            expect(result.tags).toEqual(['smoke']);
+            expect(result.steps).toEqual(['Step 1', 'Step 2']);
         });
     });
 
@@ -261,6 +293,84 @@ describe('ReportDataCreator', () => {
             expect(formatted.testName).toBe('test');
             expect(formatted.status).toBe('unknown');
             expect(formatted.duration).toBe(0);
+        });
+    });
+
+    describe('formatSuiteResult', () => {
+        test('should format suite result without steps_detail in overview mode', () => {
+            const result = {
+                testName: 'test.yml',
+                description: 'Test description',
+                status: 'passed',
+                steps: 5,
+                duration: 30000,
+                features: 'Test features',
+                tags: ['smoke'],
+                validations: 'All validations passed',
+                sessionOptimized: true,
+                steps_detail: ['Step 1', 'Step 2', 'Step 3']
+            };
+            
+            const formatted = creator.formatSuiteResult(result, { reportStyle: 'overview' });
+            
+            expect(formatted.testName).toBe('test.yml');
+            expect(formatted.description).toBe('Test description');
+            expect(formatted.status).toBe('passed');
+            expect(formatted.steps).toBe(5);
+            expect(formatted.duration).toBe(30000);
+            expect(formatted.features).toBe('Test features');
+            expect(formatted.tags).toEqual(['smoke']);
+            expect(formatted.validations).toBe('All validations passed');
+            expect(formatted.sessionOptimized).toBe(true);
+            expect(formatted.error).toBeNull();
+            expect(formatted.steps_detail).toBeUndefined();
+        });
+
+        test('should format suite result with steps_detail in detailed mode', () => {
+            const result = {
+                testName: 'test.yml',
+                description: 'Test description',
+                status: 'passed',
+                steps: 5,
+                duration: 30000,
+                features: 'Test features',
+                tags: ['smoke'],
+                validations: 'All validations passed',
+                sessionOptimized: true,
+                steps_detail: ['Step 1', 'Step 2', 'Step 3']
+            };
+            
+            const formatted = creator.formatSuiteResult(result, { reportStyle: 'detailed' });
+            
+            expect(formatted.testName).toBe('test.yml');
+            expect(formatted.description).toBe('Test description');
+            expect(formatted.status).toBe('passed');
+            expect(formatted.steps).toBe(5);
+            expect(formatted.duration).toBe(30000);
+            expect(formatted.features).toBe('Test features');
+            expect(formatted.tags).toEqual(['smoke']);
+            expect(formatted.validations).toBe('All validations passed');
+            expect(formatted.sessionOptimized).toBe(true);
+            expect(formatted.error).toBeNull();
+            expect(formatted.steps_detail).toEqual(['Step 1', 'Step 2', 'Step 3']);
+        });
+
+        test('should format suite result with default values', () => {
+            const result = {};
+            
+            const formatted = creator.formatSuiteResult(result, { reportStyle: 'detailed' });
+            
+            expect(formatted.testName).toBe('test');
+            expect(formatted.description).toBe('');
+            expect(formatted.status).toBe('unknown');
+            expect(formatted.steps).toBe(0);
+            expect(formatted.duration).toBe(0);
+            expect(formatted.features).toBe('');
+            expect(formatted.tags).toEqual([]);
+            expect(formatted.validations).toBe('');
+            expect(formatted.sessionOptimized).toBe(false);
+            expect(formatted.error).toBeNull();
+            expect(formatted.steps_detail).toEqual([]);
         });
     });
 

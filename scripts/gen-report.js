@@ -168,7 +168,10 @@ class JSONReportGenerator {
     generateSuiteReport(reportData, config, timestamp) {
         const { suite, results } = reportData;
         
-        const suiteName = (suite.name || 'unnamed-suite').replace('.yml', '');
+        const suiteName = (suite.name || 'unnamed-suite')
+            .replace('.yml', '')
+            .replace(/\s+/g, '-')  // 替换空格为连字符
+            .toLowerCase();  // 转换为小写
         const fileName = `suite-${suiteName}-${timestamp}.html`;
         const fullPath = path.join(this.projectRoot, config.reportPath, fileName);
 
@@ -487,7 +490,12 @@ class JSONReportGenerator {
                     <div class="result-meta">
                         <span>Steps: ${result.steps || 0}</span>
                         <span>Duration: ${Math.round((result.duration || 0) / 1000)}s</span>
+                        ${result.features ? `<span>Features: ${result.features}</span>` : ''}
+                        ${result.sessionOptimized ? '<span>🚀 Session Optimized</span>' : ''}
                     </div>
+                    ${result.validations ? `<div class="validations"><strong>Validations:</strong> ${result.validations}</div>` : ''}
+                    ${result.error ? `<div class="error-info"><strong>Error:</strong> ${result.error}</div>` : ''}
+                    ${config.reportStyle === 'detailed' && result.steps_detail ? this.generateTestStepsDetail(result.steps_detail) : ''}
                 </div>
                 `).join('')}
             </div>
@@ -530,6 +538,26 @@ class JSONReportGenerator {
     }
 
     /**
+     * 生成测试步骤详细内容（用于套件报告中的单个测试）
+     */
+    generateTestStepsDetail(steps) {
+        if (!steps || steps.length === 0) return '';
+        
+        return `
+        <div class="test-steps-detail">
+            <h5>📝 Test Steps:</h5>
+            <div class="steps-list">
+                ${steps.map((step, index) => `
+                <div class="mini-step-item">
+                    <span class="mini-step-number">${index + 1}</span>
+                    <span class="mini-step-text">${typeof step === 'string' ? step : step.action || 'Unknown step'}</span>
+                </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    /**
      * 获取报告CSS样式
      */
     getReportCSS() {
@@ -563,7 +591,15 @@ class JSONReportGenerator {
         .step-text { font-weight: 500; color: #495057; }
         .footer { text-align: center; color: #6c757d; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; }
         .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .result-meta { display: flex; gap: 15px; color: #6c757d; font-size: 0.9em; margin-top: 10px; }
+        .result-meta { display: flex; gap: 15px; color: #6c757d; font-size: 0.9em; margin-top: 10px; flex-wrap: wrap; }
+        .validations { margin-top: 10px; padding: 8px; background: #d4edda; border-radius: 6px; font-size: 0.9em; color: #155724; }
+        .error-info { margin-top: 10px; padding: 8px; background: #f8d7da; border-radius: 6px; font-size: 0.9em; color: #721c24; }
+        .test-steps-detail { margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #007bff; }
+        .test-steps-detail h5 { color: #495057; margin-bottom: 10px; font-size: 0.95em; }
+        .steps-list { max-height: 200px; overflow-y: auto; }
+        .mini-step-item { display: flex; align-items: center; gap: 8px; padding: 6px; margin-bottom: 4px; background: white; border-radius: 4px; font-size: 0.85em; }
+        .mini-step-number { background: #007bff; color: white; padding: 2px 6px; border-radius: 50%; font-size: 0.75em; font-weight: bold; min-width: 20px; text-align: center; }
+        .mini-step-text { color: #495057; flex: 1; }
         `;
     }
 

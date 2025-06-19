@@ -21,8 +21,12 @@ This project requires Playwright MCP:
 │       └── validate-test-suite.md # Validate test suite command
 ├── scripts/                   # Automation scripts
 │   ├── yaml-test-processor.js # YAML test processing engine
-│   ├── test-case-report-generator.js # Test case report generator
-│   └── suite-report-generator.js     # Test suite report generator
+│   ├── create-report-data.js   # Report data creation (Step 1 of two-step reporting)
+│   ├── gen-report.js          # JSON-based report generator (Step 2 of two-step reporting)
+│   ├── suite-report-generator.js # Test suite report generator
+│   ├── scan-reports.js        # Report scanning and indexing utility
+│   ├── start-report-server.js # Local HTTP server for viewing reports
+│   └── *.test.js              # Comprehensive test coverage for all scripts
 ├── .env.example               # Environment variable template
 ├── .env.dev                   # Development environment configuration
 ├── .env.test                  # Test environment configuration
@@ -82,6 +86,12 @@ All commands are located in the `.claude/` directory with parameter prompts:
 - **validate-test-suite**: Validate test suite configuration and test case references
   - Parameters: `suite`(required), `env`(optional)
 
+### 📊 Report Management
+- **view-reports-index**: View comprehensive test report index with environment switching
+  - Parameters: None (auto-scans all environments)
+  - 🌐 **Features**: Local HTTP server, auto browser opening, responsive design
+  - 📈 **Statistics**: Environment-based report counts and statistics
+
 ## Quick Start
 
 1. Install Playwright MCP
@@ -126,33 +136,123 @@ When executing tests with `/run-yaml-test` and `/run-test-suite`, the AI can now
 
 This significantly improves performance and reduces the need for manual test case analysis.
 
-## Report Generation Scripts
+## Two-Step Report Generation System
 
-The framework includes dedicated report generation scripts for standardized reporting:
+The framework uses a **revolutionary two-step report generation approach** for clean separation of data creation and report rendering:
 
-### Test Case Report Generator (`scripts/test-case-report-generator.js`)
-- **Purpose**: Generate reports for individual test case executions
+⚠️ **IMPORTANT FOR AI**: Always use this two-step approach for report generation. Do NOT use the deprecated `test-case-report-generator.js` script.
+
+### Step 1: Report Data Creation (`scripts/create-report-data.js`)
+- **Purpose**: Create standardized JSON data files containing all test execution information
 - **Features**: 
-  * Automatic template selection based on `REPORT_STYLE` (overview/detailed)
-  * Embedded JSON data generation (no external files)
-  * Timestamp-based file naming: `test-{testname}-{timestamp}.html`
-  * Automatic `latest-test-report.html` redirect updates
-- **Usage**: Called automatically by `/run-yaml-test` when `GENERATE_REPORT=true`
+  * Structured data format for test cases, suites, and execution results
+  * Automatic REPORT_PATH environment variable handling
+  * Support for single tests, batch tests, and test suites
+  * ReportDataCreator class with helper functions
+- **Key Functions**:
+  * `createAndSaveTestData(testCase, execution, fileName, options)` - Single test data
+  * `createAndSaveBatchData(testCases, execution, fileName, options)` - Batch test data
+  * `createAndSaveSuiteData(suite, results, fileName, options)` - Suite data
+  * `quickCreateTestData(name, status, duration, fileName, options)` - Quick creation
 
-### Suite Report Generator (`scripts/suite-report-generator.js`)
-- **Purpose**: Generate consolidated reports for test suite executions
+### Step 2: JSON-Based Report Generation (`scripts/gen-report.js`)
+- **Purpose**: Generate HTML reports from JSON data files
 - **Features**:
-  * Suite-level metrics and statistics
-  * Consolidated test case results
-  * Performance analysis across multiple test cases
-  * Timestamp-based file naming: `suite-{suitename}-{timestamp}.html`
-  * Automatic `latest-suite-report.html` redirect updates
-- **Usage**: Called automatically by `/run-test-suite` when `GENERATE_REPORT=true`
+  * Template-free report generation (no external dependencies)
+  * Embedded CSS and JavaScript in HTML output
+  * Support for both test and suite report types
+  * Automatic latest-report link creation
+- **Usage**: `node scripts/gen-report.js --data=/path/to/data.json`
+
+### Utility Scripts
+- **Report Scanner** (`scripts/scan-reports.js`): Index and organize generated reports
+- **Report Server** (`scripts/start-report-server.js`): Local HTTP server for viewing reports
+- **Comprehensive Testing**: All scripts include `.test.js` files for reliability
+
+### Two-Step Workflow Benefits
+- **Clean Separation**: Data creation and report generation are independent
+- **No Dynamic Code Execution**: All data pre-structured in JSON files
+- **Reusable Data**: JSON files can be stored, versioned, and reused
+- **Template-Free**: No external template dependencies
+- **Reliable Loading**: All data embedded directly in HTML files
+
+### Two-Step Report Generation Examples
+
+**Example 1: Single Test Case Report**
+```javascript
+// Step 1: Create data file
+const { createAndSaveTestData } = require('./scripts/create-report-data.js');
+
+const testCase = {
+  name: 'sort.yml',
+  description: 'Product sorting test',
+  tags: ['smoke', 'sort'],
+  steps: ['Login to application', 'Sort products by price', 'Verify sorting']
+};
+
+const execution = {
+  status: 'passed',
+  duration: 30000,
+  testName: 'sort.yml',
+  validations: ['Price verified: $7.99', 'Price verified: $49.99']
+};
+
+createAndSaveTestData(testCase, execution, 'sort-test.json', {
+  environment: 'dev',
+  reportStyle: 'overview'
+});
+
+// Step 2: Generate report
+// node scripts/gen-report.js --data=sort-test.json
+```
+
+**Example 2: Batch Test Report**
+```javascript
+// Step 1: Create batch data file
+const { createAndSaveBatchData } = require('./scripts/create-report-data.js');
+
+const testCases = [
+  { name: 'sort.yml', description: 'Sorting test', tags: ['smoke'], steps: [...] },
+  { name: 'order.yml', description: 'Order test', tags: ['smoke'], steps: [...] }
+];
+
+const execution = {
+  name: 'smoke-tests-batch',
+  status: 'passed',
+  duration: 90000,
+  testResults: [
+    { testName: 'sort.yml', status: 'passed', duration: 30000 },
+    { testName: 'order.yml', status: 'passed', duration: 60000 }
+  ]
+};
+
+createAndSaveBatchData(testCases, execution, 'smoke-batch.json', {
+  environment: 'dev'
+});
+
+// Step 2: Generate report
+// node scripts/gen-report.js --data=smoke-batch.json
+```
+
+**Example 3: Quick Test Data Creation**
+```javascript
+// Quick single-line creation for simple cases
+const { quickCreateTestData } = require('./scripts/create-report-data.js');
+
+quickCreateTestData('sort.yml', 'passed', 30000, 'quick-test.json', {
+  environment: 'dev',
+  tags: ['smoke', 'sort'],
+  validations: ['All sorting verified']
+});
+
+// Step 2: Generate report
+// node scripts/gen-report.js --data=quick-test.json
+```
 
 ### Report Configuration
-- **Templates**: Located in `reports/template-overview.html` and `reports/template-detailed.html`
 - **Output Paths**: Environment-specific directories (`reports/dev/`, `reports/test/`, `reports/prod/`)
-- **Embedded Data**: All test data embedded directly in HTML files for reliable loading
+- **File Naming**: Timestamp-based: `test-{name}-{timestamp}.html` / `suite-{name}-{timestamp}.html`
+- **Latest Links**: Automatic `latest-test-report.html` and `latest-suite-report.html` redirects
 - **Styles**: 
   * `overview`: Fast generation, summary information only
   * `detailed`: Complete step-by-step execution details
@@ -176,3 +276,15 @@ Supported environment variables:
 - **Auto-save**: Login sessions automatically saved
 - **Auto-restore**: Sessions automatically restored across commands
 - **Clear session**: Delete auth-state.json to reset login
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Report Generation Mandate
+**CRITICAL**: Always use the two-step report generation process:
+1. **Step 1**: Use `scripts/create-report-data.js` to create JSON data files
+2. **Step 2**: Use `node scripts/gen-report.js --data=filename.json` to generate reports
+**DO NOT** use the deprecated `test-case-report-generator.js` script for any report generation.

@@ -19,8 +19,8 @@ class ReportDataCreator {
         const data = {
             reportType: "test",
             reportData: {
-                testCase: this.formatTestCase(testCaseInfo),
-                execution: this.formatExecution(executionInfo)
+                testCase: this.formatTestCase(testCaseInfo, options),
+                execution: this.formatExecution(executionInfo, options)
             },
             config: this.createConfig(options),
             environment: this.createEnvironment(options)
@@ -36,8 +36,8 @@ class ReportDataCreator {
         const data = {
             reportType: "test",
             reportData: {
-                testCase: testCases.map(tc => this.formatTestCase(tc)),
-                execution: this.formatBatchExecution(executionInfo)
+                testCase: testCases.map(tc => this.formatTestCase(tc, options)),
+                execution: this.formatBatchExecution(executionInfo, options)
             },
             config: this.createConfig(options),
             environment: this.createEnvironment(options)
@@ -54,7 +54,7 @@ class ReportDataCreator {
             reportType: "suite",
             reportData: {
                 suite: this.formatSuite(suiteInfo),
-                results: resultsInfo.map(result => this.formatSuiteResult(result))
+                results: resultsInfo.map(result => this.formatSuiteResult(result, options))
             },
             config: this.createConfig(options),
             environment: this.createEnvironment(options)
@@ -66,20 +66,27 @@ class ReportDataCreator {
     /**
      * 格式化测试用例信息
      */
-    formatTestCase(testCase) {
+    formatTestCase(testCase, options = {}) {
         const tc = testCase || {};
-        return {
+        const result = {
             name: tc.name || 'unnamed-test.yml',
             description: tc.description || '',
-            tags: tc.tags || [],
-            steps: tc.steps || []
+            tags: tc.tags || []
         };
+        
+        // 只在详细模式下包含步骤信息
+        const reportStyle = options.reportStyle || options.environment?.REPORT_STYLE || 'overview';
+        if (reportStyle === 'detailed') {
+            result.steps = tc.steps || [];
+        }
+        
+        return result;
     }
 
     /**
      * 格式化执行信息
      */
-    formatExecution(execution) {
+    formatExecution(execution, options = {}) {
         const ex = execution || {};
         return {
             status: ex.status || 'unknown',
@@ -87,7 +94,7 @@ class ReportDataCreator {
             endTime: ex.endTime || Date.now(),
             duration: ex.duration || 0,
             testResults: ex.testResults ? 
-                ex.testResults.map(tr => this.formatTestResult(tr)) : 
+                ex.testResults.map(tr => this.formatTestResult(tr, options)) : 
                 [{
                     testName: ex.testName || 'test',
                     status: ex.status || 'unknown',
@@ -102,7 +109,7 @@ class ReportDataCreator {
     /**
      * 格式化批量执行信息
      */
-    formatBatchExecution(execution) {
+    formatBatchExecution(execution, options = {}) {
         return {
             name: execution.name || 'batch-execution',
             status: execution.status || 'unknown',
@@ -110,24 +117,31 @@ class ReportDataCreator {
             endTime: execution.endTime || Date.now(),
             duration: execution.duration || 0,
             testResults: execution.testResults ? 
-                execution.testResults.map(tr => this.formatTestResult(tr)) : []
+                execution.testResults.map(tr => this.formatTestResult(tr, options)) : []
         };
     }
 
     /**
      * 格式化测试结果
      */
-    formatTestResult(result) {
+    formatTestResult(result, options = {}) {
         const r = result || {};
-        return {
+        const formattedResult = {
             testName: r.testName || r.name || 'test',
             status: r.status || 'unknown',
             duration: r.duration || 0,
-            steps: Array.isArray(r.steps) ? r.steps : [],
             validations: Array.isArray(r.validations) ? r.validations : [],
             sessionOptimized: r.sessionOptimized || false,
             error: r.error || null
         };
+        
+        // 只在详细模式下包含步骤信息
+        const reportStyle = options.reportStyle || options.environment?.REPORT_STYLE || 'overview';
+        if (reportStyle === 'detailed') {
+            formattedResult.steps = Array.isArray(r.steps) ? r.steps : [];
+        }
+        
+        return formattedResult;
     }
 
     /**
@@ -146,8 +160,8 @@ class ReportDataCreator {
     /**
      * 格式化套件结果
      */
-    formatSuiteResult(result) {
-        return {
+    formatSuiteResult(result, options = {}) {
+        const formattedResult = {
             testName: result.testName || result.name || 'test',
             description: result.description || '',
             status: result.status || 'unknown',
@@ -159,6 +173,14 @@ class ReportDataCreator {
             sessionOptimized: result.sessionOptimized || false,
             error: result.error || null
         };
+        
+        // 只在详细模式下包含详细步骤
+        const reportStyle = options.reportStyle || options.environment?.REPORT_STYLE || 'overview';
+        if (reportStyle === 'detailed') {
+            formattedResult.steps_detail = result.steps_detail || result.stepsDetail || [];
+        }
+        
+        return formattedResult;
     }
 
     /**
