@@ -107,7 +107,12 @@ const execution = {
   duration: 30000,
   testName: 'sort.yml',
   validations: ['Price verified: $7.99', 'Price verified: $49.99'],
-  sessionOptimized: true
+  sessionOptimized: true,
+  steps_detail: [
+    { step: 1, action: 'Login to application', status: 'passed', duration: 3000 },
+    { step: 2, action: 'Click sorting dropdown, select Price(low to high)', status: 'passed', duration: 2000 },
+    { step: 3, action: 'Verify first product price is $7.99', status: 'passed', duration: 1000 }
+  ]
 };
 
 const options = {
@@ -135,8 +140,25 @@ const execution = {
   endTime: Date.now(),
   duration: 60000,
   testResults: [
-    { testName: 'sort.yml', status: 'passed', duration: 30000 },
-    { testName: 'order.yml', status: 'passed', duration: 30000 }
+    { 
+      testName: 'sort.yml', 
+      status: 'passed', 
+      duration: 30000,
+      steps_detail: [
+        { step: 1, action: 'Login and navigate', status: 'passed', duration: 5000 },
+        { step: 2, action: 'Perform sorting test', status: 'passed', duration: 15000 },
+        { step: 3, action: 'Verify results', status: 'passed', duration: 10000 }
+      ]
+    },
+    { 
+      testName: 'order.yml', 
+      status: 'passed', 
+      duration: 30000,
+      steps_detail: [
+        { step: 1, action: 'Add products to cart', status: 'passed', duration: 10000 },
+        { step: 2, action: 'Complete checkout', status: 'passed', duration: 20000 }
+      ]
+    }
   ]
 };
 
@@ -210,6 +232,37 @@ Report generation configuration:
 - Report files include timestamp for historical tracking
 - All test data is embedded directly in the HTML file for reliable loading
 - latest-test-report.html always redirects to the most recent report
+
+⚠️ **CRITICAL: Detailed Report Requirements**
+**For `REPORT_STYLE=detailed` to show step-by-step details, you MUST include `steps_detail` array in test results:**
+
+```javascript
+// ✅ CORRECT - Detailed steps will be shown
+const testResult = {
+  testName: 'example.yml',
+  status: 'passed',
+  duration: 30000,
+  steps_detail: [
+    { step: 1, action: 'Open login page', status: 'passed', duration: 2000 },
+    { step: 2, action: 'Fill username field', status: 'passed', duration: 500 },
+    { step: 3, action: 'Click login button', status: 'passed', duration: 3000 }
+  ]
+};
+
+// ❌ INCORRECT - Only summary will be shown (even with REPORT_STYLE=detailed)
+const testResult = {
+  testName: 'example.yml',
+  status: 'passed',
+  duration: 30000
+  // Missing steps_detail array
+};
+```
+
+**When executing tests with `REPORT_STYLE=detailed`:**
+1. Always create `steps_detail` array for each test result
+2. Each step object must include: `step`, `action`, `status`, `duration`
+3. Map actual test execution to step-by-step breakdown
+4. Include real execution status and timing information
 
 ## Session Optimization Examples
 

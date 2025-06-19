@@ -158,7 +158,7 @@ const suite = {
   ]
 };
 
-// Test Results
+// Test Results (with steps_detail for detailed reports)
 const results = [
   {
     testName: 'sort.yml',
@@ -169,7 +169,14 @@ const results = [
     features: 'Price sorting, Product display',
     tags: ['smoke', 'sort'],
     validations: 'Low to high: $7.99, High to low: $49.99',
-    sessionOptimized: true
+    sessionOptimized: true,
+    steps_detail: [
+      { step: 1, action: 'Login to application', status: 'passed', duration: 3000 },
+      { step: 2, action: 'Navigate to products page', status: 'passed', duration: 2000 },
+      { step: 3, action: 'Click sorting dropdown', status: 'passed', duration: 1500 },
+      { step: 4, action: 'Select Price (low to high)', status: 'passed', duration: 2000 },
+      { step: 5, action: 'Verify first product price $7.99', status: 'passed', duration: 1000 }
+    ]
   },
   {
     testName: 'product-details.yml',
@@ -180,7 +187,13 @@ const results = [
     features: 'Product details, Add to cart',
     tags: ['smoke', 'product-details'],
     validations: 'Product info displayed, Cart updated',
-    sessionOptimized: true
+    sessionOptimized: true,
+    steps_detail: [
+      { step: 1, action: 'Navigate to product details page', status: 'passed', duration: 2000 },
+      { step: 2, action: 'Verify product name and price', status: 'passed', duration: 1500 },
+      { step: 3, action: 'Click Add to cart button', status: 'passed', duration: 1000 },
+      { step: 4, action: 'Verify cart icon updated', status: 'passed', duration: 500 }
+    ]
   },
   {
     testName: 'order.yml',
@@ -192,7 +205,13 @@ const results = [
     tags: ['smoke', 'order'],
     validations: 'Cart items verified, Checkout form validation',
     sessionOptimized: true,
-    error: 'Payment form validation failed'
+    error: 'Payment form validation failed',
+    steps_detail: [
+      { step: 1, action: 'Add items to cart', status: 'passed', duration: 3000 },
+      { step: 2, action: 'Navigate to checkout', status: 'passed', duration: 2000 },
+      { step: 3, action: 'Fill shipping information', status: 'passed', duration: 4000 },
+      { step: 4, action: 'Submit payment form', status: 'failed', duration: 5000 }
+    ]
   }
 ];
 
@@ -273,7 +292,12 @@ quickCreateSuiteData('E-commerce Tests', testResults, 'latest-suite.json', {
         "duration": 45000,
         "features": "Price sorting, Product display",
         "validations": "All sorting verified",
-        "sessionOptimized": true
+        "sessionOptimized": true,
+        "steps_detail": [
+          { "step": 1, "action": "Login to application", "status": "passed", "duration": 3000 },
+          { "step": 2, "action": "Navigate to products page", "status": "passed", "duration": 1000 },
+          { "step": 3, "action": "Click sorting dropdown", "status": "passed", "duration": 2000 }
+        ]
       }
     ]
   },
@@ -289,6 +313,51 @@ quickCreateSuiteData('E-commerce Tests', testResults, 'latest-suite.json', {
   }
 }
 ```
+
+⚠️ **CRITICAL: Detailed Suite Report Requirements**
+**For `REPORT_STYLE=detailed` to show step-by-step details in suite reports, you MUST include `steps_detail` array in each test result:**
+
+```javascript
+// ✅ CORRECT - Detailed steps will be shown for each test in suite
+const suiteResults = [
+  {
+    testName: 'sort.yml',
+    status: 'passed',
+    duration: 35000,
+    steps_detail: [
+      { step: 1, action: 'Login to application', status: 'passed', duration: 3000 },
+      { step: 2, action: 'Sort products by price', status: 'passed', duration: 2000 },
+      { step: 3, action: 'Verify sorting order', status: 'passed', duration: 1000 }
+    ]
+  },
+  {
+    testName: 'product-details.yml',
+    status: 'passed',
+    duration: 25000,
+    steps_detail: [
+      { step: 1, action: 'Navigate to product page', status: 'passed', duration: 2000 },
+      { step: 2, action: 'Verify product details', status: 'passed', duration: 1500 },
+      { step: 3, action: 'Add to cart', status: 'passed', duration: 1000 }
+    ]
+  }
+];
+
+// ❌ INCORRECT - Only suite summary will be shown (no step details)
+const suiteResults = [
+  {
+    testName: 'sort.yml',
+    status: 'passed',
+    duration: 35000
+    // Missing steps_detail array
+  }
+];
+```
+
+**When executing test suites with `REPORT_STYLE=detailed`:**
+1. Create `steps_detail` array for each test case result in the suite
+2. Map actual test execution to step-by-step breakdown for every test
+3. Include real execution status and timing for each step
+4. Aggregate suite-level metrics while preserving individual test details
 
 - **NO DYNAMIC CODE EXECUTION** - all data is pre-structured in JSON files
 - **CLEAN SEPARATION** - data creation and report generation are separate steps

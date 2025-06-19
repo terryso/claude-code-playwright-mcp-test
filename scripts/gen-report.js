@@ -31,12 +31,49 @@ class JSONReportGenerator {
     }
 
     /**
+     * 智能解析数据文件路径，支持环境变量路径
+     */
+    resolveDataFilePath(filePath) {
+        // 如果已经是绝对路径，直接使用
+        if (path.isAbsolute(filePath)) {
+            return filePath;
+        }
+        
+        // 首先尝试从项目根目录查找
+        const rootPath = path.join(this.projectRoot, filePath);
+        if (fs.existsSync(rootPath)) {
+            return rootPath;
+        }
+        
+        // 然后尝试从REPORT_PATH环境变量查找
+        const reportPath = process.env.REPORT_PATH || 'reports/dev';
+        const envPath = path.isAbsolute(reportPath) ? 
+            path.join(reportPath, filePath) : 
+            path.join(this.projectRoot, reportPath, filePath);
+        
+        if (fs.existsSync(envPath)) {
+            return envPath;
+        }
+        
+        // 最后尝试在reports目录下的各个环境子目录中查找
+        const environments = ['dev', 'test', 'prod'];
+        for (const env of environments) {
+            const envDirPath = path.join(this.projectRoot, 'reports', env, filePath);
+            if (fs.existsSync(envDirPath)) {
+                return envDirPath;
+            }
+        }
+        
+        // 如果都找不到，返回原始路径用于错误报告
+        return rootPath;
+    }
+
+    /**
      * 读取JSON数据文件
      */
     readDataFile(dataPath) {
         try {
-            // 支持相对路径和绝对路径
-            const fullPath = path.isAbsolute(dataPath) ? dataPath : path.join(this.projectRoot, dataPath);
+            const fullPath = this.resolveDataFilePath(dataPath);
             
             if (!fs.existsSync(fullPath)) {
                 throw new Error(`Data file not found: ${fullPath}`);
