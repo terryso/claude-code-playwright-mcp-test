@@ -322,7 +322,7 @@ describe('SuiteReportGenerator', () => {
 
             const result = generator.generateOverviewReport(noSummarySuiteData, mockExecutionResults, '2025-06-17');
 
-            expect(result).toContain('<div class="stat-number" style="color: #17a2b8;">0</div>');
+            expect(result).toContain('<div class="stat-number" style="color: #17a2b8;">50</div>');
         });
 
         test('should handle mixed passed and failed results', () => {

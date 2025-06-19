@@ -149,16 +149,70 @@ steps:
             processor = new YAMLTestProcessor();
             
             expect(processor.stepLibraries).toEqual({
-                'login': [
-                    'Open {{BASE_URL}} page',
-                    'Fill username field with {{TEST_USERNAME}}',
-                    'Fill password field with {{TEST_PASSWORD}}',
-                    'Click login button'
-                ],
-                'cleanup': [
-                    'Click Back Home button',
-                    'Save screenshot as {{SCREENSHOT_PATH}}/cleanup-complete.png'
-                ]
+                'login': {
+                    description: '',
+                    parameters: [],
+                    steps: [
+                        'Open {{BASE_URL}} page',
+                        'Fill username field with {{TEST_USERNAME}}',
+                        'Fill password field with {{TEST_PASSWORD}}',
+                        'Click login button'
+                    ]
+                },
+                'cleanup': {
+                    description: '',
+                    parameters: [],
+                    steps: [
+                        'Click Back Home button',
+                        'Save screenshot as {{SCREENSHOT_PATH}}/cleanup-complete.png'
+                    ]
+                }
+            });
+        });
+
+        test('should load parameterized step libraries', () => {
+            const parameterizedSteps = `
+description: "Create a basic channel with custom parameters"
+parameters:
+  - name: "CHANNEL_NAME_PREFIX"
+    description: "Channel name prefix"
+    default: "Test Channel"
+  - name: "LIVE_SCENE"
+    description: "Live scene type"
+    default: "大班课"
+steps:
+  - "输入直播名称: {{CHANNEL_NAME_PREFIX}} + 随机5位数字"
+  - "选择直播场景: {{LIVE_SCENE}}"
+`;
+            
+            mockFs.existsSync.mockReturnValue(true);
+            mockFs.readdirSync.mockReturnValue(['create-basic-channel.yml']);
+            mockFs.readFileSync
+                .mockReturnValueOnce('') // env file
+                .mockReturnValueOnce(parameterizedSteps); // create-basic-channel.yml
+            
+            processor = new YAMLTestProcessor();
+            
+            expect(processor.stepLibraries).toEqual({
+                'create-basic-channel': {
+                    description: 'Create a basic channel with custom parameters',
+                    parameters: [
+                        {
+                            name: 'CHANNEL_NAME_PREFIX',
+                            description: 'Channel name prefix',
+                            default: 'Test Channel'
+                        },
+                        {
+                            name: 'LIVE_SCENE',
+                            description: 'Live scene type',
+                            default: '大班课'
+                        }
+                    ],
+                    steps: [
+                        '输入直播名称: {{CHANNEL_NAME_PREFIX}} + 随机5位数字',
+                        '选择直播场景: {{LIVE_SCENE}}'
+                    ]
+                }
             });
         });
 
@@ -196,6 +250,18 @@ steps:
             );
             
             consoleErrorSpy.mockRestore();
+        });
+
+        test('should handle step library with no content', () => {
+            mockFs.existsSync.mockReturnValue(true);
+            mockFs.readdirSync.mockReturnValue(['empty.yml']);
+            mockFs.readFileSync
+                .mockReturnValueOnce('') // env file
+                .mockReturnValueOnce(''); // empty yaml
+            
+            processor = new YAMLTestProcessor();
+            
+            expect(processor.stepLibraries).toEqual({});
         });
     });
 
@@ -349,20 +415,29 @@ steps:
             mockFs.existsSync.mockReturnValue(false);
             processor = new YAMLTestProcessor();
             processor.stepLibraries = {
-                'login': [
-                    'Open {{BASE_URL}} page',
-                    'Fill username with {{USERNAME}}',
-                    'Click login button'
-                ],
-                'cleanup': [
-                    'Click logout button',
-                    'Save screenshot'
-                ],
-                'nested': [
-                    'Step 1',
-                    { include: 'login' },
-                    'Step 2'
-                ]
+                'login': {
+                    parameters: [],
+                    steps: [
+                        'Open {{BASE_URL}} page',
+                        'Fill username with {{USERNAME}}',
+                        'Click login button'
+                    ]
+                },
+                'cleanup': {
+                    parameters: [],
+                    steps: [
+                        'Click logout button',
+                        'Save screenshot'
+                    ]
+                },
+                'nested': {
+                    parameters: [],
+                    steps: [
+                        'Step 1',
+                        { include: 'login' },
+                        'Step 2'
+                    ]
+                }
             };
         });
 
@@ -437,78 +512,309 @@ steps:
         });
     });
 
-    describe('substituteEnvironmentVariables', () => {
+
+    describe('resolveParameters', () => {
+        beforeEach(() => {
+            mockFs.existsSync.mockReturnValue(false);
+            processor = new YAMLTestProcessor();
+        });
+
+        test('should merge default and provided parameters', () => {
+            const library = {
+                parameters: [
+                    { name: 'PARAM1', default: 'default1' },
+                    { name: 'PARAM2', default: 'default2' },
+                    { name: 'PARAM3' } // no default
+                ]
+            };
+
+            const providedParams = {
+                'PARAM2': 'provided2',
+                'PARAM3': 'provided3',
+                'PARAM4': 'provided4' // extra param
+            };
+
+            const result = processor.resolveParameters(library, providedParams);
+
+            expect(result).toEqual({
+                'PARAM1': 'default1',
+                'PARAM2': 'provided2',
+                'PARAM3': 'provided3',
+                'PARAM4': 'provided4'
+            });
+        });
+
+        test('should handle library with no parameters', () => {
+            const library = {};
+            const providedParams = { 'PARAM1': 'value1' };
+
+            const result = processor.resolveParameters(library, providedParams);
+
+            expect(result).toEqual({ 'PARAM1': 'value1' });
+        });
+
+        test('should handle empty provided parameters', () => {
+            const library = {
+                parameters: [
+                    { name: 'PARAM1', default: 'default1' }
+                ]
+            };
+
+            const result = processor.resolveParameters(library);
+
+            expect(result).toEqual({ 'PARAM1': 'default1' });
+        });
+    });
+
+    describe('substituteVariables', () => {
         beforeEach(() => {
             mockFs.existsSync.mockReturnValue(false);
             processor = new YAMLTestProcessor();
             processor.envVars = {
                 'BASE_URL': 'https://example.com',
-                'USERNAME': 'testuser',
-                'PASSWORD': 'secret123'
+                'USERNAME': 'testuser'
             };
         });
 
-        test('should substitute environment variables', () => {
-            const steps = [
-                'Open {{BASE_URL}} page',
-                'Login with {{USERNAME}} and {{PASSWORD}}',
-                'Navigate to {{BASE_URL}}/dashboard'
-            ];
+        test('should substitute parameters first, then environment variables', () => {
+            const step = 'Login to {{BASE_URL}} with {{USERNAME}} using {{PASSWORD}}';
+            const parameters = {
+                'USERNAME': 'customuser',
+                'PASSWORD': 'secret123'
+            };
 
-            const result = processor.substituteEnvironmentVariables(steps);
+            const result = processor.substituteVariables(step, parameters);
 
-            expect(result).toEqual([
-                'Open https://example.com page',
-                'Login with testuser and secret123',
-                'Navigate to https://example.com/dashboard'
-            ]);
+            expect(result).toBe('Login to https://example.com with customuser using secret123');
         });
 
-        test('should handle missing environment variables', () => {
+        test('should warn about missing variables', () => {
             const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
             
-            const steps = [
-                'Open {{BASE_URL}} page',
-                'Use {{MISSING_VAR}} value'
-            ];
+            const step = 'Use {{MISSING_VAR}} value';
+            const result = processor.substituteVariables(step);
 
-            const result = processor.substituteEnvironmentVariables(steps);
-
-            expect(result).toEqual([
-                'Open https://example.com page',
-                'Use {{MISSING_VAR}} value'
-            ]);
-            expect(consoleWarnSpy).toHaveBeenCalledWith("Environment variable 'MISSING_VAR' not found");
+            expect(result).toBe('Use {{MISSING_VAR}} value');
+            expect(consoleWarnSpy).toHaveBeenCalledWith("Variable 'MISSING_VAR' not found");
             
             consoleWarnSpy.mockRestore();
         });
 
         test('should handle non-string steps', () => {
-            const steps = [
-                'String step',
-                { type: 'object', value: 'test' },
-                123
-            ];
+            const step = { type: 'object' };
+            const result = processor.substituteVariables(step);
 
-            const result = processor.substituteEnvironmentVariables(steps);
+            expect(result).toEqual({ type: 'object' });
+        });
+    });
+
+    describe('evaluateCondition', () => {
+        beforeEach(() => {
+            mockFs.existsSync.mockReturnValue(false);
+            processor = new YAMLTestProcessor();
+        });
+
+        test('should return true for empty condition', () => {
+            expect(processor.evaluateCondition()).toBe(true);
+            expect(processor.evaluateCondition('')).toBe(true);
+            expect(processor.evaluateCondition(null)).toBe(true);
+        });
+
+        test('should handle equality conditions', () => {
+            const parameters = { 'PARAM': 'test' };
+            
+            expect(processor.evaluateCondition('{{PARAM}} == "test"', parameters)).toBe(true);
+            expect(processor.evaluateCondition('{{PARAM}} == "other"', parameters)).toBe(false);
+        });
+
+        test('should handle inequality conditions', () => {
+            const parameters = { 'PARAM': 'test' };
+            
+            expect(processor.evaluateCondition('{{PARAM}} != "other"', parameters)).toBe(true);
+            expect(processor.evaluateCondition('{{PARAM}} != "test"', parameters)).toBe(false);
+        });
+
+        test('should handle boolean conditions', () => {
+            const parameters = { 'ENABLED': 'true', 'DISABLED': 'false' };
+            
+            expect(processor.evaluateCondition('{{ENABLED}} == true', parameters)).toBe(true);
+            expect(processor.evaluateCondition('{{DISABLED}} == false', parameters)).toBe(true);
+        });
+
+        test('should handle simple boolean evaluation', () => {
+            expect(processor.evaluateCondition('true')).toBe(true);
+            expect(processor.evaluateCondition('false')).toBe(false);
+            expect(processor.evaluateCondition('test')).toBe(true);
+        });
+
+        test('should warn on evaluation errors', () => {
+            const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+            
+            // This would cause an error due to missing parameter
+            const result = processor.evaluateCondition('{{MISSING_PARAM}} == true');
+            
+            expect(result).toBe(false);
+            expect(consoleWarnSpy).toHaveBeenCalledWith("Variable 'MISSING_PARAM' not found");
+            
+            consoleWarnSpy.mockRestore();
+        });
+    });
+
+    describe('processStep', () => {
+        beforeEach(() => {
+            mockFs.existsSync.mockReturnValue(false);
+            processor = new YAMLTestProcessor();
+            processor.stepLibraries = {
+                'test-lib': {
+                    description: '',
+                    parameters: [],
+                    steps: ['Library step 1', 'Library step 2']
+                }
+            };
+        });
+
+        test('should process string steps', () => {
+            const parameters = { 'VALUE': 'test' };
+            const result = processor.processStep('Step with {{VALUE}}', parameters);
+
+            expect(result).toEqual(['Step with test']);
+        });
+
+        test('should process conditional steps', () => {
+            const parameters = { 'ENABLED': 'true' };
+            const conditionalStep = {
+                condition: '{{ENABLED}} == true',
+                step: 'Execute when enabled'
+            };
+
+            const result = processor.processStep(conditionalStep, parameters);
+
+            expect(result).toEqual(['Execute when enabled']);
+        });
+
+        test('should skip conditional steps when condition is false', () => {
+            const parameters = { 'ENABLED': 'false' };
+            const conditionalStep = {
+                condition: '{{ENABLED}} == true',
+                step: 'Execute when enabled'
+            };
+
+            const result = processor.processStep(conditionalStep, parameters);
+
+            expect(result).toEqual([]);
+        });
+
+        test('should process conditional step groups', () => {
+            const parameters = { 'ENABLED': 'true' };
+            const conditionalStep = {
+                condition: '{{ENABLED}} == true',
+                steps: ['Step 1', 'Step 2']
+            };
+
+            const result = processor.processStep(conditionalStep, parameters);
+
+            expect(result).toEqual(['Step 1', 'Step 2']);
+        });
+
+        test('should process include steps', () => {
+            const includeStep = { include: 'test-lib' };
+
+            const result = processor.processStep(includeStep);
+
+            expect(result).toEqual(['Library step 1', 'Library step 2']);
+        });
+
+        test('should handle other object types', () => {
+            const objectStep = { type: 'custom', value: '{{PARAM}}' };
+            const parameters = { 'PARAM': 'test' };
+
+            const result = processor.processStep(objectStep, parameters);
+
+            expect(result).toEqual(['{"type":"custom","value":"test"}']);
+        });
+    });
+
+    describe('expandSingleInclude', () => {
+        beforeEach(() => {
+            mockFs.existsSync.mockReturnValue(false);
+            processor = new YAMLTestProcessor();
+            processor.stepLibraries = {
+                'parameterized-lib': {
+                    description: '',
+                    parameters: [
+                        { name: 'PREFIX', default: 'Default' },
+                        { name: 'SUFFIX', default: 'End' }
+                    ],
+                    steps: [
+                        'Start with {{PREFIX}}',
+                        'End with {{SUFFIX}}'
+                    ]
+                }
+            };
+        });
+
+        test('should expand include with parameters', () => {
+            const includeStep = {
+                include: 'parameterized-lib',
+                parameters: {
+                    'PREFIX': 'Custom',
+                    'SUFFIX': 'Finish'
+                }
+            };
+
+            const result = processor.expandSingleInclude(includeStep);
 
             expect(result).toEqual([
-                'String step',
-                { type: 'object', value: 'test' },
-                123
+                'Start with Custom',
+                'End with Finish'
             ]);
         });
 
-        test('should handle multiple variables in one step', () => {
-            const steps = [
-                'Connect to {{BASE_URL}} with {{USERNAME}} and {{PASSWORD}}'
-            ];
+        test('should use default parameters when not provided', () => {
+            const includeStep = {
+                include: 'parameterized-lib',
+                parameters: {
+                    'PREFIX': 'Custom'
+                    // SUFFIX will use default
+                }
+            };
 
-            const result = processor.substituteEnvironmentVariables(steps);
+            const result = processor.expandSingleInclude(includeStep);
 
             expect(result).toEqual([
-                'Connect to https://example.com with testuser and secret123'
+                'Start with Custom',
+                'End with End'
             ]);
+        });
+
+        test('should inherit parameters from parent context', () => {
+            const includeStep = {
+                include: 'parameterized-lib',
+                parameters: {
+                    'SUFFIX': 'Override'
+                }
+            };
+
+            const inheritedParams = { 'PREFIX': 'Inherited' };
+
+            const result = processor.expandSingleInclude(includeStep, inheritedParams);
+
+            expect(result).toEqual([
+                'Start with Inherited',
+                'End with Override'
+            ]);
+        });
+
+        test('should handle missing step library', () => {
+            const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+            
+            const includeStep = { include: 'missing-lib' };
+            const result = processor.expandSingleInclude(includeStep);
+
+            expect(result).toEqual(['[MISSING LIBRARY: missing-lib]']);
+            expect(consoleWarnSpy).toHaveBeenCalledWith("Step library 'missing-lib' not found");
+            
+            consoleWarnSpy.mockRestore();
         });
     });
 
@@ -518,7 +824,11 @@ steps:
             processor = new YAMLTestProcessor({ tagFilter: 'smoke' });
             processor.envVars = { 'BASE_URL': 'https://example.com' };
             processor.stepLibraries = {
-                'login': ['Login step 1', 'Login step 2']
+                'login': {
+                    description: '',
+                    parameters: [],
+                    steps: ['Login step 1', 'Login step 2']
+                }
             };
         });
 
@@ -540,6 +850,7 @@ steps:
             expect(result).toEqual({
                 name: 'order.yml',
                 originalFile: '/test-cases/order.yml',
+                description: '',
                 tags: ['smoke', 'order'],
                 steps: [
                     'Login step 1',
@@ -646,7 +957,13 @@ tags:
             mockFs.existsSync.mockReturnValue(true);
             processor = new YAMLTestProcessor({ environment: 'test', tagFilter: 'smoke' });
             processor.envVars = { 'BASE_URL': 'https://example.com' };
-            processor.stepLibraries = { 'login': ['Login step'] };
+            processor.stepLibraries = { 
+                'login': {
+                    description: '',
+                    parameters: [],
+                    steps: ['Login step']
+                }
+            };
         });
 
         test('should process all matching test cases', () => {
@@ -739,6 +1056,52 @@ steps: ["Step 1"]
             expect(result.tagFilter).toBe('smoke');
             expect(result.envVars).toEqual({ 'BASE_URL': 'https://example.com' });
             expect(result.stepLibraries).toEqual(['login']);
+        });
+
+        test('should process test case with parameterized step libraries', () => {
+            const testCase = `
+tags: [smoke, parameterized]
+description: "Test with parameterized steps"
+steps:
+  - include: "create-basic-channel"
+    parameters:
+      CHANNEL_NAME_PREFIX: "测试频道"
+      LIVE_SCENE: "企业培训"
+  - "Custom step"
+`;
+
+            mockFs.existsSync.mockReturnValue(true);
+            mockFs.readdirSync
+                .mockReturnValueOnce(['create-basic-channel.yml']) // step libraries
+                .mockReturnValueOnce(['test.yml']); // test cases
+            mockFs.readFileSync
+                .mockReturnValueOnce('BASE_URL=https://example.com') // env file
+                .mockReturnValueOnce(`
+description: "Create basic channel"
+parameters:
+  - name: "CHANNEL_NAME_PREFIX"
+    description: "Channel name prefix"
+    default: "直播"
+  - name: "LIVE_SCENE"
+    description: "Live scene"
+    default: "大班课"
+steps:
+  - "输入直播名称: {{CHANNEL_NAME_PREFIX}} + 随机5位数字"
+  - "选择直播场景: {{LIVE_SCENE}}"
+`) // create-basic-channel.yml
+                .mockReturnValueOnce(testCase); // test case
+
+            processor = new YAMLTestProcessor({ environment: 'test' });
+            const result = processor.processAllTestCases();
+
+            expect(result.testCases).toHaveLength(1);
+            expect(result.testCases[0].description).toBe('Test with parameterized steps');
+            expect(result.testCases[0].steps).toEqual([
+                '输入直播名称: 测试频道 + 随机5位数字',
+                '选择直播场景: 企业培训',
+                'Custom step'
+            ]);
+            expect(result.testCases[0].stepCount).toBe(3);
         });
     });
 
@@ -1039,7 +1402,11 @@ Examples:
                 processor = new YAMLTestProcessor({ tagFilter: 'smoke' });
                 processor.envVars = { 'BASE_URL': 'https://example.com' };
                 processor.stepLibraries = {
-                    'login': ['Login step 1', 'Login step 2']
+                    'login': {
+                        description: '',
+                        parameters: [],
+                        steps: ['Login step 1', 'Login step 2']
+                    }
                 };
             });
 
@@ -1098,6 +1465,7 @@ steps:
                         {
                             name: 'order.yml',
                             originalFile: expect.stringContaining('test-cases/order.yml'),
+                            description: '',
                             tags: ['smoke', 'order'],
                             steps: ['Login step 1', 'Login step 2', 'Add product to cart'],
                             stepCount: 3,
@@ -1106,6 +1474,7 @@ steps:
                         {
                             name: 'product-details.yml',
                             originalFile: expect.stringContaining('test-cases/product-details.yml'),
+                            description: '',
                             tags: ['smoke', 'product-details'],
                             steps: ['Navigate to product page', 'View product details'],
                             stepCount: 2,
@@ -1365,7 +1734,13 @@ steps: ["Test step"]
                 mockFs.existsSync.mockReturnValue(true);
                 processor = new YAMLTestProcessor({ environment: 'test', tagFilter: 'smoke' });
                 processor.envVars = { 'BASE_URL': 'https://example.com' };
-                processor.stepLibraries = { 'login': ['Login step'] };
+                processor.stepLibraries = { 
+                'login': {
+                    description: '',
+                    parameters: [],
+                    steps: ['Login step']
+                }
+            };
             });
 
             test('should process all matching test suites', () => {

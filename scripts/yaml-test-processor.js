@@ -52,7 +52,7 @@ class YAMLTestProcessor {
     }
 
     /**
-     * 加载所有步骤库
+     * 加载所有步骤库（支持参数化）
      */
     loadStepLibraries() {
         const libraries = {};
@@ -70,9 +70,13 @@ class YAMLTestProcessor {
                 const content = fs.readFileSync(filePath, 'utf8');
                 const stepData = yaml.load(content);
                 
-                if (stepData && stepData.steps) {
+                if (stepData) {
                     const libraryName = path.basename(file, path.extname(file));
-                    libraries[libraryName] = stepData.steps;
+                    libraries[libraryName] = {
+                        description: stepData.description || '',
+                        parameters: stepData.parameters || [],
+                        steps: stepData.steps || []
+                    };
                 }
             } catch (error) {
                 console.error(`Error loading step library ${file}:`, error.message);
@@ -133,55 +137,185 @@ class YAMLTestProcessor {
     }
 
     /**
-     * 展开步骤中的 include 引用
+     * 解析和合并参数
      */
-    expandIncludes(steps) {
+    resolveParameters(library, providedParams = {}) {
+        const resolvedParams = {};
+        
+        // 首先设置默认值
+        if (library.parameters) {
+            library.parameters.forEach(param => {
+                if (param.default !== undefined) {
+                    resolvedParams[param.name] = param.default;
+                }
+            });
+        }
+        
+        // 然后应用提供的参数
+        Object.assign(resolvedParams, providedParams);
+        
+        return resolvedParams;
+    }
+
+    /**
+     * 替换步骤中的参数和环境变量
+     */
+    substituteVariables(step, parameters = {}) {
+        if (typeof step === 'string') {
+            let substituted = step;
+            
+            // 替换参数 {{PARAM_NAME}}
+            const paramRegex = /\{\{([^}]+)\}\}/g;
+            substituted = substituted.replace(paramRegex, (match, varName) => {
+                const trimmedName = varName.trim();
+                
+                // 首先检查参数
+                if (parameters[trimmedName] !== undefined) {
+                    return parameters[trimmedName];
+                }
+                
+                // 然后检查环境变量
+                const envValue = this.envVars[trimmedName];
+                if (envValue !== undefined) {
+                    return envValue;
+                }
+                
+                console.warn(`Variable '${trimmedName}' not found`);
+                return match; // 保持原样
+            });
+            
+            return substituted;
+        }
+        return step;
+    }
+
+    /**
+     * 评估条件表达式
+     */
+    evaluateCondition(condition, parameters = {}) {
+        if (!condition) return true;
+        
+        // 替换变量
+        const resolvedCondition = this.substituteVariables(condition, parameters);
+        
+        try {
+            // 支持简单的条件表达式
+            // 例如: "{{PARAM}} != ''" 或 "{{PARAM}} == true"
+            
+            // 处理字符串比较
+            if (resolvedCondition.includes('!=')) {
+                const [left, right] = resolvedCondition.split('!=').map(s => s.trim());
+                const leftValue = left.replace(/['"]/g, '');
+                const rightValue = right.replace(/['"]/g, '');
+                return leftValue !== rightValue;
+            }
+            
+            if (resolvedCondition.includes('==')) {
+                const [left, right] = resolvedCondition.split('==').map(s => s.trim());
+                const leftValue = left.replace(/['"]/g, '');
+                const rightValue = right.replace(/['"]/g, '');
+                
+                // 处理布尔值
+                if (rightValue === 'true') return leftValue === 'true' || leftValue === true;
+                if (rightValue === 'false') return leftValue === 'false' || leftValue === false;
+                
+                return leftValue === rightValue;
+            }
+            
+            // 如果没有比较运算符，尝试作为布尔值评估
+            if (resolvedCondition === 'true') return true;
+            if (resolvedCondition === 'false') return false;
+            
+            return Boolean(resolvedCondition);
+            
+        } catch (error) {
+            console.warn(`Error evaluating condition '${condition}':`, error.message);
+            return false;
+        }
+    }
+
+    /**
+     * 处理单个步骤（支持条件和参数）
+     */
+    processStep(step, parameters = {}) {
+        const processedSteps = [];
+        
+        if (typeof step === 'string') {
+            // 简单字符串步骤
+            processedSteps.push(this.substituteVariables(step, parameters));
+        } else if (typeof step === 'object') {
+            if (step.condition) {
+                // 条件步骤
+                if (this.evaluateCondition(step.condition, parameters)) {
+                    if (step.step) {
+                        processedSteps.push(this.substituteVariables(step.step, parameters));
+                    } else if (step.steps) {
+                        step.steps.forEach(subStep => {
+                            const processed = this.processStep(subStep, parameters);
+                            processedSteps.push(...processed);
+                        });
+                    }
+                }
+            } else if (step.include) {
+                // Include 步骤（递归处理）
+                const included = this.expandSingleInclude(step, parameters);
+                processedSteps.push(...included);
+            } else {
+                // 其他对象类型的步骤
+                processedSteps.push(this.substituteVariables(JSON.stringify(step), parameters));
+            }
+        }
+        
+        return processedSteps;
+    }
+
+    /**
+     * 展开单个 include 引用（支持参数化）
+     */
+    expandSingleInclude(includeStep, inheritedParams = {}) {
+        const libraryName = includeStep.include;
+        const providedParams = includeStep.parameters || {};
+        
+        if (!this.stepLibraries[libraryName]) {
+            console.warn(`Step library '${libraryName}' not found`);
+            return [`[MISSING LIBRARY: ${libraryName}]`];
+        }
+        
+        const library = this.stepLibraries[libraryName];
+        
+        // 合并参数：继承的参数 < 库的默认参数 < 提供的参数
+        const allParams = this.resolveParameters(library, { ...inheritedParams, ...providedParams });
+        
+        // 递归展开库中的步骤
         const expandedSteps = [];
         
-        steps.forEach(step => {
-            if (typeof step === 'object' && step.include) {
-                const libraryName = step.include;
-                if (this.stepLibraries[libraryName]) {
-                    // 递归展开步骤库中的 include
-                    const librarySteps = this.expandIncludes(this.stepLibraries[libraryName]);
-                    expandedSteps.push(...librarySteps);
-                } else {
-                    console.warn(`Step library '${libraryName}' not found`);
-                    expandedSteps.push(`[MISSING LIBRARY: ${libraryName}]`);
-                }
-            } else {
-                expandedSteps.push(step);
-            }
+        library.steps.forEach(step => {
+            const processed = this.processStep(step, allParams);
+            expandedSteps.push(...processed);
         });
         
         return expandedSteps;
     }
 
     /**
-     * 替换步骤中的环境变量
+     * 展开步骤中的 include 引用（增强版本）
      */
-    substituteEnvironmentVariables(steps) {
-        return steps.map(step => {
-            if (typeof step === 'string') {
-                let substituted = step;
-                
-                // 替换 {{VAR}} 格式的环境变量
-                const regex = /\{\{([^}]+)\}\}/g;
-                substituted = substituted.replace(regex, (match, varName) => {
-                    const envValue = this.envVars[varName.trim()];
-                    if (envValue !== undefined) {
-                        return envValue;
-                    } else {
-                        console.warn(`Environment variable '${varName}' not found`);
-                        return match; // 保持原样
-                    }
-                });
-                
-                return substituted;
+    expandIncludes(steps, inheritedParams = {}) {
+        const expandedSteps = [];
+        
+        steps.forEach(step => {
+            if (typeof step === 'object' && step.include) {
+                const included = this.expandSingleInclude(step, inheritedParams);
+                expandedSteps.push(...included);
+            } else {
+                const processed = this.processStep(step, inheritedParams);
+                expandedSteps.push(...processed);
             }
-            return step;
         });
+        
+        return expandedSteps;
     }
+
 
     /**
      * 处理单个测试用例
@@ -202,18 +336,16 @@ class YAMLTestProcessor {
                 return null; // 不匹配，跳过
             }
 
-            // 展开 include 引用
+            // 展开 include 引用（支持参数化）
             const expandedSteps = this.expandIncludes(testCase.steps || []);
-            
-            // 替换环境变量
-            const finalSteps = this.substituteEnvironmentVariables(expandedSteps);
 
             return {
                 name: fileName,
                 originalFile: filePath,
+                description: testCase.description || '',
                 tags: testCase.tags || [],
-                steps: finalSteps,
-                stepCount: finalSteps.length,
+                steps: expandedSteps,
+                stepCount: expandedSteps.length,
                 rawSteps: testCase.steps || []
             };
         } catch (error) {

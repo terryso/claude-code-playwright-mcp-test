@@ -310,12 +310,29 @@ class TestCaseReportGenerator {
      */
     generateBatchOverviewReport(testCases, executionResult, timestamp) {
         const totalTests = testCases.length;
-        const passedTests = executionResult.summary ? executionResult.summary.passed : 0;
-        const failedTests = executionResult.summary ? executionResult.summary.failed : 0;
-        const totalSteps = executionResult.summary ? executionResult.summary.totalSteps : 0;
-        const totalDuration = executionResult.summary ? executionResult.summary.totalDuration : '0s';
+        
+        // 从 testResults 数组计算统计数据
+        const testResults = executionResult.testResults || [];
+        const passedTests = testResults.filter(result => result.status === 'passed').length;
+        const failedTests = testResults.filter(result => result.status === 'failed').length;
+        const skippedTests = testResults.filter(result => result.status === 'skipped').length;
+        
+        // 计算总步骤数
+        const totalSteps = testResults.reduce((sum, result) => {
+            if (result.steps && Array.isArray(result.steps)) {
+                return sum + result.steps.length;
+            }
+            return sum;
+        }, 0);
+        
+        // 计算总持续时间
+        const totalDurationMs = testResults.reduce((sum, result) => {
+            return sum + (typeof result.duration === 'number' ? result.duration : 0);
+        }, 0);
+        const totalDuration = Math.round(totalDurationMs / 1000 * 100) / 100 + 's';
+        
         const successRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
-        const status = failedTests > 0 ? 'failed' : 'passed';
+        const status = failedTests > 0 ? 'failed' : (passedTests > 0 ? 'passed' : 'unknown');
         const reportName = executionResult.name || 'Test Execution';
 
         return `<!DOCTYPE html>
@@ -342,6 +359,7 @@ class TestCaseReportGenerator {
         .test-status { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: 600; }
         .status-passed { background: #d4edda; color: #155724; }
         .status-failed { background: #f8d7da; color: #721c24; }
+        .status-skipped { background: #e2e3e5; color: #6c757d; }
         .tag { background: #007bff; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7em; margin: 2px; display: inline-block; }
         .footer { text-align: center; color: #6c757d; margin-top: 40px; padding: 20px; background: white; border-radius: 12px; }
     </style>

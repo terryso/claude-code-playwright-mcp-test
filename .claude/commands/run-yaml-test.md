@@ -23,7 +23,8 @@ Execution workflow:
 1. **Use the automated processor**: Run `node scripts/yaml-test-processor.js` with appropriate parameters to get processed test cases
 2. **Optimize execution strategy**: Leverage persistent session across all executions
 3. **Execute processed steps**: Use the processor output directly with Playwright MCP to execute test steps
-4. **Generate reports**: Create test reports based on execution results
+4. **MANDATORY: Execute ALL matching test cases**: When using tag filtering, execute ALL test cases that match the criteria
+5. **MANDATORY: Generate reports**: Always generate test reports if GENERATE_REPORT=true, regardless of execution results
 
 ### Session Management Strategy (REVOLUTIONARY - Persistent Across Commands):
 
@@ -77,6 +78,8 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
 5. Check GENERATE_REPORT environment variable and generate test reports if enabled:
    - If GENERATE_REPORT=true, automatically generate test reports using the report generation script
    - **MANDATORY**: Use the TestCaseReportGenerator class to generate test case reports
+   - **CRITICAL**: For multiple test cases, pass ALL test cases as array to generateTestCaseReport()
+   - **CRITICAL**: Ensure executionResult.testResults contains proper status, duration, and steps data for each test
    - Import and instantiate the class with environment configuration
    - Call generateTestCaseReport() method with execution data
    - The generator will automatically handle:
@@ -85,6 +88,7 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
      * File naming with full timestamps (includes date and time)
      * Report path management
      * latest-test-report.html redirect updates
+     * Statistical calculations from testResults array
 **TestCaseReportGenerator Parameters**:
 
 **Constructor Options**:
@@ -131,12 +135,12 @@ const generator = new TestCaseReportGenerator({
   endTime: Date.now(),             // Execution end timestamp
   duration: 30000,                 // Duration in milliseconds
   environment: 'dev',              // Environment name
-  testResults: [                   // Individual test results (for batch)
+  testResults: [                   // Individual test results (REQUIRED for batch execution)
     {
-      testName: 'sort.yml',
-      status: 'passed',
-      duration: 15000,
-      steps: [
+      testName: 'sort.yml',        // Must match test case name
+      status: 'passed',            // 'passed'/'failed'/'skipped' - REQUIRED
+      duration: 15000,             // Duration in milliseconds - REQUIRED
+      steps: [                     // Executed steps with status - REQUIRED for statistics
         { step: 'Login', status: 'passed', duration: 3000 },
         { step: 'Sort products', status: 'passed', duration: 2000 }
       ],
