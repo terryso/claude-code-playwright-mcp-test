@@ -76,146 +76,119 @@ node scripts/yaml-test-processor.js --env={env} --tags={tags} --file={file}
    - Apply environment variable substitution, replacing {{ENV_VAR}} with actual values
 4. Use Playwright MCP to execute the expanded complete step sequence
 5. Check GENERATE_REPORT environment variable and generate test reports if enabled:
-   - If GENERATE_REPORT=true, automatically generate test reports using the report generation script
-   - **MANDATORY**: Use the TestCaseReportGenerator class to generate test case reports
-   - **CRITICAL**: For multiple test cases, pass ALL test cases as array to generateTestCaseReport()
-   - **CRITICAL**: Ensure executionResult.testResults contains proper status, duration, and steps data for each test
-   - Import and instantiate the class with environment configuration
-   - Call generateTestCaseReport() method with execution data
-   - The generator will automatically handle:
-     * Template selection based on REPORT_STYLE (detailed/overview)
-     * Embedded JSON data generation
-     * File naming with full timestamps (includes date and time)
-     * Report path management
-     * latest-test-report.html redirect updates
-     * Statistical calculations from testResults array
-**TestCaseReportGenerator Parameters**:
+   - If GENERATE_REPORT=true, use the **TWO-STEP REPORT GENERATION PROCESS**
+   - **STEP 1**: Create report data file using create-report-data.js helper functions
+   - **STEP 2**: Generate report using: `node scripts/gen-report.js --data=/path/to/data.json`
+   - **NO DYNAMIC CODE EXECUTION**: All data is pre-structured in JSON files
+   - **CRITICAL**: Use the ReportDataCreator helper functions to structure data properly
+   - **CRITICAL**: Ensure executionResult contains proper status, duration, and steps data for each test
+**Two-Step Report Generation Process**:
 
-**Constructor Options**:
+**STEP 1: Create Report Data File**
 ```javascript
-const generator = new TestCaseReportGenerator({
-  environment: 'dev',        // Environment name (dev/test/prod)
-  reportStyle: 'overview',   // Report style (overview/detailed)  
-  reportFormat: 'html',      // Report format (html/json/xml)
-  projectRoot: process.cwd(), // Project root directory (optional)
-  reportPath: 'reports/dev'  // Report output path (optional)
-});
-```
+const { createAndSaveTestData } = require('./scripts/create-report-data.js');
 
-**generateTestCaseReport(testCaseData, executionResult) Parameters**:
-
-**testCaseData** (Object or Array):
-```javascript
-// Single test case:
-{
-  name: 'sort.yml',                    // Test case file name
-  description: 'Product sorting test', // Test description
-  tags: ['smoke', 'sort'],            // Test tags array
-  steps: [                            // Test steps array
-    'Login to application',
-    'Click sorting dropdown, select Price(low to high)',
-    'Verify first product price is $7.99'
-  ],
-  stepCount: 9                        // Total step count
-}
-
-// Multiple test cases (array):
-[
-  { name: 'sort.yml', description: '...', tags: [...], steps: [...] },
-  { name: 'order.yml', description: '...', tags: [...], steps: [...] }
-]
-```
-
-**executionResult** (Object):
-```javascript
-{
-  name: 'sort-execution',           // Execution name (optional)
-  status: 'passed',                 // Overall status: 'passed'/'failed'
-  startTime: Date.now(),           // Execution start timestamp
-  endTime: Date.now(),             // Execution end timestamp
-  duration: 30000,                 // Duration in milliseconds
-  environment: 'dev',              // Environment name
-  testResults: [                   // Individual test results (REQUIRED for batch execution)
-    {
-      testName: 'sort.yml',        // Must match test case name
-      status: 'passed',            // 'passed'/'failed'/'skipped' - REQUIRED
-      duration: 15000,             // Duration in milliseconds - REQUIRED
-      steps: [                     // Executed steps with status - REQUIRED for statistics
-        { step: 'Login', status: 'passed', duration: 3000 },
-        { step: 'Sort products', status: 'passed', duration: 2000 }
-      ],
-      validations: ['Price low to high: $7.99', 'Price high to low: $49.99'],
-      error: null                   // Error message if failed
-    }
-  ],
-  screenshots: [                   // Screenshots taken
-    'screenshots/dev/sort-final.png'
-  ],
-  sessionOptimized: true          // Whether session optimization was used
-}
-```
-
-**Complete Example - Single Test Case**:
-```javascript
-const TestCaseReportGenerator = require('./scripts/test-case-report-generator.js');
-const generator = new TestCaseReportGenerator({
-  environment: 'dev',
-  reportStyle: 'overview'
-});
-
-const testCaseData = {
+// Single Test Case Data Creation
+const testCase = {
   name: 'sort.yml',
-  description: 'Product sorting functionality test',
+  description: 'Product sorting test',
   tags: ['smoke', 'sort'],
   steps: [
     'Login to application',
     'Click sorting dropdown, select Price(low to high)',
-    'Verify first product price is $7.99',
-    'Click sorting dropdown, select Price(high to low)',
-    'Verify first product price is $49.99'
-  ],
-  stepCount: 5
+    'Verify first product price is $7.99'
+  ]
 };
 
-const executionResult = {
+const execution = {
   status: 'passed',
   startTime: Date.now() - 30000,
   endTime: Date.now(),
   duration: 30000,
-  environment: 'dev',
-  testResults: [{
-    testName: 'sort.yml',
-    status: 'passed',
-    duration: 30000,
-    validations: ['Low to high verified: $7.99', 'High to low verified: $49.99'],
-    sessionOptimized: true
-  }]
+  testName: 'sort.yml',
+  validations: ['Price verified: $7.99', 'Price verified: $49.99'],
+  sessionOptimized: true
 };
 
-const result = generator.generateTestCaseReport(testCaseData, executionResult);
-console.log('Report generated:', result.reportPath);
+const options = {
+  environment: 'dev',
+  reportStyle: 'overview'
+};
+
+// Create and save data file - automatically saves to REPORT_PATH environment variable location
+createAndSaveTestData(testCase, execution, 'test-data.json', options);
 ```
 
-**Complete Example - Multiple Test Cases (Batch)**:
+**Batch Test Cases Data Creation**:
 ```javascript
+const { createAndSaveBatchData } = require('./scripts/create-report-data.js');
+
 const testCases = [
-  { name: 'sort.yml', description: 'Sorting test', tags: ['smoke'] },
-  { name: 'order.yml', description: 'Order test', tags: ['smoke'] }
+  { name: 'sort.yml', description: 'Sorting test', tags: ['smoke'], steps: [...] },
+  { name: 'order.yml', description: 'Order test', tags: ['smoke'], steps: [...] }
 ];
 
-const executionResult = {
+const execution = {
   name: 'smoke-tests-batch',
   status: 'passed',
+  startTime: Date.now() - 60000,
+  endTime: Date.now(),
+  duration: 60000,
   testResults: [
-    { testName: 'sort.yml', status: 'passed', duration: 15000 },
-    { testName: 'order.yml', status: 'passed', duration: 20000 }
+    { testName: 'sort.yml', status: 'passed', duration: 30000 },
+    { testName: 'order.yml', status: 'passed', duration: 30000 }
   ]
 };
 
-const result = generator.generateTestCaseReport(testCases, executionResult);
+createAndSaveBatchData(testCases, execution, 'batch-data.json', options);
 ```
 
-   - **DO NOT manually generate reports** - always use the class for consistency
+**Quick Data Creation (for simple cases)**:
+```javascript
+const { quickCreateTestData } = require('./scripts/create-report-data.js');
+
+// Quick create test data - automatically saves to REPORT_PATH environment variable location
+quickCreateTestData(
+  'sort.yml',           // test name
+  'passed',             // status
+  30000,                // duration
+  'quick-test.json',    // output file
+  {
+    environment: 'dev',
+    reportStyle: 'overview',
+    tags: ['smoke', 'sort'],
+    validations: ['Sorting verified']
+  }
+);
+```
+
+**STEP 2: Generate Report**
+```bash
+# Generate report from data file using the gen-report.js script in scripts directory
+# Data files are automatically saved to REPORT_PATH, so use relative path:
+node scripts/gen-report.js --data=test-data.json
+node scripts/gen-report.js --data=batch-data.json
+# Or use absolute path if needed:
+node scripts/gen-report.js --data=/absolute/path/to/data.json
+```
+
+**Complete Two-Step Workflow Example**:
+```javascript
+// Step 1: AI creates data file after test execution
+const { quickCreateTestData } = require('./scripts/create-report-data.js');
+quickCreateTestData('sort.yml', 'passed', 30000, 'latest-test.json', {
+  environment: 'dev',
+  tags: ['smoke'],
+  validations: ['All validations passed']
+});
+
+// Step 2: AI executes report generation command
+// node scripts/gen-report.js --data=latest-test.json
+```
+
+   - **NO DYNAMIC CODE EXECUTION** - all data is pre-structured in JSON files
+   - **CLEAN SEPARATION** - data creation and report generation are separate steps
+   - **REUSABLE DATA** - JSON files can be stored, versioned, and reused
 6. Output execution results and statistics
 
 YAML format specifications:

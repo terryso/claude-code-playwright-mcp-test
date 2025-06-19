@@ -1,0 +1,78 @@
+{
+  "reportType": "suite",
+  "reportData": {
+    "suite": {
+      "name": "E-commerce Smoke Tests",
+      "description": "Critical smoke tests for e-commerce functionality",
+      "tags": ["smoke", "critical", "e-commerce"],
+      "testCases": [
+        {
+          "name": "sort-optimized.yml",
+          "tags": ["smoke", "sort", "session-optimized"]
+        },
+        {
+          "name": "product-details.yml", 
+          "tags": ["smoke", "product-details", "session-optimized"]
+        },
+        {
+          "name": "order.yml",
+          "tags": ["smoke", "order", "session-optimized"]
+        }
+      ]
+    },
+    "results": [
+      {
+        "testName": "sort-optimized.yml",
+        "description": "Product sorting functionality test",
+        "status": "passed",
+        "steps": 13,
+        "duration": 45000,
+        "features": "Price sorting, Product display",
+        "tags": ["smoke", "sort", "session-optimized"],
+        "validations": "Low to high: $7.99, High to low: $49.99",
+        "sessionOptimized": true,
+        "error": null
+      },
+      {
+        "testName": "product-details.yml",
+        "description": "Product details and cart functionality test",
+        "status": "passed",
+        "steps": 18,
+        "duration": 35000,
+        "features": "Product details, Add to cart, Button state changes",
+        "tags": ["smoke", "product-details", "session-optimized"],
+        "validations": "Product info displayed, Add to cart successful, Button text changed",
+        "sessionOptimized": true,
+        "error": null
+      },
+      {
+        "testName": "order.yml",
+        "description": "Complete order flow test",
+        "status": "failed",
+        "steps": 25,
+        "duration": 60000,
+        "features": "Order flow, Checkout process, Payment",
+        "tags": ["smoke", "order", "session-optimized"],
+        "validations": "Cart items verified, Checkout form validation",
+        "sessionOptimized": true,
+        "error": "Payment form validation failed - invalid credit card number format"
+      }
+    ]
+  },
+  "config": {
+    "environment": "dev",
+    "reportStyle": "detailed",
+    "reportFormat": "html",
+    "reportPath": "reports/dev",
+    "screenshotPath": "screenshots/dev"
+  },
+  "environment": {
+    "BASE_URL": "https://www.saucedemo.com/",
+    "TEST_USERNAME": "standard_user",
+    "TEST_PASSWORD": "secret_sauce",
+    "BROWSER_TIMEOUT": "60000",
+    "GENERATE_REPORT": "true",
+    "REPORT_STYLE": "detailed",
+    "REPORT_FORMAT": "html"
+  }
+}

@@ -128,107 +128,172 @@ node scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={
 
 **Report Configuration**:
 - Use `GENERATE_REPORT` environment variable (true/false)
-- **MANDATORY**: Use the SuiteReportGenerator class to generate suite reports
-- Import and instantiate the class with environment configuration
-- Call generateSuiteReport() method with execution data
-- The generator will automatically handle:
-  * Template selection based on REPORT_STYLE (detailed/overview)
+- **MANDATORY**: Use the **TWO-STEP REPORT GENERATION PROCESS**
+- **STEP 1**: Create suite data file using create-report-data.js helper functions
+- **STEP 2**: Generate report using: `node scripts/gen-report.js --data=/path/to/suite-data.json`
+- **NO DYNAMIC CODE EXECUTION**: All data is pre-structured in JSON files
+- The process will automatically handle:
+  * Environment configuration from JSON data files
+  * Template selection based on reportStyle in data file
   * Embedded JSON data generation
   * File naming with full timestamps: `suite-{suite-name}-{timestamp}.html`
   * Report path management in correct environment directory: `reports/{env}/`
   * latest-suite-report.html redirect updates
 
-**SuiteReportGenerator Parameters**:
+**Two-Step Suite Report Generation Process**:
 
-**Constructor Options**:
+**STEP 1: Create Suite Data File**
 ```javascript
-const generator = new SuiteReportGenerator({
-  environment: 'dev',        // Environment name (dev/test/prod)
-  reportStyle: 'overview',   // Report style (overview/detailed)
-  reportFormat: 'html',      // Report format (html/json/xml) 
-  projectRoot: process.cwd(), // Project root directory (optional)
-  reportPath: 'reports/dev'  // Report output path (optional)
-});
-```
+const { createAndSaveSuiteData } = require('./scripts/create-report-data.js');
 
-**generateSuiteReport(suiteData, executionResults) Parameters**:
-
-**suiteData** (Object):
-```javascript
-{
-  name: 'Smoke Test Suite',              // Suite name
-  suiteName: 'Smoke Test Suite',         // Display name (optional)
-  description: 'Quick smoke tests...',   // Suite description
-  tags: ['smoke', 'quick', 'sanity'],   // Suite tags array
-  environment: 'dev',                    // Environment name
-  testCases: [                           // Test cases array
-    { name: 'sort.yml', tags: ['smoke', 'sort'] },
-    { name: 'product-details.yml', tags: ['smoke', 'product-details'] }
-  ],
-  summary: { totalSteps: 32 }            // Optional summary info
-}
-```
-
-**executionResults** (Array):
-```javascript
-[
-  {
-    testName: 'sort.yml',                    // Test case file name
-    description: 'Product sorting test',    // Test description
-    status: 'passed',                       // Status: 'passed'/'failed'
-    steps: 9,                              // Number of steps executed
-    features: 'Price sorting, Display',    // Features tested
-    tags: ['smoke', 'sort'],               // Test tags
-    validations: 'Low: $7.99, High: $49.99', // Key validations
-    error: 'Error message'                 // Error message (if failed)
-  }
-]
-```
-
-**Complete Example**:
-```javascript
-const SuiteReportGenerator = require('./scripts/suite-report-generator.js');
-const generator = new SuiteReportGenerator({
-  environment: 'dev',
-  reportStyle: 'overview'
-});
-
-const suiteData = {
-  name: 'Smoke Test Suite',
-  description: 'Quick smoke tests to validate core functionality',
-  tags: ['smoke', 'quick'],
+// Suite Information
+const suite = {
+  name: 'E-commerce Smoke Tests',
+  description: 'Critical smoke tests for e-commerce functionality',
+  tags: ['smoke', 'critical', 'e-commerce'],
   testCases: [
     { name: 'sort.yml', tags: ['smoke', 'sort'] },
-    { name: 'product-details.yml', tags: ['smoke', 'product-details'] }
+    { name: 'product-details.yml', tags: ['smoke', 'product-details'] },
+    { name: 'order.yml', tags: ['smoke', 'order'] }
   ]
 };
 
-const executionResults = [
+// Test Results
+const results = [
   {
     testName: 'sort.yml',
     description: 'Product sorting functionality test',
     status: 'passed',
-    steps: 9,
+    steps: 13,
+    duration: 45000,
     features: 'Price sorting, Product display',
     tags: ['smoke', 'sort'],
-    validations: 'Low to high: $7.99, High to low: $49.99'
+    validations: 'Low to high: $7.99, High to low: $49.99',
+    sessionOptimized: true
   },
   {
     testName: 'product-details.yml',
-    description: 'Product details and cart test',
-    status: 'passed', 
-    steps: 23,
+    description: 'Product details and cart functionality test',
+    status: 'passed',
+    steps: 18,
+    duration: 35000,
     features: 'Product details, Add to cart',
     tags: ['smoke', 'product-details'],
-    validations: 'Product info, Button changes, Navigation'
+    validations: 'Product info displayed, Cart updated',
+    sessionOptimized: true
+  },
+  {
+    testName: 'order.yml',
+    description: 'Complete order flow test',
+    status: 'failed',
+    steps: 25,
+    duration: 60000,
+    features: 'Order flow, Checkout, Payment',
+    tags: ['smoke', 'order'],
+    validations: 'Cart items verified, Checkout form validation',
+    sessionOptimized: true,
+    error: 'Payment form validation failed'
   }
 ];
 
-const result = generator.generateSuiteReport(suiteData, executionResults);
-console.log('Report generated:', result.reportPath);
+const options = {
+  environment: 'dev',
+  reportStyle: 'detailed'
+};
+
+// Create and save suite data file - automatically saves to REPORT_PATH environment variable location
+createAndSaveSuiteData(suite, results, 'suite-data.json', options);
 ```
 
-- **DO NOT manually generate reports** - always use the class for consistency
+**Quick Suite Data Creation**:
+```javascript
+const { quickCreateSuiteData } = require('./scripts/create-report-data.js');
+
+// Simplified suite creation - automatically saves to REPORT_PATH environment variable location
+quickCreateSuiteData(
+  'E-commerce Smoke Tests',  // suite name
+  [                          // test results
+    { testName: 'sort.yml', status: 'passed', duration: 30000, steps: 10 },
+    { testName: 'order.yml', status: 'failed', duration: 45000, steps: 15, error: 'Timeout' }
+  ],
+  'quick-suite.json',        // output file
+  {
+    environment: 'dev',
+    reportStyle: 'overview',
+    description: 'Quick smoke test suite'
+  }
+);
+```
+
+**STEP 2: Generate Suite Report**
+```bash
+# Generate suite report from data file using the gen-report.js script in scripts directory
+node scripts/gen-report.js --data=suite-data.json
+node scripts/gen-report.js --data=quick-suite.json
+node scripts/gen-report.js --data=/absolute/path/to/suite-data.json
+```
+
+**Complete Two-Step Suite Workflow Example**:
+```javascript
+// Step 1: AI creates suite data file after test suite execution
+const { quickCreateSuiteData } = require('./scripts/create-report-data.js');
+
+const testResults = [
+  { testName: 'sort.yml', status: 'passed', duration: 30000, steps: 10 },
+  { testName: 'product.yml', status: 'passed', duration: 25000, steps: 8 },
+  { testName: 'order.yml', status: 'failed', duration: 45000, steps: 15, error: 'Payment failed' }
+];
+
+quickCreateSuiteData('E-commerce Tests', testResults, 'latest-suite.json', {
+  environment: 'dev',
+  reportStyle: 'detailed',
+  tags: ['smoke', 'e-commerce']
+});
+
+// Step 2: AI executes report generation command
+// node scripts/gen-report.js --data=latest-suite.json
+```
+
+**Data File Structure (suite-data.json)**:
+```json
+{
+  "reportType": "suite",
+  "reportData": {
+    "suite": {
+      "name": "E-commerce Smoke Tests",
+      "description": "Critical smoke tests for e-commerce functionality",
+      "tags": ["smoke", "critical"],
+      "testCases": [...]
+    },
+    "results": [
+      {
+        "testName": "sort.yml",
+        "status": "passed",
+        "steps": 13,
+        "duration": 45000,
+        "features": "Price sorting, Product display",
+        "validations": "All sorting verified",
+        "sessionOptimized": true
+      }
+    ]
+  },
+  "config": {
+    "environment": "dev",
+    "reportStyle": "detailed",
+    "reportPath": "reports/dev"
+  },
+  "environment": {
+    "BASE_URL": "https://www.saucedemo.com/",
+    "GENERATE_REPORT": "true",
+    "REPORT_STYLE": "detailed"
+  }
+}
+```
+
+- **NO DYNAMIC CODE EXECUTION** - all data is pre-structured in JSON files
+- **CLEAN SEPARATION** - data creation and report generation are separate steps
+- **REUSABLE DATA** - JSON files can be stored, versioned, and reused
+- **SUITE-SPECIFIC FEATURES** - consolidated metrics and multi-test reporting
 
 ## Suite Performance Impact
 

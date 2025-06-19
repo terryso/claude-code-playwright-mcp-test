@@ -498,9 +498,17 @@ class TestCaseReportGenerator {
 
 module.exports = TestCaseReportGenerator;
 
-// 如果直接运行此脚本
-module.exports = TestCaseReportGenerator;
+// 向后兼容的便捷函数
+function generateTestCaseReport(testCaseData, executionResult, options = {}) {
+    const generator = new TestCaseReportGenerator(options);
+    return generator.generateTestCaseReport(testCaseData, executionResult);
+}
 
+// 导出便捷函数以保持向后兼容
+module.exports.generateTestCaseReport = generateTestCaseReport;
+module.exports.TestCaseReportGenerator = TestCaseReportGenerator;
+
+// 如果直接运行此脚本
 if (require.main === module) {
     const generator = new TestCaseReportGenerator({
         environment: process.argv[2] || 'dev',
@@ -510,4 +518,10 @@ if (require.main === module) {
     console.log('Test Case Report Generator initialized');
     console.log(`Environment: ${generator.environment}`);
     console.log(`Report Style: ${generator.reportStyle}`);
+    console.log('');
+    console.log('⚠️  DEPRECATION NOTICE:');
+    console.log('   This class-based approach is deprecated.');
+    console.log('   Please use the simplified generate-report.js script instead:');
+    console.log('   const { generateTestReport } = require("./generate-report.js");');
+    console.log('   For full migration guide, see updated command documentation.');
 }

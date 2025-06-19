@@ -1,0 +1,82 @@
+{
+  "reportType": "test",
+  "reportData": {
+    "testCase": [
+      {
+        "name": "sort-optimized.yml",
+        "description": "Product sorting test with session optimization",
+        "tags": ["smoke", "sort", "session-optimized"],
+        "steps": [
+          "Session check and login if needed",
+          "Navigate to products page",
+          "Test price sorting low to high",
+          "Verify $7.99 first product",
+          "Test price sorting high to low", 
+          "Verify $49.99 first product"
+        ]
+      },
+      {
+        "name": "product-details.yml",
+        "description": "Product details page functionality test",
+        "tags": ["smoke", "product-details", "session-optimized"],
+        "steps": [
+          "Session check (reuse existing login)",
+          "Navigate to products page if needed",
+          "Click on first product",
+          "Verify product details displayed",
+          "Add product to cart",
+          "Verify cart counter updated"
+        ]
+      }
+    ],
+    "execution": {
+      "name": "smoke-tests-batch",
+      "status": "passed",
+      "startTime": 1734595079000,
+      "endTime": 1734595144000,
+      "duration": 65000,
+      "testResults": [
+        {
+          "testName": "sort-optimized.yml",
+          "status": "passed",
+          "duration": 30000,
+          "steps": [
+            { "step": "Session check and login", "status": "passed", "duration": 10000 },
+            { "step": "Navigate to products", "status": "passed", "duration": 3000 },
+            { "step": "Test sorting functionality", "status": "passed", "duration": 17000 }
+          ],
+          "validations": ["Price sorting verified", "Product order correct"],
+          "sessionOptimized": true
+        },
+        {
+          "testName": "product-details.yml",
+          "status": "passed",
+          "duration": 25000,
+          "steps": [
+            { "step": "Session reuse", "status": "passed", "duration": 2000 },
+            { "step": "Product navigation", "status": "passed", "duration": 8000 },
+            { "step": "Cart functionality", "status": "passed", "duration": 15000 }
+          ],
+          "validations": ["Product details shown", "Cart updated successfully"],
+          "sessionOptimized": true
+        }
+      ]
+    }
+  },
+  "config": {
+    "environment": "dev", 
+    "reportStyle": "overview",
+    "reportFormat": "html",
+    "reportPath": "reports/dev",
+    "screenshotPath": "screenshots/dev"
+  },
+  "environment": {
+    "BASE_URL": "https://www.saucedemo.com/",
+    "TEST_USERNAME": "standard_user", 
+    "TEST_PASSWORD": "secret_sauce",
+    "BROWSER_TIMEOUT": "45000",
+    "GENERATE_REPORT": "true",
+    "REPORT_STYLE": "overview",
+    "REPORT_FORMAT": "html"
+  }
+}

@@ -301,9 +301,17 @@ class SuiteReportGenerator {
 
 module.exports = SuiteReportGenerator;
 
-// 如果直接运行此脚本
-module.exports = SuiteReportGenerator;
+// 向后兼容的便捷函数
+function generateSuiteReport(suiteData, executionResults, options = {}) {
+    const generator = new SuiteReportGenerator(options);
+    return generator.generateSuiteReport(suiteData, executionResults);
+}
 
+// 导出便捷函数以保持向后兼容
+module.exports.generateSuiteReport = generateSuiteReport;
+module.exports.SuiteReportGenerator = SuiteReportGenerator;
+
+// 如果直接运行此脚本
 if (require.main === module) {
     const generator = new SuiteReportGenerator({
         environment: process.argv[2] || 'dev',
@@ -313,4 +321,10 @@ if (require.main === module) {
     console.log('Suite Report Generator initialized');
     console.log(`Environment: ${generator.environment}`);
     console.log(`Report Style: ${generator.reportStyle}`);
+    console.log('');
+    console.log('⚠️  DEPRECATION NOTICE:');
+    console.log('   This class-based approach is deprecated.');
+    console.log('   Please use the simplified generate-report.js script instead:');
+    console.log('   const { generateSuiteReport } = require("./generate-report.js");');
+    console.log('   For full migration guide, see updated command documentation.');
 }

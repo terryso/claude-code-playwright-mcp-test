@@ -1,0 +1,69 @@
+{
+  "reportType": "test",
+  "reportData": {
+    "testCase": {
+      "name": "sort-optimized.yml",
+      "description": "Session-optimized product sorting functionality test",
+      "tags": ["smoke", "sort", "sort-optimized", "session-optimized"],
+      "steps": [
+        "Check if current page shows Swag Labs and user is logged in",
+        "If not logged in or not on correct page, navigate to https://www.saucedemo.com/",
+        "If login form is visible, fill username field with standard_user",
+        "If login form is visible, fill password field with secret_sauce",
+        "If login form is visible, click login button",
+        "Verify page displays Swag Labs and user is logged in",
+        "Check if current page is the products page (inventory.html)",
+        "If not on products page, navigate to https://www.saucedemo.com//inventory.html",
+        "Verify page displays Products and product list",
+        "Click sorting dropdown, select Price(low to high)",
+        "Verify first product price is $7.99",
+        "Click sorting dropdown, select Price(high to low)",
+        "Verify first product price is $49.99"
+      ]
+    },
+    "execution": {
+      "status": "passed",
+      "startTime": 1734595079000,
+      "endTime": 1734595124000,
+      "duration": 45000,
+      "testResults": [{
+        "testName": "sort-optimized.yml",
+        "status": "passed",
+        "duration": 45000,
+        "steps": [
+          { "step": "Session check and navigation", "status": "passed", "duration": 15000 },
+          { "step": "Login process", "status": "passed", "duration": 10000 },
+          { "step": "Products page verification", "status": "passed", "duration": 5000 },
+          { "step": "Sort by price low to high", "status": "passed", "duration": 8000 },
+          { "step": "Verify $7.99 first product", "status": "passed", "duration": 2000 },
+          { "step": "Sort by price high to low", "status": "passed", "duration": 3000 },
+          { "step": "Verify $49.99 first product", "status": "passed", "duration": 2000 }
+        ],
+        "validations": [
+          "Low to high sorting verified: $7.99 (Sauce Labs Onesie)",
+          "High to low sorting verified: $49.99 (Sauce Labs Fleece Jacket)"
+        ],
+        "sessionOptimized": true
+      }],
+      "screenshots": [
+        "screenshots/dev/sort-final.png"
+      ]
+    }
+  },
+  "config": {
+    "environment": "dev",
+    "reportStyle": "overview",
+    "reportFormat": "html",
+    "reportPath": "reports/dev",
+    "screenshotPath": "screenshots/dev"
+  },
+  "environment": {
+    "BASE_URL": "https://www.saucedemo.com/",
+    "TEST_USERNAME": "standard_user",
+    "TEST_PASSWORD": "secret_sauce",
+    "BROWSER_TIMEOUT": "45000",
+    "GENERATE_REPORT": "true",
+    "REPORT_STYLE": "overview",
+    "REPORT_FORMAT": "html"
+  }
+}

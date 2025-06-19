@@ -29,7 +29,8 @@
       "Bash(npm test)",
       "Bash(ln:*)",
       "Bash(npm test:*)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(REPORT_PATH=reports/dev node -e \"\nconst { quickCreateTestData } = require('./scripts/create-report-data.js');\n\nconst startTime = Date.now() - 45000;\nconst endTime = Date.now();\nconst duration = endTime - startTime;\n\nquickCreateTestData(\n  'sort-optimized.yml',\n  'passed',\n  duration,\n  'sort-optimized-test-data-fixed.json',\n  {\n    environment: 'dev',\n    reportStyle: 'overview',\n    tags: ['smoke', 'sort', 'sort-optimized', 'session-optimized'],\n    validations: [\n      'Successfully logged in with session persistence',\n      'Navigated to products page',\n      'Price sorting (low to high) verified: first product $7.99',\n      'Price sorting (high to low) verified: first product $49.99'\n    ],\n    sessionOptimized: true,\n    description: 'Session-optimized product sorting test with persistent login'\n  }\n);\n\nconsole.log('Test data created successfully with REPORT_PATH');\n\")"
     ],
     "deny": []
   }
