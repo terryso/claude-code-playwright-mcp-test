@@ -139,6 +139,7 @@ class ReportDataCreator {
         const reportStyle = options.reportStyle || options.environment?.REPORT_STYLE || 'overview';
         if (reportStyle === 'detailed') {
             formattedResult.steps = Array.isArray(r.steps) ? r.steps : [];
+            formattedResult.steps_detail = r.steps_detail || r.stepsDetail || [];
         }
         
         return formattedResult;

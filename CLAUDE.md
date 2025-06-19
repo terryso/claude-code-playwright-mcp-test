@@ -255,7 +255,32 @@ quickCreateTestData('sort.yml', 'passed', 30000, 'quick-test.json', {
 - **Latest Links**: Automatic `latest-test-report.html` and `latest-suite-report.html` redirects
 - **Styles**: 
   * `overview`: Fast generation, summary information only
-  * `detailed`: Complete step-by-step execution details
+  * `detailed`: Complete step-by-step execution details (requires `steps_detail` array in data)
+
+### IMPORTANT: Detailed Report Requirements
+**For `REPORT_STYLE=detailed` to show step-by-step details, you MUST include `steps_detail` array in test results:**
+
+```javascript
+// ✅ CORRECT - Detailed steps will be shown
+const testResult = {
+  testName: 'example.yml',
+  status: 'passed',
+  duration: 30000,
+  steps_detail: [
+    { step: 1, action: 'Open login page', status: 'passed', duration: 2000 },
+    { step: 2, action: 'Fill username field', status: 'passed', duration: 500 },
+    { step: 3, action: 'Click login button', status: 'passed', duration: 3000 }
+  ]
+};
+
+// ❌ INCORRECT - Only summary will be shown (even with REPORT_STYLE=detailed)
+const testResult = {
+  testName: 'example.yml',
+  status: 'passed',
+  duration: 30000
+  // Missing steps_detail array
+};
+```
 
 ## Environment Variable Support
 

@@ -71,10 +71,27 @@ describe('ReportScanner', () => {
     });
 
     describe('formatDate', () => {
-        test('should format dates correctly', () => {
+        test('should format dates correctly using local time', () => {
             const testDate = new Date('2025-06-19T10:30:45.123Z');
             const formatted = scanner.formatDate(testDate);
-            expect(formatted).toBe('2025-06-19 10:30:45');
+            
+            // 期望当地时间格式，而不是UTC时间
+            const year = testDate.getFullYear();
+            const month = String(testDate.getMonth() + 1).padStart(2, '0');
+            const day = String(testDate.getDate()).padStart(2, '0');
+            const hours = String(testDate.getHours()).padStart(2, '0');
+            const minutes = String(testDate.getMinutes()).padStart(2, '0');
+            const seconds = String(testDate.getSeconds()).padStart(2, '0');
+            const expected = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
+            expect(formatted).toBe(expected);
+        });
+        
+        test('should format local time consistently', () => {
+            // 测试一个明确的本地时间
+            const localDate = new Date(2025, 5, 19, 14, 30, 45); // June 19, 2025, 14:30:45 local time
+            const formatted = scanner.formatDate(localDate);
+            expect(formatted).toBe('2025-06-19 14:30:45');
         });
     });
 
