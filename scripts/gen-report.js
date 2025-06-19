@@ -374,6 +374,13 @@ class JSONReportGenerator {
                         <div class="tags">
                             ${(testCase.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
                         </div>
+                        <div class="result-meta">
+                            <span>Duration: ${Math.round((result.duration || 0) / 1000)}s</span>
+                            ${result.sessionOptimized ? '<span>🚀 Session Optimized</span>' : ''}
+                        </div>
+                        ${result.validations ? `<div class="validations"><strong>Validations:</strong> ${Array.isArray(result.validations) ? result.validations.join(', ') : result.validations}</div>` : ''}
+                        ${result.error ? `<div class="error-info"><strong>Error:</strong> ${result.error}</div>` : ''}
+                        ${config.reportStyle === 'detailed' && result.steps_detail ? this.generateTestStepsDetail(result.steps_detail) : ''}
                     </div>
                     `;
                 }).join('')}
