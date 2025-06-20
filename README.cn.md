@@ -72,27 +72,6 @@ Claude Code无需猜测选择器，可以：
 | 需要手动维护 | 自愈性元素检测 |
 | 多次重试尝试 | 首次即可准确定位 |
 
-```mermaid
-sequenceDiagram
-    participant U as 👤 用户
-    participant C as 🤖 Claude Code
-    participant P as 🎭 Playwright MCP
-    participant W as 🌐 网页
-    
-    U->>C: "点击第一个产品的Add to Cart"
-    C->>P: 请求页面快照
-    P->>W: 扫描页面元素
-    W-->>P: 返回所有元素
-    P->>P: 为元素分配 ref_ids
-    P-->>C: 包含 ref_ids 的可访问性快照
-    C->>C: 将"第一个产品Add to Cart"匹配到 ref_id
-    C->>P: 点击 ref_id="addcart_123" 的元素
-    P->>W: 执行精确点击
-    W-->>P: 操作完成
-    P-->>C: 成功确认
-    C-->>U: ✅ 步骤成功完成
-```
-
 **这就是我们基于YAML的方法如此强大的原因** - **你用自然语言编写，Playwright MCP自动处理复杂的元素定位**。
 
 ## 🎬 演示视频
@@ -103,24 +82,6 @@ sequenceDiagram
 
 **📺 [观看演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - 了解如何使用Claude Code和Playwright MCP通过自然语言编写和执行测试。
 
-## 📊 最新测试结果
-
-查看最近的测试执行报告：
-
-**📈 [最新测试报告](reports/test/latest-test-report.html)** - 每次测试运行后自动生成，显示详细的执行结果、截图和性能指标。
-
-### 测试报告示例
-
-以下是典型测试执行报告的展示：
-
-![YAML测试报告示例](https://github.com/terryso/claude-code-playwright-mcp-test/blob/develop/assets/test-report-sample.png)
-
-**报告特性：**
-- 📊 **综合统计**: 总用例数、通过/失败计数、步骤执行详情
-- 📋 **配置详情**: 环境设置、报告生成设置、文件路径
-- 🎯 **成功指标**: 清晰的测试结果和成功率可视化
-- 🔧 **环境信息**: 自动检测和显示测试环境配置
-
 ## 🌟 主要特性
 
 - **🌍 多环境支持**: 支持dev/test/prod环境，自动加载对应配置
@@ -129,10 +90,8 @@ sequenceDiagram
 - **🔧 环境变量**: 从.env文件自动加载配置，安全管理敏感信息
 - **📊 智能报告**: 可配置的测试报告生成，支持内嵌数据的HTML/JSON格式
 - **📝 智能提示**: Claude Code项目命令支持参数提示
-- **⚡ 自动化处理**: YAML测试处理器脚本，提高测试用例分析和执行效率
 - **🚀 会话持久化**: 革命性的跨命令会话持久化，一次登录终生受益
-- **🔄 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
-- **🗂️ 测试套件**: 组织和执行多个测试用例，支持套件级配置和报告
+- **⚡ 性能提升**: 首次登录后80-95%的性能提升，极速测试执行
 
 ## 🗺️ 开发路线图
 
@@ -145,8 +104,6 @@ sequenceDiagram
 - **✅ 命令支持**: 在Cursor中完整支持 `/run-yaml-test` 命令
 - **✅ 会话持久化**: 在Cursor中实现与Claude Code相同的80-95%性能提升
 - **✅ 跨平台兼容**: 统一框架在两个IDE中无缝运行
-
-### ✅ 已完成特性
 
 #### ✅ **测试套件支持** - **已完成** 🎉
 - **✅ 套件组织**: 将相关测试用例组织成逻辑套件
@@ -164,10 +121,9 @@ tags:
   - e-commerce
   - integration
 test-cases:
-  - "test-cases/login.yml"
+  - "test-cases/order.yml"
   - "test-cases/product-details.yml"
-  - "test-cases/cart-operations.yml"
-  - "test-cases/checkout.yml"
+  - "test-cases/sort-optimized.yml"
 ```
 
 **可用的套件命令**:
@@ -181,18 +137,9 @@ test-cases:
 | ✅ Cursor IDE 支持 | ✅ **已完成** | ✅ **已发布** |
 | ✅ 测试套件支持 | ✅ **已完成** | ✅ **已发布** |
 
-### 💡 功能请求
-
-有新功能的想法？我们很乐意听到您的声音！
-- 提交 [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 并添加 `enhancement` 标签
-- 参与我们的社区讨论
-- 为路线图规划贡献力量
-
-## 🔧 前置要求
+## 🚀 快速开始
 
 ### 安装 Playwright MCP
-
-本项目依赖 Playwright MCP 来执行浏览器自动化。**重要**：使用以下命令安装以启用会话持久化功能：
 
 ```bash
 claude mcp add playwright -- npx -y @playwright/mcp@latest \
@@ -202,391 +149,48 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
   --output-dir ~/CascadeProjects/claude-code-playwright-mcp-test/screenshots
 ```
 
-**新功能说明**：
-- `--storage-state`: 自动保存和恢复登录状态
-- `--user-data-dir`: 持久化浏览器数据
-- `--save-trace`: 保存调试跟踪文件
-- `--output-dir`: 指定截图输出目录
-
-更多安装信息请参考：[Playwright MCP 官方仓库](https://github.com/microsoft/playwright-mcp)
-
-## 📁 项目结构
-
-```
-├── .claude/                    # Claude Code 项目命令
-│   └── commands/              # 命令目录
-│       ├── run-yaml-test.md   # 执行测试命令
-│       ├── validate-yaml-test.md # 验证测试命令
-│       ├── run-test-suite.md  # 执行测试套件命令
-│       └── validate-test-suite.md # 验证测试套件命令
-├── .env.example               # 环境变量模板
-├── .env.dev                   # 开发环境配置
-├── .env.test                  # 测试环境配置
-├── .env.prod                  # 生产环境配置
-├── steps/                     # 可复用步骤库
-│   ├── login.yml              # 传统登录步骤库
-│   ├── session-persist.yml    # 🆕 持久化会话管理
-│   ├── session-check.yml      # 智能会话检查
-│   ├── ensure-products-page.yml # 导航到产品页面
-│   └── cleanup.yml            # 清理步骤库
-├── test-cases/                # 测试用例
-│   ├── order.yml              # 订单测试用例
-│   ├── sort-optimized.yml     # 会话优化的排序测试
-│   └── product-details.yml    # 产品详情测试用例
-├── test-suites/               # 测试套件 (新功能)
-│   ├── e-commerce.yml         # 电商测试套件
-│   ├── smoke-tests.yml        # 冒烟测试套件
-│   └── regression.yml         # 回归测试套件
-├── screenshots/               # 测试截图（按环境分类）
-├── reports/                   # 测试报告（按环境分类）
-├── CLAUDE.md                  # 项目说明和命令索引
-└── README.md                  # 本文档
-```
-
-## 🚀 快速开始
-
-### 1. 安装依赖
-
-确保已安装 Playwright MCP（参考上面的前置要求）。
-
-> 💡 **初次使用？** 建议先观看我们的[演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)了解框架的实际使用！
-
-### 2. 配置环境变量
-
-编辑对应环境的配置文件：
+### 运行第一个测试
 
 ```bash
-# 开发环境
-.env.dev
-
-# 测试环境  
-.env.test
-
-# 生产环境
-.env.prod
-```
-
-### 3. 执行测试
-
-```bash
-# 在Claude Code中使用项目命令，执行订单测试
-/run-yaml-test file:test-cases/order.yml env:dev
-```
-
-### 4. 查看测试报告
-
-```bash
-# 启动报告索引查看器，浏览所有测试报告
-/view-reports-index
-
-# 或使用npm命令
-npm run view-reports
-```
-
-## 📋 命令详解
-
-### 🚀 执行测试
-
-#### `/run-yaml-test`
-执行YAML测试用例，支持多环境配置、标签过滤和报告生成。
-
-#### `/run-test-suite`
-执行YAML测试套件，包含多个有序测试用例，支持套件级配置和报告。
-
-**测试用例参数：**
-- `file` (可选): 测试用例文件路径，不传则执行test-cases目录下所有用例
-- `env` (可选): 环境名称 (dev/test/prod)，默认为 dev
-- `tags` (可选): 标签过滤，支持单个或多个标签组合
-
-**测试套件参数：**
-- `suite` (可选): 测试套件文件路径，不传则执行test-suites目录下所有套件
-- `env` (可选): 环境名称 (dev/test/prod)，默认为套件配置的环境或 dev
-- `tags` (可选): 套件级和测试级标签过滤
-
-**标签过滤语法：**
-- 单个标签: `smoke`
-- 多个标签AND: `smoke,login` (必须同时包含)
-- 多个标签OR: `smoke|login` (包含任一)
-- 混合条件: `smoke,login|critical`
-
-**报告生成：**
-- 根据环境变量 `GENERATE_REPORT` 自动生成测试报告
-- 支持 HTML/JSON 格式（由 `REPORT_FORMAT` 配置）
-- 报告样式由 `REPORT_STYLE` 控制（overview/detailed）
-- 报告保存到 `REPORT_PATH` 指定目录
-
-**示例：**
-```bash
-# 执行指定文件
+# 执行订单测试
 /run-yaml-test file:test-cases/order.yml env:dev
 
-# 执行所有smoke标签的测试
-/run-yaml-test tags:smoke env:prod
-
-# 执行包含smoke且包含order的测试
-/run-yaml-test tags:smoke,order env:test
-
-# 执行包含order或checkout标签的测试
-/run-yaml-test tags:order|checkout env:dev
-
-# 执行所有测试用例
-/run-yaml-test env:dev
-
-# 执行指定测试套件
-/run-test-suite suite:e-commerce.yml env:test
-
-# 执行所有冒烟测试套件
-/run-test-suite tags:smoke env:dev
-
-# 执行所有测试套件
-/run-test-suite env:test
-```
-
-### ✅ 验证测试
-
-#### `/validate-yaml-test`
-验证YAML测试用例的语法和引用完整性。
-
-#### `/validate-test-suite`
-验证YAML测试套件配置和测试用例引用完整性。
-
-**测试用例验证参数：**
-- `file` (必需): 要验证的测试用例文件路径
-- `env` (可选): 环境名称，用于验证环境变量
-
-**测试套件验证参数：**
-- `suite` (必需): 要验证的测试套件文件路径
-- `env` (可选): 环境名称，用于验证环境变量
-
-**示例：**
-```bash
-# 验证测试用例
-/validate-yaml-test file:test-cases/complex-test.yml env:test
-
-# 验证测试套件
-/validate-test-suite suite:e-commerce.yml env:test
-```
-
-### 📊 报告管理
-
-#### `/view-reports-index`
-启动综合测试报告索引查看器，支持环境切换和报告浏览功能。
-
-**功能特性：**
-- 📊 **自动发现**: 自动扫描所有环境的测试报告
-- 🎯 **环境切换**: 支持dev/test/prod环境标签页切换
-- 📈 **统计信息**: 显示各环境的报告统计数据
-- 🔍 **报告详情**: 显示报告类型、大小、生成时间等信息
-- 📱 **响应式设计**: 支持桌面和移动设备访问
-- 🌐 **本地服务器**: 在localhost:8080运行，自动打开浏览器
-
-**执行过程：**
-1. **刷新报告索引**: 扫描所有环境目录，生成最新的报告列表
-2. **启动本地服务**: 启动HTTP服务器托管报告索引页面
-3. **打开浏览器**: 自动在浏览器中打开报告索引页面
-
-**无需参数** - 自动扫描所有环境。
-
-**支持的报告类型：**
-- **套件报告**: 多测试用例套件执行报告
-- **单测报告**: 单个测试用例详细执行报告  
-- **批量报告**: 批量测试执行的综合报告
-
-**示例：**
-```bash
-# 启动报告索引查看器（Claude Code命令）
+# 查看报告
 /view-reports-index
-
-# 该命令将：
-# 1. 扫描 reports/dev/, reports/test/, reports/prod/ 目录
-# 2. 生成 reports/index.json 数据文件
-# 3. 在端口8080启动本地HTTP服务器
-# 4. 在浏览器中打开 http://localhost:8080/index.html
 ```
 
-**npm手动启动方式**（替代方法）：
-```bash
-# 方式1：使用npm脚本（推荐）
-npm run view-reports
-
-# 方式2：使用备用npm脚本
-npm run reports-server
-
-# 方式3：直接node命令
-node scripts/start-report-server.js
-
-# 所有方式都将：
-# - 自动扫描所有环境的报告
-# - 在localhost:8080启动HTTP服务器
-# - 自动打开浏览器
-# - 提供实时报告管理界面
-```
-
-**服务器功能特性：**
-- 🌐 **自动打开浏览器**: 自动打开 http://localhost:8080/index.html
-- 🔄 **实时刷新**: 手动刷新按钮更新报告列表
-- 📊 **实时统计**: 基于环境的报告计数和统计信息
-- 🎯 **环境过滤**: 基于标签页的环境切换（dev/test/prod）
-- 📱 **响应式界面**: 支持桌面和移动设备
-- 🔍 **报告搜索**: 便捷的测试报告浏览和过滤功能
-
-## 📝 YAML格式说明
-
-### 测试套件格式
-
-测试套件用简洁、清晰的配置组织多个测试用例：
+### 简单的YAML测试示例
 
 ```yaml
-# test-suites/e-commerce.yml
-name: "电商测试套件"
-description: "完整的电商工作流测试，涵盖用户注册、产品浏览、购物车操作和结账流程"
-tags:
-  - e-commerce
-  - integration
-  - critical
-  - smoke
-
-# 按顺序执行的测试用例
-test-cases:
-  - "test-cases/order.yml"
-  - "test-cases/product-details.yml"
-  - "test-cases/sort-optimized.yml"
-```
-
-### 步骤库格式
-
-步骤库使用简洁的自然语言描述：
-
-```yaml
-# steps/login.yml
-# 支持的环境变量: BASE_URL, TEST_USERNAME, TEST_PASSWORD
-steps:
-  - "Open {{BASE_URL}} page"
-  - "Fill username field with {{TEST_USERNAME}}"
-  - "Fill password field with {{TEST_PASSWORD}}"
-  - "Click login button"
-  - "Verify page displays Swag Labs"
-```
-
-### 测试用例格式
-
-测试用例包含标签和步骤，可以引用步骤库或直接定义步骤：
-
-```yaml
-# test-cases/order.yml
-# 环境变量将从 .env.{environment} 文件自动加载
+# test-cases/example.yml
 tags:
   - smoke
-  - order  
-  - checkout
 steps:
-  - include: "login"                           # 引用登录步骤库
-  - "Click Add to Cart button for first product"      # 直接定义步骤
-  - "Click Add to Cart button for second product"
-  - "Click shopping cart icon in top right"
-  - "Enter First Name"
-  - "Enter Last Name"
-  - "Enter Postal Code"
-  - "Click Continue button"
-  - "Click Finish button"
-  - "Verify page displays Thank you for your order!"
-  - include: "cleanup"                         # 引用清理步骤库
+  - include: "login"
+  - "Click Add to Cart button for first product"
+  - "Click shopping cart icon"
+  - "Verify cart contains 1 item"
 ```
 
-## 🔧 环境配置
+## 📚 文档
 
-### 环境变量说明
+- **📖 [安装指南](docs/cn/installation.md)** - 详细的安装说明
+- **🏗️ [项目结构](docs/cn/project-structure.md)** - 理解框架结构
+- **⚡ [命令详解](docs/cn/commands.md)** - 完整的命令文档
+- **📝 [YAML格式说明](docs/cn/yaml-format.md)** - 编写测试用例和步骤库
+- **🔧 [环境配置](docs/cn/environment-config.md)** - 多环境设置
+- **✨ [最佳实践](docs/cn/best-practices.md)** - 有效测试的技巧
 
-支持的环境变量类型：
+## 📊 最新测试结果
 
-```bash
-# .env.dev 示例
-# 基础配置
-BASE_URL=https://dev.myapp.com
+**📈 [最新测试报告](reports/test/latest-test-report.html)** - 每次测试运行后自动生成，显示详细的执行结果、截图和性能指标。
 
-# 测试账号
-TEST_USERNAME=dev_admin
-TEST_PASSWORD=dev123
+## 💡 功能请求
 
-# 普通用户账号
-USER_USERNAME=dev_user@example.com
-USER_PASSWORD=devpass123
-
-# 浏览器配置
-BROWSER_TIMEOUT=30000
-
-# 文件路径
-SCREENSHOT_PATH=screenshots/dev
-REPORT_PATH=reports/dev
-
-# 报告配置
-GENERATE_REPORT=true
-REPORT_FORMAT=html
-REPORT_STYLE=detailed
-```
-
-### 多环境切换
-
-```bash
-# 开发环境
-/run-yaml-test file:test-cases/order.yml env:dev
-
-# 测试环境
-/run-yaml-test file:test-cases/order.yml env:test
-
-# 生产环境
-/run-yaml-test file:test-cases/order.yml env:prod
-```
-
-## 📚 最佳实践
-
-### 1. 步骤库设计
-
-- **单一职责**: 每个步骤库专注一个功能领域
-- **参数化**: 使用环境变量而非硬编码值
-- **可复用**: 设计通用的步骤，多个测试用例可复用
-
-```yaml
-# ✅ 好的步骤库设计
-# steps/form-validation.yml
-steps:
-  - "Fill {{FIELD_NAME}} field with {{INVALID_VALUE}}"
-  - "Click submit button"
-  - "Verify page displays error message: {{ERROR_MESSAGE}}"
-```
-
-### 2. 测试用例组织
-
-- **标签分类**: 使用合理的标签对测试用例分类
-- **逻辑分组**: 按功能模块组织测试用例  
-- **环境适配**: 考虑不同环境的差异
-- **清理机制**: 每个测试后进行适当清理
-
-```yaml
-# ✅ 好的测试用例结构
-tags:
-  - smoke        # 冒烟测试
-  - login        # 登录功能
-  - critical     # 关键功能
-steps:
-  - include: "setup"           # 测试准备
-  - include: "login"           # 登录
-  - "Execute core test steps"  # 主要测试逻辑
-  - include: "cleanup"         # 清理环境
-```
-
-### 3. 标签策略
-
-- **功能标签**: 按功能模块分类，如login、user、api
-- **优先级标签**: 如critical、high、medium、low
-- **类型标签**: 如smoke、regression、integration
-- **环境标签**: 如dev-only、prod-safe
-
-### 4. 环境配置
-
-- **敏感信息**: 所有密码、API密钥使用环境变量
-- **环境隔离**: 不同环境使用独立的配置文件
-- **文档化**: 在.env.example中说明所有必需变量
+有新功能的想法？我们很乐意听到您的声音！
+- 提交 [Issue](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 并添加 `enhancement` 标签
+- 参与我们的社区讨论
+- 为路线图规划贡献力量
 
 ## 🤝 贡献指南
 
@@ -613,7 +217,7 @@ steps:
 如果你遇到问题或有建议：
 
 1. 观看[演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)获取视觉指导
-2. 查看本README文档
+2. 查看[文档](docs/cn/)
 3. 检查 [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
 4. 创建新的Issue描述问题
 5. 在Claude Code中使用 `/help` 获取更多帮助

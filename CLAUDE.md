@@ -48,9 +48,28 @@ This project requires Playwright MCP:
 │   └── regression.yml         # Regression test suite
 ├── screenshots/               # Test screenshots (organized by environment)
 ├── reports/                   # Test reports (organized by environment)
+├── docs/                      # Documentation
+│   ├── en/                    # English documentation
+│   │   ├── README.md          # English docs index
+│   │   ├── installation.md    # Installation guide
+│   │   ├── project-structure.md # Project structure
+│   │   ├── commands.md        # Commands reference
+│   │   ├── yaml-format.md     # YAML format guide
+│   │   ├── environment-config.md # Environment configuration
+│   │   └── best-practices.md  # Best practices
+│   ├── cn/                    # Chinese documentation
+│   │   ├── README.md          # Chinese docs index
+│   │   ├── installation.md    # 安装指南
+│   │   ├── project-structure.md # 项目结构
+│   │   ├── commands.md        # 命令详解
+│   │   ├── yaml-format.md     # YAML格式说明
+│   │   ├── environment-config.md # 环境配置
+│   │   └── best-practices.md  # 最佳实践
+│   └── README.md              # Documentation index
 ├── package.json               # Node.js dependencies
 ├── CLAUDE.md                  # Project description and command index
-└── README.md                  # This document
+├── README.md                  # Main README (English)
+└── README.cn.md               # Main README (Chinese)
 ```
 
 ## Features
@@ -92,12 +111,36 @@ All commands are located in the `.claude/` directory with parameter prompts:
   - 🌐 **Features**: Local HTTP server, auto browser opening, responsive design
   - 📈 **Statistics**: Environment-based report counts and statistics
 
+## Documentation
+
+### 📚 Complete Documentation
+- **[📖 Documentation Index](docs/README.md)** - Central documentation hub with language selection
+- **[📘 Main README (English)](README.md)** - Project overview, core concepts, and quick start
+- **[📘 主要说明文档 (中文)](README.cn.md)** - 项目概览、核心概念和快速开始
+
+### 🇺🇸 English Documentation
+- **[📖 Installation Guide](docs/en/installation.md)** - Complete setup instructions
+- **[🏗️ Project Structure](docs/en/project-structure.md)** - Framework architecture
+- **[⚡ Commands Reference](docs/en/commands.md)** - All available commands
+- **[📝 YAML Format Guide](docs/en/yaml-format.md)** - Writing tests and step libraries
+- **[🔧 Environment Configuration](docs/en/environment-config.md)** - Multi-environment setup
+- **[✨ Best Practices](docs/en/best-practices.md)** - Testing strategies and tips
+
+### 🇨🇳 中文文档
+- **[📖 安装指南](docs/cn/installation.md)** - 完整的安装说明
+- **[🏗️ 项目结构](docs/cn/project-structure.md)** - 框架架构
+- **[⚡ 命令详解](docs/cn/commands.md)** - 所有可用命令
+- **[📝 YAML格式说明](docs/cn/yaml-format.md)** - 编写测试和步骤库
+- **[🔧 环境配置](docs/cn/environment-config.md)** - 多环境设置
+- **[✨ 最佳实践](docs/cn/best-practices.md)** - 测试策略和技巧
+
 ## Quick Start
 
 1. Install Playwright MCP
 2. Install Node.js dependencies: `npm install`
 3. Configure environment variables in `.env.*` files
 4. Run tests: `/run-yaml-test file:test-cases/example.yml env:dev`
+5. Check documentation: [docs/README.md](docs/README.md)
 5. Run test suites: `/run-test-suite suite:test-suites/smoke-tests.yml env:dev`
 
 ## YAML Test Processor
