@@ -1,4 +1,4 @@
-# Playwright YAML Testing Framework
+# Claude Code + Playwright MCP YAML Testing Framework
 
 [![GitHub stars](https://img.shields.io/github/stars/terryso/claude-code-playwright-mcp-test.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/stargazers)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/pulls)
@@ -9,7 +9,7 @@
 
 > **[中文文档](README.cn.md)** | **English Documentation**
 
-A YAML-based Playwright MCP automation testing framework designed for Claude Code, supporting multi-environment configuration, reusable step libraries, and natural language test descriptions.
+An intelligent automation testing framework powered by **Claude Code + Playwright MCP**, enabling natural language YAML-based testing with dynamic element targeting, multi-environment configuration, and session persistence.
 
 ## 🧠 How Playwright MCP Works - The Core Innovation
 

@@ -1,4 +1,4 @@
-# Playwright YAML 测试框架
+# Claude Code + Playwright MCP YAML 测试框架
 
 [![GitHub stars](https://img.shields.io/github/stars/terryso/claude-code-playwright-mcp-test.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/stargazers)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/pulls)
@@ -9,7 +9,7 @@
 
 > **中文文档** | **[English Documentation](README.md)**
 
-一个基于YAML配置的Playwright MCP自动化测试框架，专为Claude Code设计，支持多环境配置、步骤库复用和自然语言测试描述。
+一个由 **Claude Code + Playwright MCP** 驱动的智能自动化测试框架，实现基于自然语言的YAML测试配置，具备动态元素定位、多环境支持和会话持久化功能。
 
 ## 🧠 Playwright MCP 工作原理 - 核心创新
 
