@@ -14,7 +14,7 @@ You need to help me validate a YAML format test suite to ensure it's properly co
 **IMPORTANT: Use the YAML Test Processor with --suites flag for comprehensive validation**
 
 Validation workflow:
-1. **Use the automated processor**: Run `node scripts/yaml-test-processor.js --suites --suite={suite} --env={env}` to process and validate the test suite
+1. **Use the automated processor**: Run `node .claude/scripts/yaml-test-processor.js --suites --suite={suite} --env={env}` to process and validate the test suite
 2. **Analyze processor output**: Check for any errors or missing references in the processing results
 3. **Validate test suite structure**: Ensure all required fields and proper YAML syntax
 4. **Validate test case references**: Confirm all referenced test cases exist and are valid
@@ -49,7 +49,7 @@ Validation workflow:
 
 ### Automated Validation Command:
 ```bash
-node scripts/yaml-test-processor.js --suites --suite={suite} --env={env}
+node .claude/scripts/yaml-test-processor.js --suites --suite={suite} --env={env}
 ```
 
 ### Manual Validation Process (Legacy - use only if processor fails):

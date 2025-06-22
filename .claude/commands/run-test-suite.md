@@ -20,7 +20,7 @@ You need to help me execute a YAML format test suite that orchestrates multiple 
 **BREAKTHROUGH: Playwright MCP now supports persistent session across commands and test cases**
 
 Execution workflow:
-1. **Use the automated processor**: Run `node scripts/yaml-test-processor.js --suites` with appropriate parameters to get processed test suites
+1. **Use the automated processor**: Run `node .claude/scripts/yaml-test-processor.js --suites` with appropriate parameters to get processed test suites
 2. **Optimize execution strategy**: Leverage persistent session across all test cases in suite
 3. **Execute suite configuration**: Apply suite-level pre-actions, configuration, and environment variables
 4. **Execute test cases**: Run each test case in the suite with session optimization
@@ -71,7 +71,7 @@ Execution workflow:
 
 ### Automated Processing Command:
 ```bash
-node scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={suite}
+node .claude/scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={suite}
 ```
 
 ### Test Suite Execution Process:
@@ -130,7 +130,7 @@ node scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={
 - Use `GENERATE_REPORT` environment variable (true/false)
 - **MANDATORY**: Use the **TWO-STEP REPORT GENERATION PROCESS**
 - **STEP 1**: Create suite data file using create-report-data.js helper functions
-- **STEP 2**: Generate report using: `node scripts/gen-report.js --data=/path/to/suite-data.json`
+- **STEP 2**: Generate report using: `node .claude/scripts/gen-report.js --data=/path/to/suite-data.json`
 - **NO DYNAMIC CODE EXECUTION**: All data is pre-structured in JSON files
 - The process will automatically handle:
   * Environment configuration from JSON data files
@@ -144,7 +144,7 @@ node scripts/yaml-test-processor.js --suites --env={env} --tags={tags} --suite={
 
 **STEP 1: Create Suite Data File**
 ```javascript
-const { createAndSaveSuiteData } = require('./scripts/create-report-data.js');
+const { createAndSaveSuiteData } = require('./.claude/scripts/create-report-data.js');
 
 // Suite Information
 const suite = {
@@ -226,7 +226,7 @@ createAndSaveSuiteData(suite, results, 'suite-data.json', options);
 
 **Quick Suite Data Creation**:
 ```javascript
-const { quickCreateSuiteData } = require('./scripts/create-report-data.js');
+const { quickCreateSuiteData } = require('./.claude/scripts/create-report-data.js');
 
 // Simplified suite creation - automatically saves to REPORT_PATH environment variable location
 quickCreateSuiteData(
@@ -247,15 +247,15 @@ quickCreateSuiteData(
 **STEP 2: Generate Suite Report**
 ```bash
 # Generate suite report from data file using the gen-report.js script in scripts directory
-node scripts/gen-report.js --data=suite-data.json
-node scripts/gen-report.js --data=quick-suite.json
-node scripts/gen-report.js --data=/absolute/path/to/suite-data.json
+node .claude/scripts/gen-report.js --data=suite-data.json
+node .claude/scripts/gen-report.js --data=quick-suite.json
+node .claude/scripts/gen-report.js --data=/absolute/path/to/suite-data.json
 ```
 
 **Complete Two-Step Suite Workflow Example**:
 ```javascript
 // Step 1: AI creates suite data file after test suite execution
-const { quickCreateSuiteData } = require('./scripts/create-report-data.js');
+const { quickCreateSuiteData } = require('./.claude/scripts/create-report-data.js');
 
 const testResults = [
   { testName: 'sort.yml', status: 'passed', duration: 30000, steps: 10 },
@@ -270,7 +270,7 @@ quickCreateSuiteData('E-commerce Tests', testResults, 'latest-suite.json', {
 });
 
 // Step 2: AI executes report generation command
-// node scripts/gen-report.js --data=latest-suite.json
+// node .claude/scripts/gen-report.js --data=latest-suite.json
 ```
 
 **Data File Structure (suite-data.json)**:

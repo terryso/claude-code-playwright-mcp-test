@@ -2,12 +2,12 @@
   "name": "yaml-playwright-testing-framework",
   "version": "1.0.0",
   "description": "YAML-based Playwright testing framework with multi-environment support",
-  "main": "scripts/yaml-test-processor.js",
+  "main": ".claude/scripts/yaml-test-processor.js",
   "scripts": {
-    "process-tests": "node scripts/yaml-test-processor.js",
-    "scan-reports": "node scripts/scan-reports.js",
-    "reports-server": "node scripts/start-report-server.js",
-    "view-reports": "node scripts/start-report-server.js",
+    "process-tests": "node .claude/scripts/yaml-test-processor.js",
+    "scan-reports": "node .claude/scripts/scan-reports.js",
+    "reports-server": "node .claude/scripts/start-report-server.js",
+    "view-reports": "node .claude/scripts/start-report-server.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
@@ -30,11 +30,11 @@
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
-      "**/scripts/**/*.test.js"
+      "**/.claude/scripts/**/*.test.js"
     ],
     "collectCoverageFrom": [
-      "scripts/**/*.js",
-      "!scripts/**/*.test.js"
+      ".claude/scripts/**/*.js",
+      "!.claude/scripts/**/*.test.js"
     ],
     "coverageReporters": ["text", "html", "lcov"],
     "coverageThreshold": {

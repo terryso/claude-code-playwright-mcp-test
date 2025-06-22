@@ -19,7 +19,13 @@ This project requires Playwright MCP:
 │       ├── validate-yaml-test.md # Validate test command
 │       ├── run-test-suite.md  # Execute test suite command
 │       └── validate-test-suite.md # Validate test suite command
-├── scripts/                   # Automation scripts
+├── .claude/                    # Claude Code project commands and scripts
+│   ├── commands/              # Commands directory
+│   │   ├── run-yaml-test.md   # Execute test command
+│   │   ├── validate-yaml-test.md # Validate test command
+│   │   ├── run-test-suite.md  # Execute test suite command
+│   │   └── validate-test-suite.md # Validate test suite command
+│   └── scripts/               # Automation scripts
 │   ├── yaml-test-processor.js # YAML test processing engine
 │   ├── create-report-data.js   # Report data creation (Step 1 of two-step reporting)
 │   ├── gen-report.js          # JSON-based report generator (Step 2 of two-step reporting)
@@ -145,7 +151,7 @@ All commands are located in the `.claude/` directory with parameter prompts:
 
 ## YAML Test Processor
 
-The framework includes an automated YAML test processor (`scripts/yaml-test-processor.js`) that handles:
+The framework includes an automated YAML test processor (`.claude/scripts/yaml-test-processor.js`) that handles:
 
 - **Tag Filtering**: Automatically identifies test cases matching tag criteria
 - **Step Library Expansion**: Expands `include` references to insert step library content
@@ -156,19 +162,19 @@ The framework includes an automated YAML test processor (`scripts/yaml-test-proc
 ### Usage Examples:
 ```bash
 # Process smoke tests for dev environment
-node scripts/yaml-test-processor.js --env=dev --tags=smoke
+node .claude/scripts/yaml-test-processor.js --env=dev --tags=smoke
 
 # Process specific test file
-node scripts/yaml-test-processor.js --file=order.yml --env=test
+node .claude/scripts/yaml-test-processor.js --file=order.yml --env=test
 
 # Process tests with complex tag filtering
-node scripts/yaml-test-processor.js --tags="smoke,login|critical"
+node .claude/scripts/yaml-test-processor.js --tags="smoke,login|critical"
 
 # Process test suites
-node scripts/yaml-test-processor.js --suites --env=test
+node .claude/scripts/yaml-test-processor.js --suites --env=test
 
 # Process specific test suite
-node scripts/yaml-test-processor.js --suite=e-commerce.yml --env=prod
+node .claude/scripts/yaml-test-processor.js --suite=e-commerce.yml --env=prod
 ```
 
 ### AI Integration:
@@ -185,7 +191,7 @@ The framework uses a **revolutionary two-step report generation approach** for c
 
 ⚠️ **IMPORTANT FOR AI**: Always use this two-step approach for report generation. Do NOT use the deprecated `test-case-report-generator.js` script.
 
-### Step 1: Report Data Creation (`scripts/create-report-data.js`)
+### Step 1: Report Data Creation (`.claude/scripts/create-report-data.js`)
 - **Purpose**: Create standardized JSON data files containing all test execution information
 - **Features**: 
   * Structured data format for test cases, suites, and execution results
@@ -198,18 +204,18 @@ The framework uses a **revolutionary two-step report generation approach** for c
   * `createAndSaveSuiteData(suite, results, fileName, options)` - Suite data
   * `quickCreateTestData(name, status, duration, fileName, options)` - Quick creation
 
-### Step 2: JSON-Based Report Generation (`scripts/gen-report.js`)
+### Step 2: JSON-Based Report Generation (`.claude/scripts/gen-report.js`)
 - **Purpose**: Generate HTML reports from JSON data files
 - **Features**:
   * Template-free report generation (no external dependencies)
   * Embedded CSS and JavaScript in HTML output
   * Support for both test and suite report types
   * Automatic latest-report link creation
-- **Usage**: `node scripts/gen-report.js --data=/path/to/data.json`
+- **Usage**: `node .claude/scripts/gen-report.js --data=/path/to/data.json`
 
 ### Utility Scripts
-- **Report Scanner** (`scripts/scan-reports.js`): Index and organize generated reports
-- **Report Server** (`scripts/start-report-server.js`): Local HTTP server for viewing reports
+- **Report Scanner** (`.claude/scripts/scan-reports.js`): Index and organize generated reports
+- **Report Server** (`.claude/scripts/start-report-server.js`): Local HTTP server for viewing reports
 - **Comprehensive Testing**: All scripts include `.test.js` files for reliability
 
 ### Two-Step Workflow Benefits
@@ -224,7 +230,7 @@ The framework uses a **revolutionary two-step report generation approach** for c
 **Example 1: Single Test Case Report**
 ```javascript
 // Step 1: Create data file
-const { createAndSaveTestData } = require('./scripts/create-report-data.js');
+const { createAndSaveTestData } = require('./.claude/scripts/create-report-data.js');
 
 const testCase = {
   name: 'sort.yml',
@@ -246,13 +252,13 @@ createAndSaveTestData(testCase, execution, 'sort-test.json', {
 });
 
 // Step 2: Generate report
-// node scripts/gen-report.js --data=sort-test.json
+// node .claude/scripts/gen-report.js --data=sort-test.json
 ```
 
 **Example 2: Batch Test Report**
 ```javascript
 // Step 1: Create batch data file
-const { createAndSaveBatchData } = require('./scripts/create-report-data.js');
+const { createAndSaveBatchData } = require('./.claude/scripts/create-report-data.js');
 
 const testCases = [
   { name: 'sort.yml', description: 'Sorting test', tags: ['smoke'], steps: [...] },
@@ -274,13 +280,13 @@ createAndSaveBatchData(testCases, execution, 'smoke-batch.json', {
 });
 
 // Step 2: Generate report
-// node scripts/gen-report.js --data=smoke-batch.json
+// node .claude/scripts/gen-report.js --data=smoke-batch.json
 ```
 
 **Example 3: Quick Test Data Creation**
 ```javascript
 // Quick single-line creation for simple cases
-const { quickCreateTestData } = require('./scripts/create-report-data.js');
+const { quickCreateTestData } = require('./.claude/scripts/create-report-data.js');
 
 quickCreateTestData('sort.yml', 'passed', 30000, 'quick-test.json', {
   environment: 'dev',
@@ -289,7 +295,7 @@ quickCreateTestData('sort.yml', 'passed', 30000, 'quick-test.json', {
 });
 
 // Step 2: Generate report
-// node scripts/gen-report.js --data=quick-test.json
+// node .claude/scripts/gen-report.js --data=quick-test.json
 ```
 
 ### Report Configuration
@@ -353,6 +359,6 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 
 ## Report Generation Mandate
 **CRITICAL**: Always use the two-step report generation process:
-1. **Step 1**: Use `scripts/create-report-data.js` to create JSON data files
-2. **Step 2**: Use `node scripts/gen-report.js --data=filename.json` to generate reports
+1. **Step 1**: Use `.claude/scripts/create-report-data.js` to create JSON data files
+2. **Step 2**: Use `node .claude/scripts/gen-report.js --data=filename.json` to generate reports
 **DO NOT** use the deprecated `test-case-report-generator.js` script for any report generation.

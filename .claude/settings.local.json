@@ -35,7 +35,8 @@
       "Bash(npm run scan-reports:*)",
       "Bash(npx playwright-mcp:*)",
       "Bash(rg:*)",
-      "Bash(jq:*)"
+      "Bash(jq:*)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }
