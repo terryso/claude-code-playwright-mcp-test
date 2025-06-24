@@ -36,7 +36,17 @@
       "Bash(npx playwright-mcp:*)",
       "Bash(rg:*)",
       "Bash(jq:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(npm view:*)",
+      "Bash(claude-test --help)",
+      "Bash(claude-test init:*)",
+      "Bash(claude-test update:*)",
+      "Bash(claude-test check:*)",
+      "Bash(gh issue close:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }
