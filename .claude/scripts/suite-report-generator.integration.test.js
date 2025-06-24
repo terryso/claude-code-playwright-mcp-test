@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const SuiteReportGenerator = require('./suite-report-generator.js');
 
 describe('SuiteReportGenerator Integration Tests', () => {
@@ -7,11 +8,9 @@ describe('SuiteReportGenerator Integration Tests', () => {
     let generator;
 
     beforeEach(() => {
-        testDir = path.join(__dirname, '..', 'temp-suite-reports');
-        // 清理测试目录
-        if (fs.existsSync(testDir)) {
-            fs.rmSync(testDir, { recursive: true, force: true });
-        }
+        // 使用唯一的临时目录避免竞争条件
+        testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-test-suite-reports-'));
+        // 确保目录存在
         fs.mkdirSync(testDir, { recursive: true });
 
         generator = new SuiteReportGenerator({
@@ -24,8 +23,13 @@ describe('SuiteReportGenerator Integration Tests', () => {
 
     afterEach(() => {
         // 清理测试目录
-        if (fs.existsSync(testDir)) {
-            fs.rmSync(testDir, { recursive: true, force: true });
+        if (testDir && fs.existsSync(testDir)) {
+            try {
+                fs.rmSync(testDir, { recursive: true, force: true });
+            } catch (error) {
+                // 忽略清理错误，避免影响测试结果
+                console.warn(`Warning: Failed to clean up test directory ${testDir}:`, error.message);
+            }
         }
     });
 

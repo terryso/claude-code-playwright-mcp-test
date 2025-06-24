@@ -1,4 +1,4 @@
-# Claude Code + Playwright MCP YAML 测试框架
+# Claude 测试框架 - 演示项目
 
 [![GitHub stars](https://img.shields.io/github/stars/terryso/claude-code-playwright-mcp-test.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/stargazers)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/pulls)
@@ -6,10 +6,15 @@
 [![Claude Code](https://img.shields.io/badge/Claude-Code-blue.svg)](https://claude.ai/code)
 [![Playwright MCP](https://img.shields.io/badge/Playwright-MCP-green.svg)](https://github.com/microsoft/playwright-mcp)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-项目文档-blue)](https://deepwiki.com/terryso/claude-code-playwright-mcp-test)
+[![claude-test CLI](https://img.shields.io/badge/claude--test-CLI-orange.svg)](https://github.com/terryso/claude-test)
 
 > **中文文档** | **[English Documentation](README.md)**
 
-一个由 **Claude Code + Playwright MCP** 驱动的智能自动化测试框架，实现基于自然语言的YAML测试配置，具备动态元素定位、多环境支持和会话持久化功能。
+**[claude-test CLI框架](https://github.com/terryso/claude-test)** 的**实时演示项目** - 展示由 **Claude Code + Playwright MCP** 驱动的智能自动化测试，具备基于自然语言的YAML测试配置、动态元素定位、多环境支持和会话持久化功能。
+
+## 🚀 关于本项目
+
+这是 **[claude-test CLI工具](https://github.com/terryso/claude-test)** 的**演示和示例项目**。虽然本项目包含可运行的测试用例和完整文档，但**实际的框架代码和CLI命令已迁移到官方 `claude-test` npm包中**。
 
 ## 🧠 Playwright MCP 工作原理 - 核心创新
 
@@ -139,7 +144,13 @@ test-cases:
 
 ## 🚀 快速开始
 
-### 安装 Playwright MCP
+### 1. 安装 claude-test CLI
+
+```bash
+npm install -g claude-test
+```
+
+### 2. 安装 Playwright MCP
 
 ```bash
 claude mcp add playwright -- npx -y @playwright/mcp@latest \
@@ -149,9 +160,21 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
   --output-dir ~/CascadeProjects/claude-code-playwright-mcp-test/screenshots
 ```
 
-### 运行第一个测试
+### 3. 初始化新项目（替代使用此演示项目）
 
 ```bash
+# 创建包含框架的新项目
+cd your-new-project
+claude-test init
+```
+
+### 4. 或使用此演示项目
+
+```bash
+# 克隆演示项目
+git clone https://github.com/terryso/claude-code-playwright-mcp-test.git
+cd claude-code-playwright-mcp-test
+
 # 执行订单测试
 /run-yaml-test file:test-cases/order.yml env:dev
 
@@ -206,22 +229,41 @@ steps:
 
 ## 📺 相关资源
 
+### 🛠️ 官方CLI工具
+- **📦 [claude-test CLI](https://github.com/terryso/claude-test)** - **框架管理的官方CLI包**
+- **📥 [NPM包](https://www.npmjs.com/package/claude-test)** - 通过npm全局安装
+- **📋 [CLI文档](https://github.com/terryso/claude-test#readme)** - 完整使用指南和API参考
+
+### 📖 学习资源
 - **🎬 [演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - 框架实际演示
 - **📈 [最新测试报告](reports/test/latest-test-report.html)** - 最近的测试执行结果
 - **📖 [Medium文章](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - 详细解释和优势
+
+### 🔧 工具和集成
 - **🛠️ [Claude Code](https://claude.ai/code)** - AI驱动的开发环境
 - **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - 浏览器自动化集成
 
 ## 🆘 支持
 
-如果你遇到问题或有建议：
+### CLI工具问题
+- **🐛 [CLI问题](https://github.com/terryso/claude-test/issues)** - 报告CLI缺陷或功能请求
+- **📖 [CLI文档](https://github.com/terryso/claude-test#readme)** - 完整CLI使用指南
 
+### 演示项目问题
 1. 观看[演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)获取视觉指导
 2. 查看[文档](docs/cn/)
-3. 检查 [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
+3. 检查 [演示项目Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
 4. 创建新的Issue描述问题
 5. 在Claude Code中使用 `/help` 获取更多帮助
 
+## 🔗 相关项目
+
+- **📦 [claude-test CLI](https://github.com/terryso/claude-test)** - 框架管理的官方CLI工具
+- **🎬 [演示视频](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - YAML测试的实时演示
+- **📖 [Medium文章](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - 框架深度解析
+
 ---
 
-**Happy Testing! 🚀**
+**测试愉快！🚀**
+
+*此演示项目展示了[claude-test CLI框架](https://github.com/terryso/claude-test)的强大功能。对于新项目，请全局安装CLI并使用`claude-test init`开始。*

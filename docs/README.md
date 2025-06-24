@@ -1,6 +1,8 @@
 # 📚 Documentation Index
 
-Welcome to the Claude Code + Playwright MCP YAML Testing Framework documentation! Choose your language and explore the comprehensive guides below.
+Welcome to the **Claude Test Framework Demo Project** documentation! This project showcases the **[claude-test CLI framework](https://github.com/terryso/claude-test)**. Choose your language and explore the comprehensive guides below.
+
+> **Note**: For new projects, install the **[claude-test CLI](https://github.com/terryso/claude-test)** globally with `npm install -g claude-test` and use `claude-test init` to initialize the framework.
 
 ## 🌍 Language Selection
 
@@ -52,15 +54,19 @@ Welcome to the Claude Code + Playwright MCP YAML Testing Framework documentation
 - **[📘 主要说明文档 (中文)](../README.cn.md)** - 项目概览和快速开始
 
 ### 🔧 Project Resources
+- **[📦 claude-test CLI](https://github.com/terryso/claude-test)** - Official CLI framework package  
 - **[⚙️ CLAUDE.md](../CLAUDE.md)** - Project commands and AI instructions
 - **[🎭 Playwright MCP](https://github.com/microsoft/playwright-mcp)** - Browser automation integration
 - **[🛠️ Claude Code](https://claude.ai/code)** - AI-powered development environment
 
 ## 🆘 Need Help?
 
-If you can't find what you're looking for:
+### For CLI Framework Issues
+- **[📦 CLI Issues](https://github.com/terryso/claude-test/issues)** - Report bugs or request features for the CLI
+- **[📚 CLI Documentation](https://github.com/terryso/claude-test#readme)** - Complete CLI usage guide
 
-1. **Check the [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues)** - Someone might have asked the same question
+### For Demo Project Issues
+1. **Check the [Demo Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues)** - Someone might have asked the same question
 2. **Watch the [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Visual guidance for common tasks  
 3. **Create a new Issue** - Describe your question or problem
 4. **Use `/help` in Claude Code** - Get immediate assistance

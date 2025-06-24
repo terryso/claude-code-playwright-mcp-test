@@ -1,4 +1,4 @@
-# Claude Code + Playwright MCP YAML Testing Framework
+# Claude Test Framework - Demo Project
 
 [![GitHub stars](https://img.shields.io/github/stars/terryso/claude-code-playwright-mcp-test.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/stargazers)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/terryso/claude-code-playwright-mcp-test/pulls)
@@ -6,10 +6,15 @@
 [![Claude Code](https://img.shields.io/badge/Claude-Code-blue.svg)](https://claude.ai/code)
 [![Playwright MCP](https://img.shields.io/badge/Playwright-MCP-green.svg)](https://github.com/microsoft/playwright-mcp)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-项目文档-blue)](https://deepwiki.com/terryso/claude-code-playwright-mcp-test)
+[![claude-test CLI](https://img.shields.io/badge/claude--test-CLI-orange.svg)](https://github.com/terryso/claude-test)
 
 > **[中文文档](README.cn.md)** | **English Documentation**
 
-An intelligent automation testing framework powered by **Claude Code + Playwright MCP**, enabling natural language YAML-based testing with dynamic element targeting, multi-environment configuration, and session persistence.
+**Live demonstration project** for the **[claude-test CLI framework](https://github.com/terryso/claude-test)** - showcasing intelligent automation testing powered by **Claude Code + Playwright MCP** with natural language YAML-based testing, dynamic element targeting, multi-environment configuration, and session persistence.
+
+## 🚀 About This Project
+
+This is a **demonstration and example project** for the **[claude-test CLI tool](https://github.com/terryso/claude-test)**. While this project contains working test cases and comprehensive documentation, **the actual framework code and CLI commands have been moved to the official `claude-test` npm package**.
 
 ## 🧠 How Playwright MCP Works - The Core Innovation
 
@@ -139,7 +144,13 @@ test-cases:
 
 ## 🚀 Quick Start
 
-### Install Playwright MCP
+### 1. Install the claude-test CLI
+
+```bash
+npm install -g claude-test
+```
+
+### 2. Install Playwright MCP
 
 ```bash
 claude mcp add playwright -- npx -y @playwright/mcp@latest \
@@ -149,9 +160,21 @@ claude mcp add playwright -- npx -y @playwright/mcp@latest \
   --output-dir ~/CascadeProjects/claude-code-playwright-mcp-test/screenshots
 ```
 
-### Run Your First Test
+### 3. Initialize a New Project (Alternative to Using This Demo)
 
 ```bash
+# Create a new project with the framework
+cd your-new-project
+claude-test init
+```
+
+### 4. Or Use This Demo Project
+
+```bash
+# Clone this demo project
+git clone https://github.com/terryso/claude-code-playwright-mcp-test.git
+cd claude-code-playwright-mcp-test
+
 # Execute order test
 /run-yaml-test file:test-cases/order.yml env:dev
 
@@ -206,22 +229,41 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📺 Resources
 
+### 🛠️ Official CLI Tool
+- **📦 [claude-test CLI](https://github.com/terryso/claude-test)** - **Official CLI package for framework management**
+- **📥 [NPM Package](https://www.npmjs.com/package/claude-test)** - Global installation via npm
+- **📋 [CLI Documentation](https://github.com/terryso/claude-test#readme)** - Complete usage guide and API reference
+
+### 📖 Learning Resources
 - **🎬 [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Live demonstration of the framework
 - **📈 [Latest Test Report](reports/test/latest-test-report.html)** - Most recent test execution results
 - **📖 [Medium Article](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - Detailed explanation and benefits
+
+### 🔧 Tools & Integrations
 - **🛠️ [Claude Code](https://claude.ai/code)** - AI-powered development environment
 - **🎭 [Playwright MCP](https://github.com/microsoft/playwright-mcp)** - Browser automation integration
 
 ## 🆘 Support
 
-If you encounter issues or have suggestions:
+### For CLI Tool Issues
+- **🐛 [CLI Issues](https://github.com/terryso/claude-test/issues)** - Report CLI bugs or feature requests
+- **📖 [CLI Documentation](https://github.com/terryso/claude-test#readme)** - Complete CLI usage guide
 
+### For Demo Project Issues
 1. Watch the [demo video](https://www.youtube.com/watch?v=tx3xExU_Xhc) for visual guidance
 2. Check the [documentation](docs/en/)
-3. Review [Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
+3. Review [Demo Issues](https://github.com/terryso/claude-code-playwright-mcp-test/issues) 
 4. Create a new Issue describing the problem
 5. Use `/help` in Claude Code for more assistance
+
+## 🔗 Related Projects
+
+- **📦 [claude-test CLI](https://github.com/terryso/claude-test)** - Official CLI tool for framework management
+- **🎬 [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Live demonstration of YAML testing
+- **📖 [Medium Article](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - In-depth framework explanation
 
 ---
 
 **Happy Testing! 🚀**
+
+*This demo project showcases the power of the [claude-test CLI framework](https://github.com/terryso/claude-test). For new projects, install the CLI globally and use `claude-test init` to get started.*

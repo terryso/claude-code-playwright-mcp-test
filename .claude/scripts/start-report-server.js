@@ -25,7 +25,9 @@ class ReportServer {
      * 启动服务器
      */
     async start() {
-        console.log('🚀 启动测试报告服务器...');
+        if (process.env.NODE_ENV !== 'test') {
+            console.log('🚀 启动测试报告服务器...');
+        }
         
         // 先刷新报告索引
         await this.refreshReportIndex();
@@ -46,8 +48,10 @@ class ReportServer {
                     reject(error);
                 } else {
                     const url = `http://localhost:${this.port}`;
-                    console.log(`✅ 报告服务器已启动: ${url}`);
-                    console.log('📊 报告索引页面: ${url}/index.html');
+                    if (process.env.NODE_ENV !== 'test') {
+                        console.log(`✅ 报告服务器已启动: ${url}`);
+                        console.log('📊 报告索引页面: ${url}/index.html');
+                    }
                     
                     // 自动打开浏览器
                     this.openBrowser(url + '/index.html');
@@ -62,14 +66,20 @@ class ReportServer {
      * 刷新报告索引
      */
     async refreshReportIndex() {
-        console.log('📋 扫描报告目录...');
+        if (process.env.NODE_ENV !== 'test') {
+            console.log('📋 扫描报告目录...');
+        }
         
         try {
             const indexPath = path.join(this.reportsDir, 'index.json');
             await this.scanner.generateReportIndex(indexPath);
-            console.log('✅ 报告索引已更新');
+            if (process.env.NODE_ENV !== 'test') {
+                console.log('✅ 报告索引已更新');
+            }
         } catch (error) {
-            console.warn('⚠️  更新报告索引失败:', error.message);
+            if (process.env.NODE_ENV !== 'test') {
+                console.warn('⚠️  更新报告索引失败:', error.message);
+            }
         }
     }
 
@@ -80,7 +90,9 @@ class ReportServer {
         const url = new URL(req.url, `http://localhost:${this.port}`);
         const pathname = url.pathname;
         
-        console.log(`📥 ${req.method} ${pathname}`);
+        if (process.env.NODE_ENV !== 'test') {
+            console.log(`📥 ${req.method} ${pathname}`);
+        }
 
         // 特殊路由处理
         if (pathname === '/') {
@@ -230,10 +242,12 @@ class ReportServer {
         }
         
         exec(command, (error) => {
-            if (error) {
-                console.log(`请手动在浏览器中打开: ${url}`);
-            } else {
-                console.log('🌐 已在浏览器中打开报告索引页面');
+            if (process.env.NODE_ENV !== 'test') {
+                if (error) {
+                    console.log(`请手动在浏览器中打开: ${url}`);
+                } else {
+                    console.log('🌐 已在浏览器中打开报告索引页面');
+                }
             }
         });
     }

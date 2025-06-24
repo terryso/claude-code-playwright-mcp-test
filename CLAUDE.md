@@ -1,11 +1,28 @@
-# Claude Code YAML Testing Project
+# Claude Test Framework - Demo Project
 
 ## Overview
 
-This is a YAML-based Playwright testing framework that supports multi-environment configuration, reusable step libraries, and natural language test descriptions.
+This is a **live demonstration project** for the **[claude-test CLI framework](https://github.com/terryso/claude-test)**. While this project contains working examples and comprehensive documentation, **the framework code and CLI commands are now maintained in the official `claude-test` npm package**.
+
+This YAML-based Playwright testing framework supports multi-environment configuration, reusable step libraries, and natural language test descriptions.
 
 ## Prerequisites
 
+### For New Projects (Recommended)
+1. **Install claude-test CLI globally**:
+   ```bash
+   npm install -g claude-test
+   ```
+2. **Initialize framework in your project**:
+   ```bash
+   cd your-project
+   claude-test init
+   ```
+3. **Install Playwright MCP**:
+   - Project URL: https://github.com/microsoft/playwright-mcp
+   - Installation: `claude mcp add playwright -- npx -y @playwright/mcp@latest`
+
+### For This Demo Project
 This project requires Playwright MCP:
 - Project URL: https://github.com/microsoft/playwright-mcp
 - Installation: `claude mcp add playwright -- npx -y @playwright/mcp@latest`
@@ -93,6 +110,8 @@ This project requires Playwright MCP:
 
 ## Available Commands
 
+**Note**: These commands are maintained by the **[claude-test CLI framework](https://github.com/terryso/claude-test)**. For new projects, use `claude-test init` to get these commands automatically.
+
 All commands are located in the `.claude/` directory with parameter prompts:
 
 ### 🚀 Test Execution
@@ -142,12 +161,20 @@ All commands are located in the `.claude/` directory with parameter prompts:
 
 ## Quick Start
 
+### For New Projects (Recommended)
+1. Install claude-test CLI: `npm install -g claude-test`
+2. Initialize framework: `claude-test init`
+3. Install Playwright MCP
+4. Configure environment variables in `.env.*` files
+5. Run tests: `/run-yaml-test file:test-cases/example.yml env:dev`
+
+### For This Demo Project
 1. Install Playwright MCP
 2. Install Node.js dependencies: `npm install`
 3. Configure environment variables in `.env.*` files
 4. Run tests: `/run-yaml-test file:test-cases/example.yml env:dev`
 5. Check documentation: [docs/README.md](docs/README.md)
-5. Run test suites: `/run-test-suite suite:test-suites/smoke-tests.yml env:dev`
+6. Run test suites: `/run-test-suite suite:test-suites/smoke-tests.yml env:dev`
 
 ## YAML Test Processor
 

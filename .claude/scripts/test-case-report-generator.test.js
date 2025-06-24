@@ -774,9 +774,23 @@ describe('TestCaseReportGenerator', () => {
             // Test different timestamp formats
             const originalDate = global.Date;
             
-            // Mock Date constructor to return a specific date
-            const mockDate = new Date('2025-12-31T23:59:59.999Z');
-            global.Date = jest.fn(() => mockDate);
+            // Create a proper mock Date class
+            class MockDate {
+                constructor() {
+                    // Return the mocked date
+                }
+                
+                getFullYear() { return 2025; }
+                getMonth() { return 11; } // December (0-based)
+                getDate() { return 31; }
+                getHours() { return 23; }
+                getMinutes() { return 59; }
+                getSeconds() { return 59; }
+                getMilliseconds() { return 999; }
+            }
+            
+            // Replace global Date with our mock
+            global.Date = MockDate;
             global.Date.now = originalDate.now;
 
             const testData = {
@@ -788,7 +802,7 @@ describe('TestCaseReportGenerator', () => {
 
             const result = generator.generateTestCaseReport(testData, { status: 'passed', duration: '10s' });
 
-            expect(result.fileName).toBe('test-timestamp-test-2026-01-01-07-59-59-999.html');
+            expect(result.fileName).toBe('test-timestamp-test-2025-12-31-23-59-59-999.html');
 
             // Restore original Date
             global.Date = originalDate;

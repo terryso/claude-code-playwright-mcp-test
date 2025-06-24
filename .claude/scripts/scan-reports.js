@@ -39,7 +39,9 @@ class ReportScanner {
         try {
             await fs.access(envDir);
         } catch (error) {
-            console.log(`环境目录 ${envDir} 不存在，跳过扫描`);
+            if (process.env.NODE_ENV !== 'test') {
+                console.log(`环境目录 ${envDir} 不存在，跳过扫描`);
+            }
             return [];
         }
 
@@ -92,7 +94,9 @@ class ReportScanner {
 
             return reportInfo;
         } catch (error) {
-            console.warn(`分析文件 ${filename} 失败:`, error.message);
+            if (process.env.NODE_ENV !== 'test') {
+                console.warn(`分析文件 ${filename} 失败:`, error.message);
+            }
             return null;
         }
     }
@@ -163,7 +167,9 @@ class ReportScanner {
             }
 
         } catch (error) {
-            console.warn('提取报告元数据失败:', error.message);
+            if (process.env.NODE_ENV !== 'test') {
+                console.warn('提取报告元数据失败:', error.message);
+            }
         }
 
         return metadata;
@@ -247,7 +253,9 @@ class ReportScanner {
 
         if (outputPath) {
             await fs.writeFile(outputPath, JSON.stringify(indexData, null, 2), 'utf8');
-            console.log(`报告索引已生成: ${outputPath}`);
+            if (process.env.NODE_ENV !== 'test') {
+                console.log(`报告索引已生成: ${outputPath}`);
+            }
         }
 
         return indexData;

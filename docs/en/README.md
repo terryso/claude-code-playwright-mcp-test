@@ -1,6 +1,8 @@
 # 📚 English Documentation
 
-Welcome to the English documentation for Claude Code + Playwright MCP YAML Testing Framework.
+Welcome to the English documentation for the **Claude Test Framework Demo Project**. This project demonstrates the **[claude-test CLI framework](https://github.com/terryso/claude-test)** capabilities.
+
+> **Note**: For new projects, install the **[claude-test CLI](https://github.com/terryso/claude-test)** globally with `npm install -g claude-test` and use `claude-test init` to initialize the framework.
 
 ## 🚀 Getting Started
 
@@ -51,6 +53,7 @@ Welcome to the English documentation for Claude Code + Playwright MCP YAML Testi
 
 ## 🔗 Quick Navigation
 
+- **[📦 claude-test CLI](https://github.com/terryso/claude-test)** - Official CLI framework package
 - **[🏠 Back to Main Documentation](../README.md)** - Documentation index
 - **[📘 Main README](../../README.md)** - Project overview
 - **[🇨🇳 中文文档](../cn/)** - Chinese documentation

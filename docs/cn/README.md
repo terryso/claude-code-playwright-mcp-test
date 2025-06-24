@@ -1,6 +1,8 @@
 # 📚 中文文档
 
-欢迎查看 Claude Code + Playwright MCP YAML 测试框架的中文文档。
+欢迎查看 **Claude 测试框架演示项目** 的中文文档。本项目展示了 **[claude-test CLI框架](https://github.com/terryso/claude-test)** 的功能。
+
+> **注意**: 对于新项目，请使用 `npm install -g claude-test` 全局安装 **[claude-test CLI](https://github.com/terryso/claude-test)**，然后使用 `claude-test init` 初始化框架。
 
 ## 🚀 快速开始
 
@@ -51,6 +53,7 @@
 
 ## 🔗 快速导航
 
+- **[📦 claude-test CLI](https://github.com/terryso/claude-test)** - 官方CLI框架包
 - **[🏠 返回主文档](../README.md)** - 文档索引
 - **[📘 主要说明文档](../../README.cn.md)** - 项目概览
 - **[🇺🇸 English Documentation](../en/)** - English documentation

@@ -3,7 +3,13 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-require('dotenv').config();
+
+// 尝试加载 dotenv，如果不存在则忽略
+try {
+    require('dotenv').config();
+} catch (error) {
+    // dotenv 不是必需的依赖，如果不存在就跳过
+}
 
 /**
  * YAML Test Processor
