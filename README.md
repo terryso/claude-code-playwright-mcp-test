@@ -262,6 +262,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **🎬 [Demo Video](https://www.youtube.com/watch?v=tx3xExU_Xhc)** - Live demonstration of YAML testing
 - **📖 [Medium Article](https://medium.com/@oxtiger/stop-writing-brittle-playwright-tests-why-yaml-based-testing-is-the-future-5cc90a81bfa2)** - In-depth framework explanation
 
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=terryso/claude-code-playwright-mcp-test&type=Date)](https://www.star-history.com/#terryso/claude-code-playwright-mcp-test&Date)
+
 ---
 
 **Happy Testing! 🚀**
