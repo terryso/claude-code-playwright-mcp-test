@@ -1,8 +1,7 @@
 ---
-trigger: always_on
-description: 
-globs: 
+trigger: manual
 ---
+
 # Command Rules Documentation
 
 🔥 **CMD.MDC 规则已加载** - 测试命令规则文档现在生效 🔥
